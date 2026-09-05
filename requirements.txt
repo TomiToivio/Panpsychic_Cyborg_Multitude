@@ -1,0 +1,14 @@
+# Panpsychic Cyborg Multitude — minimal public distribution
+#
+# Core kernel: Python 3.11+, everything else is stdlib.
+pydantic>=2.0
+
+# Required for real nodes: did:key identity + signed envelopes.
+cryptography>=42.0
+
+# Optional: node-to-node networking fabric (Phase 2+).
+# Without it, the kernel runs standalone (CLI + local HTTP API).
+eclipse-zenoh>=1.10
+
+# Optional extras (not required): base58 (canonical did:key encoding —
+# falls back to base64url otherwise), pytest (test suite).

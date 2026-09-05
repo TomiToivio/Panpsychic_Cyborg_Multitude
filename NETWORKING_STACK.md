@@ -353,11 +353,17 @@ Phase 0  DONE  kernel + Hermes adapter + did:key identity + PCM 1 envelope
 Phase 1  DONE  single node: proposal envelopes, status surface
 Phase 2  DONE  fabric: namespace + events + Transport ABC + ZenohTransport
                (peer/client modes, liveliness presence, policy layer)
-Phase 3  NEXT  two+ nodes end-to-end: signed envelopes over the fabric,
-               automerge memory mirror, VC capability grants
-Phase 4       BCI/biosignal nodes over the same subjects
-Phase 5       ecosystem interop (4CAT, LaclauGPT interchange, QDA exports)
+Phase 3  DONE  two+ nodes end-to-end: signed envelopes over the fabric,
+               memory mirror (LWW merge document), VC capability grants
+Phase 4  NEXT  BCI/biosignal nodes over the same subjects
 ```
+
+Scope note: ecosystem interop with external research tools (4CAT,
+LaclauGPT, QDA exports) belongs to those projects' repositories, not
+to this distribution. The public PCM repo carries the kernel and the
+fabric only. Noöpunk — the RPG / science-fiction branch — is PCM's
+subculture version and may appear as a simulation layer in a separate
+repository.
 
 **Explicitly NOT adopted:** Matrix (rejected), Holochain (no Python path), IPFS (v1), blockchain/global consensus, ssbc code, EMOTIV, Nostr relay infra (concepts borrowed only), Solid-as-requirement.
 
