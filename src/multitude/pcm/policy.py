@@ -5,8 +5,8 @@ Network reachability is not authorization. This module separates:
 
     reachable  — a node can be addressed on the fabric (Zenoh's concern)
     authenticated — the sender's signature verifies (envelope.verify)
-    authorized — this node's policy allows the action (THIS module)
-    trusted    — long-term relationships (VCs, allowlists; later phase)
+    authorized  local policy allows the action             (pcm.policy)
+    trusted     long-term relationships (VCs, allowlists)  (pcm.capability)
 
 Design (KISS, local-first): each PCM node owns a local Policy object.
 Rules are explicit, greppable, and fail-closed: anything not explicitly
@@ -129,12 +129,22 @@ class Policy:
         return any(action.startswith(p) for p in HIGH_RISK_ACTIONS)
 
     def _explicitly_matched(self, action: str, target: str) -> bool:
-        """True when a rule matches action+target with a non-trivial pattern."""
+        """True when a rule matches action+target with a non-trivial pattern.
+
+        A rule whose note marks it as a verified capability grant
+        ("vc:…") counts as explicit on the action axis even when its
+        target is the default "*": the grant was deliberately issued,
+        signed, and admitted by the operator — it is not a sloppy
+        default. Wildcard-everything rules ("*"/"*" with no note) are
+        still trivial and never satisfy the gate.
+        """
         for rule in self.rules:
             if fnmatch.fnmatchcase(action, rule.action) and \
-                    fnmatch.fnmatchcase(target, rule.target) and \
-                    (rule.action != "*" and rule.target != "*"):
-                return True
+                    fnmatch.fnmatchcase(target, rule.target):
+                if rule.action != "*" and rule.target != "*":
+                    return True
+                if rule.note.startswith("vc:") and rule.action != "*":
+                    return True
         return False
 
     def _apply_rate_limits(self, author: str, action: str, target: str) -> None:

@@ -353,8 +353,10 @@ Phase 0  DONE  kernel + Hermes adapter + did:key identity + PCM 1 envelope
 Phase 1  DONE  single node: proposal envelopes, status surface
 Phase 2  DONE  fabric: namespace + events + Transport ABC + ZenohTransport
                (peer/client modes, liveliness presence, policy layer)
-Phase 3  DONE  two+ nodes end-to-end: signed envelopes over the fabric,
-               memory mirror (LWW merge document), VC capability grants
+Phase 3  CODE  two+ nodes end-to-end: signed envelopes over the fabric,
+               memory mirror (LWW merge document), VC capability grants —
+               implemented and unit-tested in-process; awaiting real
+               two-node field testing (real DID peers, not loopback)
 Phase 4  NEXT  BCI/biosignal nodes over the same subjects
 ```
 

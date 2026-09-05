@@ -71,12 +71,13 @@ src/multitude/
   http_json.py  — small HTTP helper
   config.py     — runtime config
   pcm/          — node protocol: did:key identity, signed envelopes,
-                  proposals/votes, memory mirror, VC capability grants,
-                  key namespace, typed events, transport ABC,
-                  fail-closed policy
-  integrations/zenoh/          — Zenoh fabric transport (Phase 2)
+                  proposals/votes, key namespace, typed events,
+                  transport ABC, fail-closed policy, memory mirror,
+                  VC capability grants, GET→POST bridge
+  integrations/zenoh/          — Zenoh fabric transport
   integrations/hermes/         — AI-agent integration (thin adapter)
   integrations/telegram/       — messaging transport (thin adapter)
+```
 ```
 
 No simulation. No scrapers. No experimental sensors. Just the
