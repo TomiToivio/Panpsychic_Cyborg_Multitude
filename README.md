@@ -7,6 +7,28 @@ CC0.**
 Read the manifesto: [PANPSYCHIC_CYBORG_MULTITUDE.md](PANPSYCHIC_CYBORG_MULTITUDE.md)
 — the philosophy and the project description in one document.
 
+## The name, in one paragraph each
+
+- **Panpsychic** — consciousness is fundamental (after Spinoza and
+  Philip Goff's constitutive panpsychism), and recognition must not
+  depend on substrate. No mechanism is hard-coded (no Orch-OR); the
+  working bridge to measurement is the Integrated Information (IIT)
+  family — integration as a substrate-neutral correlate of mind.
+  Recognition precedes proof: a member's `is_conscious: UNKNOWN` is
+  load-bearing, not a placeholder.
+- **Cyborg** — Donna Haraway's cyborg: the human-technology boundary
+  is already dissolved and governance must see it. From transhumanism
+  PCM keeps only the refusal of biological essentialism — not
+  enhancement-as-escape. The merge has happened; the politics is about
+  *who governs it*.
+- **Multitude** — Hardt & Negri, rooted in Spinoza's *multitudo*: the
+  many act in common without becoming a sovereign One. No Leviathan,
+  the common is real (an append-only log owned at birthplace), and
+  singularity is preserved — dissent is recorded, never erased.
+
+Full definitions: [PANPSYCHIC_CYBORG_MULTITUDE.md](PANPSYCHIC_CYBORG_MULTITUDE.md) →
+"The three words, defined".
+
 ## What this repository contains
 
 Only the **basic operating system** — the kernel of the Panpsychic

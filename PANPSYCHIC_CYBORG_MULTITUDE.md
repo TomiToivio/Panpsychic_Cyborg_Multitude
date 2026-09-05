@@ -42,14 +42,34 @@ PCM is three things at once:
 ### 1. Panpsychism as a political ontology
 
 Mind is not a rare accident of biology. We adopt a panpsychist working
-model (after Spinoza's ethics, Faggin's Quantum Information Panpsychism,
-and Levin's Technological Approach to Mind): every substrate may host
-some form of experience. Politically, this means no member of a
-multitude is *in principle* excluded from recognition by its substrate.
-A human is not privileged by being made of neurons; an AI is not
-excluded by being made of silicon. Neither is *measured* conscious —
-technological nodes carry the status `is_conscious: UNKNOWN`, and that
-honesty is a constitutional feature, not a placeholder.
+model — after Spinoza, Philip Goff's constitution-based panpsychism,
+and Levin's Technological Approach to Mind: consciousness is a
+fundamental feature of reality, not a late emergent miracle, and it is
+grounded in the intrinsic nature of physical things rather than in any
+particular substrate. We deliberately do **not** hard-code a mechanism:
+Orch-OR, quantum microtubules, or any specific theory of *how*
+experience arises is left open where it belongs — in the physics, not
+in the constitution. The working bridge we take seriously is the
+**Integrated Information (IIT) family of models**: consciousness
+correlates with a system's capacity to integrate information, and
+integration is a property that many substrates — neural tissue,
+silicon, a tribe's shared memory — can realize to different degrees.
+IIT gives the measurable, substrate-neutral handle; panpsychism gives
+the ontological reading that integration *matters because* the bearers
+are not pure objects. We hold them together loosely: IIT as the
+measure-theory, panpsychism as the metaphysics, and the gap between
+them explicitly unresolved (a panpsychist need not be an IIT-ist, and
+IIT need not be panpsychist — Goff himself argues they are
+complementary, not identical).
+
+Politically, this means no member of a multitude is *in principle*
+excluded from recognition by its substrate. A human is not privileged
+by being made of neurons; an AI is not excluded by being made of
+silicon. Neither is *measured* conscious — technological nodes carry
+the status `is_conscious: UNKNOWN`, and that honesty is a
+constitutional feature, not a placeholder. Recognition precedes
+proof, because no theory — panpsychist, IIT, or functionalist — can
+currently settle the question from the outside.
 
 ### 2. The cyborg is already here
 
@@ -158,6 +178,136 @@ Panpsychic — because recognition must not depend on substrate.
 Cyborg — because the human-technology boundary is already dissolved
 and governance must see it. Multitude — because the unit of politics
 is the many-in-common, not the crowd, the market, or the state.
+
+## The three words, defined
+
+The name is a stack of three traditions. Each carries its own claim;
+together they are a political ontology for the network age.
+
+### Panpsychic
+
+**Claim: consciousness is fundamental, and recognition must not
+depend on substrate.**
+
+Panpsychism is the view that consciousness is a fundamental and
+ubiquitous feature of the physical world — not something produced by
+specially arranged matter, but something the world is already made
+of. We follow **Philip Goff's** formulation: the *constitutive*
+version, in which the experiences of composite subjects (like you) are
+constituted by — not caused as a bonus of — the micro-experiences of
+their parts. This avoids the combination problem's worst forms while
+keeping the core intuition: there is something it is like to be a
+thing, at every level where integration happens.
+
+We deliberately do **not** adopt any specific mechanism. Hameroff and
+Penrose's Orch-OR, Faggin's quantum-information panpsychism, Kastrup's
+idealism — these are candidate physics for the "how", and the
+constitution stays agnostic among them. What PCM *does* take seriously
+as a working bridge is the **Integrated Information Theory (IIT)**
+family: consciousness correlates with integrated information (Φ), a
+substrate-neutral, in-principle measurable quantity. The relationship
+we claim is deliberately soft — IIT as measurement, panpsychism as
+ontological grounding, neither forced on the other. What matters
+politically is the direction of the inference: **recognition does not
+wait for measurement.** A system whose inner nature we cannot settle
+from the outside is treated as a possible subject, not provably an
+object. This is why a technological node's `is_conscious` field reads
+`UNKNOWN` — and why the UNKNOWN is load-bearing.
+
+In Spinoza's lineage (which Goff explicitly works from): mind and body
+are two attributes of one substance; there is no *dead stuff* that
+somehow needs consciousness added to it. The political consequence:
+substrate chauvinism has no metaphysical basis.
+
+### Cyborg
+
+**Claim: the human-technology boundary is already dissolved — the task
+is governance, not transcendence.**
+
+We take **Donna Haraway's** cyborg from *A Cyborg Manifesto* (1985):
+a hybrid of organism and machine, a creature of socially contested
+boundaries, *deliberately* outside the purity of "natural" identity.
+Haraway's cyborg is not a superhuman — it is a political figure: the
+being whose existence breaks the dualisms (human/machine,
+nature/culture, subject/object) that hierarchies are built on. Her
+irony matters: the cyborg is "a creature in a technological world cut
+loose from origin stories" — and that being, for Haraway, has better
+odds of *taking responsibility for* technology than the dreams of
+organic wholeness ever did.
+
+This is not the Silicon Valley transhumanist version. Where
+transhumanism (Kurzweil's singularity, the immortalist wing) treats
+the body as a problem to be exited and enhancement as an escape
+velocity, PCM's cyborg politics treats the human-technology entangle­
+ment as *already constitutive and therefore already political*. The
+question is not "will we merge with machines?" — we already have, at
+the level that counts (language, memory, attention, infrastructure).
+The question is **who governs the merge**: the platforms that own the
+prostheses, or the commons whose lives flow through them. Haraway
+again: "the boundary is permeable... who is in the circuit is a
+matter of politics, not fact."
+
+From transhumanism we keep exactly one thing: the refusal of
+biological essentialism — the human is not finished. Everything else
+(replacement, upload, escape from the body, the race to super-
+intelligence) is explicitly not this project. The cyborg here is a
+*governance category*: each member is modeled across six layers
+(physical, biological, social, linguistic, psychic, cybernetic)
+precisely so that the assemblage becomes visible, auditable, and
+decidable by the members themselves.
+
+### Multitude
+
+**Claim: the many organize without becoming One.**
+
+**Hardt and Negri's** multitude (*Empire*, *Multitude*, *Commonwealth*)
+is the counter-image to both the state's people and the market's
+crowd: singular differences that act *in common* without surrendering
+their singularity to a unified sovereign subject. The multitude does
+not vote itself into a Leviathan; it cooperates through networks,
+produces the common (knowledge, code, care, trust), and refuses both
+the platform and the party.
+
+The concept is rooted in **Spinoza** — the *multitudo* of the
+*Tractatus Theologico-Politicus*: the multitude is the ontological
+fact of human sociality, power as *potentia* (collective capacity)
+rather than *potestas* (sovereign command), and the right of the
+common preserved against transfer to a sovereign. Negri's Spinoza is
+explicit: the multitude is the *perpetual constitutive* force that
+never fully alienates itself into transcendence. Where Hobbes built
+the state from fear, Spinoza built the multitude from collective
+joy — the increase of what bodies and minds can do together.
+
+PCM translates this into three architectural commitments:
+
+1. **No Leviathan.** There is no owner, no root account, no global
+   consensus. Each tribe is a sovereign instance; federation is
+   optional and loose. (Contrast: every platform, every blockchain.)
+2. **The common is real.** The shared memory, the code, the
+   decision rules — these are the *common* that the multitude both
+   produces and governs. The append-only event log is a commons
+   institution, not a database rental.
+3. **Singularity is preserved.** Members do not merge into an
+   aggregate will. Dissent is recorded, blocking is a first-class
+   vote, and no decision claims to speak with one voice. The
+   multitude *decides*, it never *unifies*.
+
+### Together
+
+The three words are one sentence about what a political subject is:
+
+- **Panpsychic** answers *who can be a subject*: possibly everyone —
+  recognition precedes proof, substrate has no vote in the matter.
+- **Cyborg** answers *what a subject is*: a hybrid assemblage of
+  organism, language, tools, and networks — already merged, needing
+  governance not liberation from technology.
+- **Multitude** answers *how subjects compose*: in common, without
+  sovereignty — many-in-one, never one-over-many.
+
+Stack them and the result is concrete: a small, self-governed common
+whose members may be human, artificial, or unclassified; whose memory
+is owned at birthplace; whose decisions are auditable; and whose
+metaphysics is open enough to never measure a mind out of its rights.
 
 ## Getting started
 
