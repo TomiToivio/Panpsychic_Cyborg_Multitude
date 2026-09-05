@@ -12,7 +12,7 @@ Usage examples:
   multitude close --by alice --proposal prop-...
   multitude members / log / status / search
   multitude layers --as alice                      # show one node's six layers
-  multitude layer-set --as alice --layer physical --set location=Helsinki --set notes="at home"
+  multitude layer-set --as alice --layer physical --set location=Springfield --set notes="at home"
   multitude layer-history --as alice --layer biological
 """
 from __future__ import annotations

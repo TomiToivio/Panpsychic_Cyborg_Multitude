@@ -10,11 +10,14 @@ Read the manifesto: [PANPSYCHIC_CYBORG_MULTITUDE.md](PANPSYCHIC_CYBORG_MULTITUDE
 ## What this repository contains
 
 Only the **basic operating system** — the kernel of the Panpsychic
-Cyborg Multitude:
+Cyborg Multitude — plus the networking architecture that connects
+kernels into a fabric:
 
 ```
 multitude.py                      entrypoint (python multitude.py ...)
 PANPSYCHIC_CYBORG_MULTITUDE.md    manifesto + project description
+NETWORKING_STACK.md               node-to-node networking architecture
+                                  (zenoh fabric, namespace, events, policy)
 LICENSE                           CC0 1.0 Universal
 src/multitude/
   tribe.py      — tribe model: members, events, memory, proposals
@@ -28,11 +31,11 @@ src/multitude/
   http_json.py  — small HTTP helper
   config.py     — runtime config
   pcm/          — node protocol: did:key identity, signed envelopes,
-                  proposal/vote envelopes, GET→POST bridge (dormant)
-  interfaces/web.py            — local HTTP API
+                  proposal/vote envelopes, key namespace, typed events,
+                  transport ABC, fail-closed policy, GET→POST bridge
+  integrations/zenoh/          — Zenoh fabric transport (Phase 2)
   integrations/hermes/         — AI-agent integration (thin adapter)
   integrations/telegram/       — messaging transport (thin adapter)
-  integrations/matrix/         — Matrix transport skeleton (read-only, dormant)
 ```
 
 No simulation. No scrapers. No experimental sensors. Just the
@@ -48,41 +51,37 @@ python multitude.py say --as alice --text "The tribe is alive."
 python multitude.py status
 ```
 
-See the manifesto for the full command set (memory, proposals, votes,
-layers, goals).
+Optional node-to-node networking (Phase 2 fabric):
 
-## The six-layer agent model
+```bash
+pip install eclipse-zenoh
+export PCM_ZENOH_ENABLED=true
+python3 -m unittest tests.test_pcm_phase2_zenoh   # two-node exchange demo
+```
 
-Every agent in the Multitude — human, machine, or cyborg — is described
-along the same six layers. A node is not a row in a database; it is a
-being with a body, a mind, a language, and a network link, and the
-kernel models all of it:
+## Networking architecture
 
-| Layer | What it describes |
-|---|---|
-| **Physical** | Location in space, environment — where the node *is* |
-| **Biological** | Flesh and its needs: sleep, hunger, mood — the ape in human agents |
-| **Psychic** | The psyche of conscious agents (Quantum Information Panpsychism as the working model) |
-| **Linguistic** | Languages spoken, vocabularies known |
-| **Social** | The tribe, wider networks and systems around the node |
-| **Cybernetic** | Connection to the network: interface mode, links, runtime — text today, BCI eventually |
+The full node-to-node networking design is documented in
+[NETWORKING_STACK.md](NETWORKING_STACK.md): why chat infrastructure
+(homeservers, rooms, accounts) was rejected for a distributed nervous
+system, how the zenoh fabric carries signed envelopes between nodes
+(humans, agents, devices, sensors), the `pcm/<domain>/<entity>/<resource>`
+key namespace, the typed event vocabulary, and the fail-closed
+authorization model.
 
-The layers make human and technological members commensurable: both are
-profiled with the same vocabulary, in the same event log. Each layer
-state is a `layer_recorded` event — replaying the log rebuilds every
-agent's profile, so history belongs to the members, never to the
-platform. Records are self-reported by default; other members may
-observe and report a node's layers (`reported_by`), and unknown fields
-are rejected so the shared vocabulary stays clean.
+Phases:
 
-## Principles
+```text
+Phase 0  DONE  kernel + did:key identity + signed PCM 1 envelopes
+Phase 1  DONE  single node: proposal envelopes, status surface
+Phase 2  DONE  fabric: namespace + events + Transport ABC + ZenohTransport
+Phase 3  NEXT  two+ nodes end-to-end: VC capability grants, memory mirror
+Phase 4       BCI/biosignal nodes over the same subjects
+Phase 5       ecosystem interop (4CAT, LaclauGPT interchange, QDA exports)
+```
 
-- Event-sourced and replayable — history belongs to the members.
-- Local-first — the tribe's data lives with the tribe.
-- Kind-aware membership — biological and technological nodes, same log.
-- Consent-first governance with explicit block power.
-- Thin adapters, small kernel — transports never touch the core.
+## Documents
 
-## License
-
-CC0 1.0 Universal — the common is common.
+- [PANPSYCHIC_CYBORG_MULTITUDE.md](PANPSYCHIC_CYBORG_MULTITUDE.md) — manifesto + project description
+- [NETWORKING_STACK.md](NETWORKING_STACK.md) — networking architecture (zenoh fabric)
+- [LICENSE](LICENSE) — CC0 1.0 Universal
