@@ -130,3 +130,9 @@ Phase 4    NEXT  BCI/biosignal nodes over the same subjects
 - [NETWORKING_STACK.md](NETWORKING_STACK.md) — networking architecture (zenoh fabric)
 - [LICENSE](LICENSE) — CC0 1.0 Universal
 
+## Scope
+
+This repository is self-contained: the tribe kernel and the node
+fabric, nothing else. Research tooling, discourse-analysis pipelines,
+and game/simulation work live in separate projects with their own
+repositories — they are not part of PCM's public distribution.

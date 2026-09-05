@@ -358,12 +358,9 @@ Phase 3  DONE  two+ nodes end-to-end: signed envelopes over the fabric,
 Phase 4  NEXT  BCI/biosignal nodes over the same subjects
 ```
 
-Scope note: ecosystem interop with external research tools (4CAT,
-LaclauGPT, QDA exports) belongs to those projects' repositories, not
-to this distribution. The public PCM repo carries the kernel and the
-fabric only. Noöpunk — the RPG / science-fiction branch — is PCM's
-subculture version and may appear as a simulation layer in a separate
-repository.
+Scope note: ecosystem interop with external research tools belongs to
+those projects' repositories, not to the public PCM distribution. The
+public repo carries the kernel and the fabric only.
 
 **Explicitly NOT adopted:** Matrix (rejected), Holochain (no Python path), IPFS (v1), blockchain/global consensus, ssbc code, EMOTIV, Nostr relay infra (concepts borrowed only), Solid-as-requirement.
 
