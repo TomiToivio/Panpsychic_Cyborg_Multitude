@@ -2,18 +2,18 @@
 """CLI for the tribe kernel.
 
 Usage examples:
-  multitude found --name "First Tribe" --founder Tomi
+  multitude found --name "First Tribe" --founder alice
   multitude join --as "Panpsychic Cyborg Multitude" --kind technological --model glm-5.3-flash:cloud
-  multitude say --as Tomi --text "Welcome, all nodes."
+  multitude say --as alice --text "Welcome, all nodes."
   multitude counsel --as "Panpsychic Cyborg Multitude" --topic "our first shared goal"
-  multitude propose --by Tomi --title "Ritual" --text "We meet every full moon."
-  multitude vote --as Tomi --proposal prop-... --position for --reason "Yes"
+  multitude propose --by alice --title "Ritual" --text "We meet every full moon."
+  multitude vote --as alice --proposal prop-... --position for --reason "Yes"
   multitude tally --proposal prop-...
-  multitude close --by Tomi --proposal prop-...
+  multitude close --by alice --proposal prop-...
   multitude members / log / status / search
-  multitude layers --as Tomi                      # show one node's six layers
-  multitude layer-set --as Tomi --layer physical --set location=Helsinki --set notes="at home"
-  multitude layer-history --as Tomi --layer biological
+  multitude layers --as alice                      # show one node's six layers
+  multitude layer-set --as alice --layer physical --set location=Helsinki --set notes="at home"
+  multitude layer-history --as alice --layer biological
 """
 from __future__ import annotations
 

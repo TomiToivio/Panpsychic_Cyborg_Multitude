@@ -1,1 +1,3 @@
-/src/multitude/interfaces/__pycache__
+__pycache__/
+*.pyc
+data/tribes/

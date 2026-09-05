@@ -40,8 +40,8 @@ constitution: memory, voice, decision.
 ```bash
 pip install pydantic   # the only dependency beyond the stdlib
 
-python multitude.py found --name "My Multitude" --founder tomi
-python multitude.py say --as tomi --text "The tribe is alive."
+python multitude.py found --name "My Multitude" --founder alice
+python multitude.py say --as alice --text "The tribe is alive."
 python multitude.py status
 ```
 
