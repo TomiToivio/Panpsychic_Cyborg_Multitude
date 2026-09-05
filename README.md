@@ -27,9 +27,12 @@ src/multitude/
   llm.py        — technological nodes (LLM agents as members)
   http_json.py  — small HTTP helper
   config.py     — runtime config
+  pcm/          — node protocol: did:key identity, signed envelopes,
+                  proposal/vote envelopes, GET→POST bridge (dormant)
   interfaces/web.py            — local HTTP API
   integrations/hermes/         — AI-agent integration (thin adapter)
   integrations/telegram/       — messaging transport (thin adapter)
+  integrations/matrix/         — Matrix transport skeleton (read-only, dormant)
 ```
 
 No simulation. No scrapers. No experimental sensors. Just the

@@ -301,7 +301,13 @@ def main(argv: list[str] | None = None) -> int:
             print(f"error: {exc}")
             return 1
     if args.command == "status":
-        print(json.dumps(agent.adapter.get_status(), indent=2, ensure_ascii=False))
+        status = agent.adapter.get_status()
+        try:
+            from multitude.pcm.bootstrap import node_status
+            status["pcm_node"] = node_status(str(agent.adapter.tribe.store.path))
+        except Exception:
+            status["pcm_node"] = None
+        print(json.dumps(status, indent=2, ensure_ascii=False))
         return 0
     if args.command == "telegram-message":
         telegram = TelegramAdapter(
