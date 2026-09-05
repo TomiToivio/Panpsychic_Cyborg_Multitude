@@ -51,6 +51,30 @@ python multitude.py status
 See the manifesto for the full command set (memory, proposals, votes,
 layers, goals).
 
+## The six-layer agent model
+
+Every agent in the Multitude — human, machine, or cyborg — is described
+along the same six layers. A node is not a row in a database; it is a
+being with a body, a mind, a language, and a network link, and the
+kernel models all of it:
+
+| Layer | What it describes |
+|---|---|
+| **Physical** | Location in space, environment — where the node *is* |
+| **Biological** | Flesh and its needs: sleep, hunger, mood — the ape in human agents |
+| **Psychic** | The psyche of conscious agents (Quantum Information Panpsychism as the working model) |
+| **Linguistic** | Languages spoken, vocabularies known |
+| **Social** | The tribe, wider networks and systems around the node |
+| **Cybernetic** | Connection to the network: interface mode, links, runtime — text today, BCI eventually |
+
+The layers make human and technological members commensurable: both are
+profiled with the same vocabulary, in the same event log. Each layer
+state is a `layer_recorded` event — replaying the log rebuilds every
+agent's profile, so history belongs to the members, never to the
+platform. Records are self-reported by default; other members may
+observe and report a node's layers (`reported_by`), and unknown fields
+are rejected so the shared vocabulary stays clean.
+
 ## Principles
 
 - Event-sourced and replayable — history belongs to the members.
