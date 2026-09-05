@@ -130,10 +130,3 @@ Phase 4    NEXT  BCI/biosignal nodes over the same subjects
 - [NETWORKING_STACK.md](NETWORKING_STACK.md) — networking architecture (zenoh fabric)
 - [LICENSE](LICENSE) — CC0 1.0 Universal
 
-## Relationship to other projects
-
-LaclauGPT (academic discourse analysis) and Vasama (its commercial
-version) are **separate projects** — they are not part of this
-repository. Noöpunk, the RPG / science-fiction hybrid, is PCM's
-subculture branch and may appear here as a simulation layer — never
-as the kernel itself.
