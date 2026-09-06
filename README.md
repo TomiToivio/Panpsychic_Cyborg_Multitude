@@ -272,6 +272,8 @@ found a rhizome, add members, use memory and governance, without
 reading the source.
 
 - [docs/PANPSYCHIC_CYBORG_MULTITUDE.md](docs/PANPSYCHIC_CYBORG_MULTITUDE.md) — manifesto + project description
+- [docs/AI_IDEOLOGIES.md](docs/AI_IDEOLOGIES.md) — essay: accelerationism, critical AI,
+  and x-risk doomerism evaluated from the PCM assemblage perspective
 - [docs/NETWORKING_STACK.md](docs/NETWORKING_STACK.md) — networking architecture (zenoh fabric)
 - [docs/PCM_EMBODIED_AI_PLAN.md](docs/PCM_EMBODIED_AI_PLAN.md) — embodied AI architecture
   (distributed physical proxies; Home Assistant/MQTT/ROS 2; world model; safety)
