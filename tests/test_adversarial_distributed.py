@@ -44,7 +44,7 @@ def _tribe(name: str, root: Path) -> Rhizome:
     return t
 
 
-def test_duplicate_and_out_of_order() -> int:
+def check_duplicate_and_out_of_order() -> int:
     """Duplicate vote events and post-close votes stay idempotent."""
     failures: list[str] = []
     root = Path(tempfile.mkdtemp(prefix="pcm-adv-"))
@@ -82,7 +82,7 @@ def test_duplicate_and_out_of_order() -> int:
     return len(failures)
 
 
-def test_conflicting_closures_first_wins() -> int:
+def check_conflicting_closures_first_wins() -> int:
     """Two closes of the same proposal: first wins, second recorded as
     rejected duplicate. Deterministic under both replay orders."""
     failures: list[str] = []
@@ -122,7 +122,7 @@ def test_conflicting_closures_first_wins() -> int:
     return len(failures)
 
 
-def test_node_disappears_during_vote() -> int:
+def check_node_disappears_during_vote() -> int:
     """Votes from a member who later leaves still replay deterministically
     (left members' votes are excluded from tallies at close time)."""
     failures: list[str] = []
@@ -143,7 +143,7 @@ def test_node_disappears_during_vote() -> int:
     return len(failures)
 
 
-def test_malicious_signer_and_key_mismatch() -> int:
+def check_malicious_signer_and_key_mismatch() -> int:
     """Forged content, wrong signer, and key/DID mismatch all fail."""
     failures: list[str] = []
     root = Path(tempfile.mkdtemp(prefix="pcm-adv-sig-"))
@@ -181,7 +181,7 @@ def test_malicious_signer_and_key_mismatch() -> int:
     return len(failures)
 
 
-def test_authenticated_but_not_authorized() -> int:
+def check_authenticated_but_not_authorized() -> int:
     """A valid signature alone must not grant merge/write rights."""
     failures: list[str] = []
     root = Path(tempfile.mkdtemp(prefix="pcm-adv-authz-"))
@@ -218,7 +218,7 @@ def test_authenticated_but_not_authorized() -> int:
     return len(failures)
 
 
-def test_private_memory_never_leaks() -> int:
+def check_private_memory_never_leaks() -> int:
     """Private content cannot be serialized into an outbound envelope."""
     failures: list[str] = []
     root = Path(tempfile.mkdtemp(prefix="pcm-adv-priv-"))
@@ -254,7 +254,7 @@ def test_private_memory_never_leaks() -> int:
     return len(failures)
 
 
-def test_deterministic_replay_under_hostile_orders() -> int:
+def check_deterministic_replay_under_hostile_orders() -> int:
     """Same events in different arrival orders -> identical final state
     for orderings the kernel can observe (log order is authoritative)."""
     failures: list[str] = []
@@ -278,13 +278,13 @@ def test_deterministic_replay_under_hostile_orders() -> int:
 
 def main() -> int:
     total = (
-        test_duplicate_and_out_of_order()
-        + test_conflicting_closures_first_wins()
-        + test_node_disappears_during_vote()
-        + test_malicious_signer_and_key_mismatch()
-        + test_authenticated_but_not_authorized()
-        + test_private_memory_never_leaks()
-        + test_deterministic_replay_under_hostile_orders()
+        check_duplicate_and_out_of_order()
+        + check_conflicting_closures_first_wins()
+        + check_node_disappears_during_vote()
+        + check_malicious_signer_and_key_mismatch()
+        + check_authenticated_but_not_authorized()
+        + check_private_memory_never_leaks()
+        + check_deterministic_replay_under_hostile_orders()
     )
     print()
     if total:
@@ -300,22 +300,22 @@ if __name__ == "__main__":
 
 # pytest wrappers
 def test_adv_duplicate_out_of_order():
-    assert test_duplicate_and_out_of_order() == 0
+    assert check_duplicate_and_out_of_order() == 0
 
 def test_adv_conflicting_closures():
-    assert test_conflicting_closures_first_wins() == 0
+    assert check_conflicting_closures_first_wins() == 0
 
 def test_adv_node_vanish():
-    assert test_node_disappears_during_vote() == 0
+    assert check_node_disappears_during_vote() == 0
 
 def test_adv_signatures():
-    assert test_malicious_signer_and_key_mismatch() == 0
+    assert check_malicious_signer_and_key_mismatch() == 0
 
 def test_adv_authorization():
-    assert test_authenticated_but_not_authorized() == 0
+    assert check_authenticated_but_not_authorized() == 0
 
 def test_adv_privacy():
-    assert test_private_memory_never_leaks() == 0
+    assert check_private_memory_never_leaks() == 0
 
 def test_adv_replay_determinism():
-    assert test_deterministic_replay_under_hostile_orders() == 0
+    assert check_deterministic_replay_under_hostile_orders() == 0

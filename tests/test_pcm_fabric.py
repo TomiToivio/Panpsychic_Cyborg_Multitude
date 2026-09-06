@@ -27,7 +27,7 @@ from multitude.pcm.transport import (InMemoryTransport, TransportError,
                                      _wildcard_to_regex)
 
 
-def test_namespace() -> int:
+def check_namespace() -> int:
     failures: list[str] = []
     # concrete keys
     k = agent_message_key("hermes")
@@ -69,7 +69,7 @@ def test_namespace() -> int:
     return len(failures)
 
 
-def test_events() -> int:
+def check_events() -> int:
     failures: list[str] = []
     ev = create_event(
         "pcm.message", "agent:alice", "pcm/agent/alice/message",
@@ -118,7 +118,7 @@ def test_events() -> int:
     return len(failures)
 
 
-def test_policy() -> int:
+def check_policy() -> int:
     failures: list[str] = []
     p = Policy()
     p.allow("light.*", "device:*", authors=("agent:hermes",),
@@ -181,7 +181,7 @@ def test_policy() -> int:
     return len(failures)
 
 
-def test_transport_abstraction() -> int:
+def check_transport_abstraction() -> int:
     failures: list[str] = []
 
     async def run() -> list[str]:
@@ -233,7 +233,7 @@ def test_transport_abstraction() -> int:
     return len(failures)
 
 
-def test_zenoh_transport_shapes() -> int:
+def check_zenoh_transport_shapes() -> int:
     """ZenohTransport object shape without opening a session (no deps needed
     beyond import; real sessions are integration-tested separately)."""
     failures: list[str] = []
@@ -263,8 +263,8 @@ def test_zenoh_transport_shapes() -> int:
 
 
 def main() -> int:
-    total = (test_namespace() + test_events() + test_policy()
-             + test_transport_abstraction() + test_zenoh_transport_shapes())
+    total = (check_namespace() + check_events() + check_policy()
+             + check_transport_abstraction() + check_zenoh_transport_shapes())
     print()
     if total:
         print(f"{total} FAILURES")
@@ -279,16 +279,16 @@ if __name__ == "__main__":
 
 # pytest wrappers (canonical suite collects these)
 def test_pcm_fabric_namespace():
-    assert test_namespace() == 0
+    assert check_namespace() == 0
 
 def test_pcm_fabric_events():
-    assert test_events() == 0
+    assert check_events() == 0
 
 def test_pcm_fabric_policy():
-    assert test_policy() == 0
+    assert check_policy() == 0
 
 def test_pcm_fabric_transport():
-    assert test_transport_abstraction() == 0
+    assert check_transport_abstraction() == 0
 
 def test_pcm_fabric_zenoh_shape():
-    assert test_zenoh_transport_shapes() == 0
+    assert check_zenoh_transport_shapes() == 0

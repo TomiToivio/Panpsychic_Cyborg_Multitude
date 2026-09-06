@@ -1,0 +1,35 @@
+# Normalize line endings: the working copy lives on a Windows/OneDrive
+# mount but is edited from both WSL and Windows. Keep all text as LF in
+# the repo and in the working tree to prevent CRLF churn in diffs.
+# See issue #15.
+
+* text=auto eol=lf
+
+# Python / config
+*.py text eol=lf
+*.md text eol=lf
+*.toml text eol=lf
+*.cfg text eol=lf
+*.ini text eol=lf
+*.txt text eol=lf
+*.yaml text eol=lf
+*.yml text eol=lf
+*.json text eol=lf
+*.sh text eol=lf
+
+# Windows-only scripts genuinely need CRLF
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
+
+# Binary assets — never touch
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.zip binary
+*.gz binary
+*.woff binary
+*.woff2 binary
