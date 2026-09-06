@@ -31,8 +31,9 @@ def rhizomes_root(data_root: str | None = None) -> str:
 def find_rhizome_dir(explicit: str | None = None, data_root: str | None = None) -> str:
     """Resolve the rhizome directory to operate on.
 
-    Explicit --tribe DIR wins; otherwise the most recently used rhizome
-    under the data root is selected.
+    Explicit --rhizome DIR wins (LEGACY_WIRE_COMPAT: --tribe remains an
+    accepted alias); otherwise the most recently used rhizome under the
+    data root is selected.
     """
     if explicit:
         if not os.path.isfile(os.path.join(explicit, "tribe.json")):
@@ -42,7 +43,7 @@ def find_rhizome_dir(explicit: str | None = None, data_root: str | None = None) 
     if not os.path.isdir(root):
         raise FileNotFoundError(
             f"no rhizomes found under {root} - run 'multitude found' first "
-            f"or pass --tribe DIR"
+            f"or pass --rhizome DIR"
         )
     candidates = [
         os.path.join(root, name)

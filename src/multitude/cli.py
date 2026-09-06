@@ -58,7 +58,7 @@ def _parse_gps(value: str) -> dict[str, float]:
 
 
 def _load_rhizome(args: argparse.Namespace) -> Rhizome:
-    rhizome_dir = config.find_rhizome_dir(getattr(args, "rhizome", getattr(args, "tribe", None)))
+    rhizome_dir = config.find_rhizome_dir(getattr(args, "rhizome", None))  # LEGACY_WIRE_COMPAT: --tribe alias maps to the same dest
     return Rhizome(RhizomeStore(rhizome_dir))
 
 
@@ -905,53 +905,6 @@ def cmd_telegram(args: argparse.Namespace) -> int:
     return gateway_main()
 
 
-# --------------------------------------------------------------- scraping
-
-
-def cmd_scrape(args: argparse.Namespace) -> int:
-    from multitude.scraping import ScraperError, scrape_platform
-    from multitude.scraping.storage import save_scrape_bundle
-
-    out_path = args.out
-    if not out_path:
-        stamp = datetime.utcnow().strftime("%Y%m%d-%H%M%S")
-        label = "auto" if args.platform == "auto" else args.platform
-        suffix = "4cat" if args.format == "4cat-x" else "normalized"
-        out_path = str(Path("data") / "scrapes" / f"{label}-{suffix}-{stamp}.jsonl")
-    try:
-        session, written = scrape_platform(
-            url=args.url,
-            platform=args.platform,
-            browser=args.browser,
-            headless=args.headless,
-            profile_dir=args.profile_dir,
-            output_path=out_path,
-            output_format=args.format,
-            scrolls=args.scrolls,
-            wait_ms=args.wait_ms,
-            raw_dir=args.raw_dir,
-        )
-    except ScraperError as exc:
-        print(f"error: {exc}", file=sys.stderr)
-        return 2
-
-    print(f"platform: {session.platform}")
-    print(f"url: {session.url}")
-    print(f"items: {len(session.items)}")
-    if written:
-        print(f"saved: {written}")
-    if session.items:
-        bundle_path = Path(out_path)
-        if args.format == "4cat-x":
-            bundle_path = bundle_path.with_name(
-                f"{bundle_path.stem}-normalized{bundle_path.suffix}"
-            )
-        bundle = save_scrape_bundle(session.items, bundle_path)
-        print(f"sqlite: {bundle['sqlite']}")
-        print(f"csv: {bundle['csv']}")
-    return 0
-
-
 # ---------------------------------------------------------- tribal goals
 
 
@@ -1385,7 +1338,7 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("economy-profile", help="show the latest rhizome economy profile")
     p.set_defaults(func=cmd_economy_profile)
 
-    p = sub.add_parser("federation-add", help="record an inter-tribal federation agreement")
+    p = sub.add_parser("federation-add", help="record an inter-rhizome federation agreement")
     p.add_argument("--by", required=True)
     p.add_argument("--title", required=True)
     p.add_argument("--partner-rhizome", required=True)
@@ -1559,19 +1512,6 @@ def build_parser() -> argparse.ArgumentParser:
 
     p = sub.add_parser("telegram", help="run the Telegram gateway (loads repo .env)")
     p.set_defaults(func=cmd_telegram)
-
-    p = sub.add_parser("scrape", help="browser-assisted scraping for X and similar feeds")
-    p.add_argument("--url", required=True, help="page to open and collect from")
-    p.add_argument("--platform", default="auto", choices=["auto", "x"])
-    p.add_argument("--format", default="normalized", choices=["normalized", "4cat-x"])
-    p.add_argument("--browser", default="firefox", choices=["firefox", "chromium", "webkit"])
-    p.add_argument("--headless", action="store_true", help="run without a visible browser window")
-    p.add_argument("--profile-dir", default=None, help="browser profile dir for logged-in sessions")
-    p.add_argument("--out", default="", help="write NDJSON output here")
-    p.add_argument("--raw-dir", default="", help="optional directory for raw captured JSON responses")
-    p.add_argument("--scrolls", type=int, default=6, help="how many feed scrolls to perform")
-    p.add_argument("--wait-ms", type=int, default=1500, help="wait between scrolls in milliseconds")
-    p.set_defaults(func=cmd_scrape)
 
     p = sub.add_parser("layers", help="show the six layers of one or all nodes")
     p.add_argument("--as", dest="as_name", default="")

@@ -41,9 +41,9 @@ Three words, one political ontology:
   the Multitude may be conscious.)*
 
 Full definitions: [PANPSYCHIC_CYBORG_MULTITUDE.md](PANPSYCHIC_CYBORG_MULTITUDE.md) →
-"The three words, defined" + "The four concepts, composed".
+"The three words, defined" + "The five concepts, composed".
 
-## The four concepts, composed
+## The five concepts, composed
 
 - **Assemblage** = what an actor *is*: human + LLM + language +
   tools + memory + network — modeled as a first-class composite actor.
@@ -148,6 +148,7 @@ src/multitude/
   layers.py     — six-layer agent profiles (physical..cybernetic)
   goals.py      — goals, contributions, value flows
   domains.py    — domain reducer registry (keeps the core reducer small)
+  economy_vf.py — optional ValueFlows domain (economic flows of the Common)
   llm.py        — technological nodes (LLM agents as members)
   http_json.py  — small HTTP helper
   config.py     — runtime config
@@ -158,10 +159,15 @@ src/multitude/
   integrations/zenoh/          — Zenoh fabric transport
   integrations/hermes/         — AI-agent integration (thin adapter)
   integrations/telegram/       — messaging transport (thin adapter)
+  integrations/bci.py          — optional BCI adapter (derived context,
+                                 consent-gated; issue #10)
+  integrations/embodiment.py   — optional PhysicalDevice architecture
+                                 (simulated devices; issue #12)
 ```
 
-No simulation. No scrapers. No experimental sensors. Just the
-constitution: memory, voice, decision.
+Everything above is the constitution: memory, voice, decision.
+Optional integrations (BCI, embodiment, ValueFlows, zenoh, Telegram,
+Hermes) ship disabled or opt-in and never run unless asked for.
 
 ## Quick start
 
@@ -257,6 +263,10 @@ journal. Real integrations (Home Assistant, MQTT, drones, ROS 2) are
 later stages; each is one new `PhysicalDevice` implementation away.
 
 ## Documents
+
+**New here? Start with the [USER_GUIDE.md](USER_GUIDE.md)** — install,
+found a rhizome, add members, use memory and governance, without
+reading the source.
 
 - [PANPSYCHIC_CYBORG_MULTITUDE.md](PANPSYCHIC_CYBORG_MULTITUDE.md) — manifesto + project description
 - [NETWORKING_STACK.md](NETWORKING_STACK.md) — networking architecture (zenoh fabric)

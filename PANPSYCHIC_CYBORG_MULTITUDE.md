@@ -426,9 +426,9 @@ metaphysics is a sympathetic background rather than a required
 foundation; and which stays open to minds that do not terminate where
 biology expected them to.
 
-## The four concepts, composed
+## The five concepts, composed
 
-PCM's running vocabulary distinguishes four terms that must never be
+PCM's running vocabulary distinguishes the terms that must never be
 blurred — each names a different level of the same design:
 
 ### Rhizome
