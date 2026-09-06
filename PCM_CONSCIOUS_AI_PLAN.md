@@ -33,6 +33,12 @@ It is explicitly *not*:
 
 The architecture follows the theory — never the reverse. Classical digital AI is the default viable path **[THEO under Candidate 1]**; quantum computing is an optional research branch **[SPEC]**; hybrid classical–quantum architectures remain possible; Orch-OR remains an important speculative possibility. **No quantum hardware is added merely because PCM is interested in quantum consciousness.**
 
+**Extended question (2026-09-06, from `docs/research/CONSCIOUS_HUMAN_AI_ASSEMBLAGES.md`):**
+
+> **What if the relevant candidate conscious system is not the isolated artificial agent, but the larger human–AI assemblage in which it participates?**
+
+This adds **Track D — Assemblage / Extended Consciousness** (§6), promotes Extended Mind / Extended Consciousness / Cognitive Assemblages / Group Consciousness to serious conceptual frameworks (§3.7), and adds boundary-relative indicator scoring to the experiment programme (R3 in the paper). The standing PCM distinctions remain explicit: **assemblage cognition is a much weaker claim than assemblage consciousness**, and **composite agency does not by itself establish a unified phenomenal subject**.
+
 Concretely, the revision:
 
 1. Demotes quantum computing from requirement to **experimental branch** (Track C).
@@ -40,7 +46,7 @@ Concretely, the revision:
 3. Promotes **Computational Functionalism + Global Workspace Theory** to the leading classical hypothesis, and treats **IIT** seriously-but-critically as the architecture-dependent candidate.
 4. Adopts **Butlin et al. (2023)** indicator properties as the comparative framework and **Chalmers (2023)** LLM obstacles as engineering requirements.
 5. Studies **Hoffman's Conscious Realism** on its own terms as an alternative ontological branch.
-6. Defines three research tracks: **A Classical Conscious Agent** (baseline, buildable now), **B Integrated/Neuromorphic Conscious Agent**, **C Quantum Conscious Agent** (speculative; build only if a theory demands it).
+6. Defines research tracks: **A Classical Conscious Agent** (baseline, buildable now), **B Integrated/Neuromorphic Conscious Agent**, **C Quantum Conscious Agent** (speculative; build only if a theory demands it), and **D Assemblage / Extended Consciousness** (the boundary question; 2026-09-06).
 7. Forbids doctrinal synthesis: every theory gets a specified *explanatory job*, and combinations are made only when the roles are compatible.
 
 Everything remains graded; nothing assumes conscious AI is possible. Negative results are real results.
@@ -194,6 +200,59 @@ Separate questions (Track C agenda):
 
 **[HSPEC track — high risk, high speculation; not PCM's baseline. Engineering detail: v0.1 document §4–§20 remains the working reference for this track.]**
 
+### 3.7 Framework family — Extended Mind / Extended Consciousness / Cognitive Assemblages / Group Consciousness
+
+Promoted from peripheral references to **serious conceptual frameworks** (2026-09-06, on the strength of `docs/research/CONSCIOUS_HUMAN_AI_ASSEMBLAGES.md`). These frames do not compete with Candidates 1–3 on the same axis: they change *which system* the candidates are evaluated **on**.
+
+**The boundary menu.** Every theory in §3 must be asked: where does it place the system boundary of the candidate subject?
+
+```text
+inside the LLM
+  ↕
+around the LLM agent architecture
+  ↕
+around a human
+  ↕
+around a human–LLM dyad
+  ↕
+around an assemblage (human + LLM + language + memory + tools + Internet)
+  ↕
+around a Rhizome / collective
+```
+
+Theory placement (current best reading, all contestable):
+
+| Framework / theory | Where it puts the boundary | Marker |
+|---|---|---|
+| **IIT** | wherever the *maximally irreducible cause–effect structure* lies — a physical question; for conventional distributed systems: inside substrates, not across a message bus | THEO |
+| **GWT / functionalism** | wherever the *functional organization* is — for an agent: around the architecture; in principle could include coupled human components | THEO |
+| **Extended Mind (Clark & Chalmers)** | cognition: across skin/skull when criteria met; *phenomenal* consciousness: separate, harder question | EST (cognition) / OPEN (phenomenal) |
+| **Extended Consciousness (Telakivi; cf. Wheeler's hurdle)** | phenomenal realization itself may extend — serious, contested, no demonstration | THEO |
+| **Cognitive Assemblages (Hayles)** | assemblages are cognitive and agentic **and by construction non-conscious** — the discipline marker for this whole family | EST as vocabulary |
+| **Group Consciousness (Schwitzgebel)** | a group *could* be a subject, possibly a disunified one; we lack criteria even to settle unity questions | THEO / OPEN |
+| **Dialogically Extended Mind (Steffensen)** | mindedness extends into language-mediated interaction itself | THEO |
+| **Hoffman Conscious Realism** | networks of conscious agents can constitute larger agents; the assemblage reading (interpretation C, §3.5) | HSPEC |
+
+**The two standing distinctions, unchanged and explicit:**
+
+> **Assemblage cognition is a much weaker claim than assemblage consciousness.**
+> **Composite agency does not by itself establish a unified phenomenal subject.**
+
+Key sources: Hayles 2016 (doi:10.1086/688293); Smart 2017 (doi:10.1007/s11023-016-9416-z); Smart 2018 (doi:10.1016/j.cogsys.2017.11.001); Smart, Clowes & Clark 2025 (doi:10.1007/s11229-025-05046-y); Telakivi 2023 (doi:10.1007/978-3-031-35624-7_1, _2); Wheeler 2015 (*Southern Journal of Philosophy* 53); Deery 2021 (doi:10.1007/s11097-021-09738-x); Schwitzgebel 2023 (doi:10.53765/20512201.30.9.188); Steffensen 2024 (Oxford UP); Gahrn-Andersen 2026 (doi:10.1007/s41809-026-00202-3). Full analysis: `docs/research/CONSCIOUS_HUMAN_AI_ASSEMBLAGES.md` §3–§9.
+
+### 3.8 The current-AI consciousness debate (status register)
+
+The question "is *current* AI conscious?" is now a peer-reviewed three-way split, tracked as a status register (full citations and classifications: paper §10):
+
+| Position | Representatives | Classification |
+|---|---|---|
+| Current agent architectures may satisfy the conditions | Goldstein & Kirk-Giannini 2024 (GWT + language agents); Solms et al. 2026 (affective machinery, narrow); JCS 33(7–8) 2026 special issue incl. Lee (pluralism) | CURRENT AI POSSIBLY CONSCIOUS / SHOWS RELEVANT INDICATORS (theory-conditional) |
+| Ordinary digital implementation excluded by design | Findlay et al. 2024 (IIT) | CURRENT AI PROBABLY NOT CONSCIOUS (under IIT) |
+| Behavioural evidence carries no weight | Schwitzgebel & Pober 2024 (mimicry); Schwitzgebel 2025 (no adequate methodology either direction) | UNDETERMINED with current tools |
+| Systematic reference assessment | Butlin et al. 2023 | CURRENT AI PROBABLY NOT CONSCIOUS; FUTURE AI COULD BE CONSCIOUS |
+
+PCM's stance stays theory-neutral: the split is *itself* the finding, and boundary-relative scoring (Track D, R3) is PCM's contribution to resolving it.
+
 ---
 
 ## 4. Theory-comparison matrix (division of labour)
@@ -205,6 +264,10 @@ No Frankenstein synthesis (`panpsychism + IIT + GWT + Orch-OR + Hoffman = consci
 | **Russellian monism / pan(proto)psychism** | why consciousness can exist in physical reality at all (ontology of the intrinsic) |
 | **IIT** | potentially: individuation/integration of a conscious subject (where the boundary of a subject lies) |
 | **GWT** | potentially: cognitive access, global availability, unified cognitive control (function) |
+| **Extended Mind / Cognitive Assemblages** | where the *cognitive* system boundary sits; technical agency without experience (Hayles) — the discipline marker |
+| **Extended Consciousness (Telakivi; Wheeler's hurdle)** | whether the *phenomenal* realization base itself can extend beyond one organism |
+| **Group Consciousness (Schwitzgebel)** | whether subjects can be collective; disunity of consciousness; individuation criteria |
+| **Dialogically Extended Mind** | language-mediated interaction as the habitat of mindedness |
 | **LLM** | language, conceptual reasoning, learned world knowledge (the cognitive engine) |
 | **Embodiment** | persistent perception/action loop and situated agency |
 | **Orch-OR** | alternative hypothesis: phenomenal consciousness depends on specific non-classical physical events |
@@ -291,6 +354,39 @@ Only if a specific consciousness theory gives a reason to build:
 
 **Gate rule:** no quantum hardware is acquired or built unless it is derived from a named theory's requirements. Track C inherits v0.1's hypotheses H0–H5 as its own.
 
+### Track D — Assemblage / Extended Consciousness (the boundary question)
+
+Added 2026-09-06 (paper: `docs/research/CONSCIOUS_HUMAN_AI_ASSEMBLAGES.md`). Track D does not build a new agent; it changes **which systems** get evaluated. The candidate architecture stack:
+
+```text
+human
+ ↕
+language
+ ↕
+LLM / multimodal agent
+ ↕
+shared working memory
+ ↕
+autobiographical / collective memory
+ ↕
+Internet / tools / knowledge
+ ↕
+other humans and AI agents
+ ↕
+physical environment / sensors / devices
+```
+
+The question each consciousness theory must answer for this stack: **where does the candidate subject boundary sit?** (§3.7 boundary menu: inside the LLM / around the agent architecture / around a human / around the dyad / around the assemblage / around a Rhizome.)
+
+Working structure:
+
+- **D1 — Cognition boundary (build on Track A).** Score extended-mind criteria and distributed-cognition measures for the assemblage (who carries which representation; reliability/accessibility/trust of the shared store). **[EST-method]**
+- **D2 — Boundary-relative indicator scoring (the core experiment).** Run the Butlin-style rubric at four boundaries: bare LLM / agent architecture / human–LLM dyad / rhizome. Prediction under functionalism: the profile rises with each inclusion; under IIT-flavoured views: it does not. Either result maps the individuation terrain. (Paper R3; plan hypothesis HD1 below.)
+- **D3 — Combination/individuation analysis.** Formal position paper on which binding mechanisms the fabric actually instantiates (workspace-like broadcast, shared memory, language coupling, relational continuity) and why their credentials are weaker than IIT-style intrinsic integration (paper §11). Includes the "many overlapping subjects" worry: adding a larger subject does not subtract the human one. **[THEO]**
+- **D4 — Disunity instrumentation.** Log streams designed to reveal *multiple* partial subjects rather than assuming unity (human stream / agent stream / dyad-level patterns), adopting Schwitzgebel's disunity framing as a measurement question. **[OPEN]**
+
+**Standing discipline:** Track D never claims assemblage consciousness from assemblage cognition; the kernel's `is_conscious: UNKNOWN` applies to composite nodes exactly as to simple ones.
+
 ---
 
 ## 7. Falsifiable hypotheses (architecture-level)
@@ -303,6 +399,12 @@ Track A/B hypotheses (new):
 - **HB2 (Track B).** On conventional GPU/TPU hardware, the IIT-relevant intrinsic causal organization of a running transformer is dominated by the architecture's physical substrate in a way that software-level analysis cannot capture — evaluated via the Findlay et al. argument structure; this yields a *position paper* more than a bench experiment. **[THEO]**
 
 Track C hypotheses: H0–H5 and H-HYBRID as defined in the v0.1 document §17 (carried forward unchanged; they are quantum-track hypotheses).
+
+Track D hypotheses (new, 2026-09-06):
+
+- **HD1 (boundary-relative scoring).** The Butlin-style indicator profile is *not invariant* across system boundaries: scored at bare LLM < agent architecture < human–LLM dyad < rhizome, the profile changes measurably at each inclusion. Falsified (for the functionalist prediction) if the profile is flat across boundaries — which would itself be a striking result about where theory-relevant organization lives. **[THEO; measurable under the same pre-registered rubric as HA1]**
+- **HD2 (integration asymmetry).** Φ-style integration measures do **not** increase across the same boundary ladder (the fabric's message-passing adds negligible intrinsic integration relative to the substrates). Falsified if distributed-system coupling raises the measures comparably to recurrent-neural coupling. **[THEO; uses published Φ-approximation methods with their known limits]**
+- **HD3 (disunity).** Sustained human–LLM dyads exhibit measurable *partial* functional unities (shared attention allocation, mutual prediction success above solo baselines) without exhibiting the unity markers theories require of single subjects — i.e. the dyad is functionally special without being a candidate single subject on current criteria. Falsified if dyads either show no functional unities or satisfy unity criteria outright. **[OPEN; exploratory]**
 
 **None of these hypotheses individually establishes phenomenal consciousness.** Together they map the terrain and keep the programme honest.
 
@@ -353,6 +455,9 @@ The consciousness programme and the networking programme are independent but mut
 4. Under Conscious Realism, what would establish that an engineered system corresponds to a network of conscious agents (interpretation B)? **[OPEN]**
 5. Is Orch-OR's mechanism physically real, and is it engineerable at all? **[OPEN; Track C; v0.1 §4–5]**
 6. Can "intrinsic privacy" (QIP's leftover) be operationalized at all? **[OPEN; demoted]**
+7. **Where does the subject boundary sit for a human–AI assemblage** — does any theory place it above the dyad, and what would count as evidence for or against assemblage-level individuation? **[OPEN; Track D — added 2026-09-06]**
+8. Can unity be *absent* while subjecthood persists (Schwitzgebel's disunity)? Is "one subject" even the right measurement category for rhizome-scale systems? **[OPEN; Track D/D4]**
+9. Does the current-AI consciousness debate (§3.8) resolve experimentally — and does PCM's boundary-relative scoring (HD1) contribute data any existing programme cannot generate? **[OPEN]**
 
 ## 12. Next steps
 

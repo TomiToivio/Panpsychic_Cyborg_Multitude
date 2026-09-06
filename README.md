@@ -193,7 +193,11 @@ Phase 4    GATED BCI/biosignal nodes over the same subjects (after 3b)
 - [PCM_EMBODIED_AI_PLAN.md](PCM_EMBODIED_AI_PLAN.md) — embodied AI architecture
   (distributed physical proxies; Home Assistant/MQTT/ROS 2; world model; safety)
 - [PCM_CONSCIOUS_AI_PLAN.md](PCM_CONSCIOUS_AI_PLAN.md) — theory-neutral conscious-AI
-  research plan (indicator-based; classical default, quantum optional)
+  research plan (indicator-based; classical default, quantum optional;
+  Track D: assemblage/extended consciousness)
+- [docs/research/CONSCIOUS_HUMAN_AI_ASSEMBLAGES.md](docs/research/CONSCIOUS_HUMAN_AI_ASSEMBLAGES.md) —
+  research paper: extended cognition to the possibility of a conscious
+  multitude (companion to the conscious-AI plan; issue #8)
 - [docs/research/HUMAN_AI_COLLECTIVE_INTELLIGENCE_AND_SWARMS.md](docs/research/HUMAN_AI_COLLECTIVE_INTELLIGENCE_AND_SWARMS.md) —
   research bridge to hybrid intelligence, agent societies, and swarms
 - [TOWARDS_ARTIFICIAL_QUANTUM_CONSCIOUSNESS.md](TOWARDS_ARTIFICIAL_QUANTUM_CONSCIOUSNESS.md) —
