@@ -270,6 +270,9 @@ later stages; each is one new `PhysicalDevice` implementation away.
   multitude (companion to the conscious-AI plan; issue #8)
 - [VALUEFLOWS.md](VALUEFLOWS.md) — ValueFlows domain: economic
   coordination and the production of the Common (issue #11)
+- [docs/research/PCM_BCI_CYBORG_INTEGRATION.md](docs/research/PCM_BCI_CYBORG_INTEGRATION.md) —
+  research document: BCI for PCM — toward a human–AI cognitive
+  assemblage (signals, stacks, neuro-rights, roadmap; issue #13)
 - [docs/research/HUMAN_AI_COLLECTIVE_INTELLIGENCE_AND_SWARMS.md](docs/research/HUMAN_AI_COLLECTIVE_INTELLIGENCE_AND_SWARMS.md) —
   research bridge to hybrid intelligence, agent societies, and swarms
 - [TOWARDS_ARTIFICIAL_QUANTUM_CONSCIOUSNESS.md](TOWARDS_ARTIFICIAL_QUANTUM_CONSCIOUSNESS.md) —
