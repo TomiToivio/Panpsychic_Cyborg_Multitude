@@ -129,6 +129,8 @@ Phase 4    NEXT  BCI/biosignal nodes over the same subjects
 
 - [PANPSYCHIC_CYBORG_MULTITUDE.md](PANPSYCHIC_CYBORG_MULTITUDE.md) — manifesto + project description
 - [NETWORKING_STACK.md](NETWORKING_STACK.md) — networking architecture (zenoh fabric)
+- [PCM_EMBODIED_AI_PLAN.md](PCM_EMBODIED_AI_PLAN.md) — embodied AI architecture
+  (distributed physical proxies; Home Assistant/MQTT/ROS 2; world model; safety)
 - [PCM_CONSCIOUS_AI_PLAN.md](PCM_CONSCIOUS_AI_PLAN.md) — theory-neutral conscious-AI
   research plan (indicator-based; classical default, quantum optional)
 - [TOWARDS_ARTIFICIAL_QUANTUM_CONSCIOUSNESS.md](TOWARDS_ARTIFICIAL_QUANTUM_CONSCIOUSNESS.md) —
