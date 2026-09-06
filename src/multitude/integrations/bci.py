@@ -62,6 +62,8 @@ class BCIObservation:
             )
         if not self.signal_type or not self.signal_type.strip():
             raise BCIError("BCI observation needs a non-empty signal_type")
+        if not str(self.ts).strip():
+            raise BCIError("BCI observation needs a non-empty timestamp (provenance)")
         conf = float(self.confidence)
         if math.isnan(conf) or not (0.0 <= conf <= 1.0):
             raise BCIError(f"confidence must be in [0.0, 1.0], got {self.confidence}")
