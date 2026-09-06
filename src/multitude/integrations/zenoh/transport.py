@@ -243,24 +243,13 @@ class ZenohTransport:
             if env_id and env_id in self._seen:
                 return
             self._seen.add(env_id)
-        handler = self.on_envelope or self._default_handler
-        if handler is not None:
-            try:
-                handler(env)
-            except Exception:
-                pass
-
-    def _default_handler(self, env: dict[str, Any]) -> None:
-        """Default dispatch: write to the rhizome log via the service layer."""
-        content = env.get("content", {}) or {}
-        text = content.get("text") or content.get("message") or ""
-        if text and hasattr(self.rhizome, "say"):
-            self.rhizome.say(str(text), kind="say", meta={
-                "interface": "zenoh",
-                "from_did": env.get("from"),
-                "envelope_id": env.get("id"),
-                "envelope_type": env.get("type"),
-            })
+        handler = self.on_envelope
+        if handler is None:  # start_transport rejects this; defensive guard
+            return
+        try:
+            handler(env)
+        except Exception:
+            pass
 
 
 def _verify_or_raise(data: dict[str, Any]) -> dict[str, Any]:
