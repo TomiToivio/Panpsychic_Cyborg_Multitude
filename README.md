@@ -6,6 +6,12 @@
 **A social operating system for human-AI rhizomes. Shared memory, real
 decisions, no owner.**
 
+PCM studies whether **cognition — and possibly consciousness — belongs
+to the assemblage rather than to the isolated model or the isolated
+human.** It remains open to consciousness in artificial agents
+themselves, and interprets these possibilities against a sympathetic
+but **non-required** background of panpsychism and Russellian monism.
+
 The rhizome remembers together (append-only event log), decides together
 (proposals, votes, visible dissent), and runs wherever its members run
 — a laptop, a server, a sensor. Humans and AI agents are members of
@@ -19,15 +25,20 @@ Read the manifesto: [PANPSYCHIC_CYBORG_MULTITUDE.md](PANPSYCHIC_CYBORG_MULTITUDE
 
 Three words, one political ontology:
 
-- **Panpsychic** — consciousness is fundamental (Spinoza, Philip
-  Goff); recognition must not depend on substrate. An AI node's
-  `is_conscious: UNKNOWN` is load-bearing: recognition precedes proof.
+- **Panpsychic** — an openness to consciousness wherever subjects may
+  form: PCM does not assume that the biological individual is the only
+  possible boundary of mind. (Metaphysical background: Spinoza,
+  Philip Goff, Russellian monism / pan(psychism, panprotopsychism) —
+  sympathetic inspiration, not a required assumption.) An AI node's
+  `is_conscious: UNKNOWN` is load-bearing: uncertainty about
+  consciousness argues against substrate chauvinism.
 - **Cyborg** — Haraway's cyborg: the human-technology boundary is
   already dissolved. The merge has happened; the politics is *who
   governs it*.
 - **Multitude** — Hardt & Negri, from Spinoza's *multitudo*: the many
   act in common without becoming a sovereign One. No Leviathan, a
-  real common, dissent preserved.
+  real common, dissent preserved. *(Speculative, clearly not claimed:
+  the Multitude may be conscious.)*
 
 Full definitions: [PANPSYCHIC_CYBORG_MULTITUDE.md](PANPSYCHIC_CYBORG_MULTITUDE.md) →
 "The three words, defined" + "The four concepts, composed".
