@@ -219,6 +219,23 @@ the whole pipeline is tested without hardware; device-specific support
 adapters implementing the same `BCIAdapter.read_context()` contract.
 Real-device fields stay behind the Phase 3b confidentiality gate.
 
+### Optional physical embodiment (first step)
+
+> **The LLM never touches hardware.** Structured intent → policy /
+> capability check → device → verified resulting state.
+
+`src/multitude/integrations/embodiment.py` establishes the device
+architecture: a thin `PhysicalDevice` ABC, a normalized
+action/observation model (`DeviceAction`, verified `ActionResult`),
+a `SimulatedLight` reference device (no real dependency), and the
+`PhysicalAgency` adapter — **disabled by default**
+(`PCM_EMBODIMENT_ENABLED=false`); PCM works exactly as before with the
+flag off. Fail-closed chain: capability allowlist → policy check
+(`pcm.policy`-compatible, default DENY) → structured action only (no
+arbitrary code execution) → state read-back verification → provenance
+journal. Real integrations (Home Assistant, MQTT, drones, ROS 2) are
+later stages; each is one new `PhysicalDevice` implementation away.
+
 ## Documents
 
 - [PANPSYCHIC_CYBORG_MULTITUDE.md](PANPSYCHIC_CYBORG_MULTITUDE.md) — manifesto + project description
