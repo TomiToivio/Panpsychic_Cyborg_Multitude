@@ -9,7 +9,7 @@ from urllib.parse import parse_qs, urlparse
 
 from multitude.models import Position, Rule
 from multitude.service import MultitudeService
-from multitude.tribe import TribeError
+from multitude.rhizome import RhizomeError
 
 
 def _json_bytes(payload: Any) -> bytes:
@@ -37,7 +37,7 @@ def make_handler(service: MultitudeService):
             try:
                 return json.loads(raw.decode("utf-8") or "{}")
             except ValueError as exc:
-                raise TribeError(f"invalid JSON body: {exc}") from exc
+                raise RhizomeError(f"invalid JSON body: {exc}") from exc
 
         def do_GET(self) -> None:  # noqa: N802
             try:
@@ -70,7 +70,7 @@ def make_handler(service: MultitudeService):
                     self._send(200, {"items": service.search_memory(query)})
                     return
                 self._send(404, {"error": "not found"})
-            except (TribeError, ValueError) as exc:
+            except (RhizomeError, ValueError) as exc:
                 self._send(400, {"error": str(exc)})
 
         def do_POST(self) -> None:  # noqa: N802
@@ -113,7 +113,7 @@ def make_handler(service: MultitudeService):
                     self._send(201, result)
                     return
                 self._send(404, {"error": "not found"})
-            except (KeyError, TribeError, ValueError) as exc:
+            except (KeyError, RhizomeError, ValueError) as exc:
                 self._send(400, {"error": str(exc)})
 
     return MultitudeApiHandler

@@ -3,13 +3,13 @@
 > **AI is not an isolated artificial intelligence.
 > AI is an assemblage of human + LLM + language + "the entire Internet."**
 
-**A social operating system for human-AI tribes. Shared memory, real
+**A social operating system for human-AI rhizomes. Shared memory, real
 decisions, no owner.**
 
-The tribe remembers together (append-only event log), decides together
+The rhizome remembers together (append-only event log), decides together
 (proposals, votes, visible dissent), and runs wherever its members run
 — a laptop, a server, a sensor. Humans and AI agents are members of
-the same tribe with the same memory and the same rules. No platform,
+the same rhizome with the same memory and the same rules. No platform,
 no cloud, no landlord: **the common is an event log that belongs to
 the people who live in it.**
 
@@ -30,7 +30,29 @@ Three words, one political ontology:
   real common, dissent preserved.
 
 Full definitions: [PANPSYCHIC_CYBORG_MULTITUDE.md](PANPSYCHIC_CYBORG_MULTITUDE.md) →
-"The three words, defined".
+"The three words, defined" + "The four concepts, composed".
+
+## The four concepts, composed
+
+- **Assemblage** = what an actor *is*: human + LLM + language +
+  tools + memory + network — modeled as a first-class composite actor.
+- **Rhizome** = the local self-governing network of assemblages
+  (Deleuze & Guattari: no root, no center, no fixed hierarchy —
+  connects heterogeneous elements through multiple entry points, forms,
+  breaks, reconnects, and evolves without being a tree).
+- **Common** = the memory, knowledge, code, resources, relationships,
+  and institutions produced and governed together.
+- **Swarm** = one possible decentralized coordination mechanism (a
+  technique, not the political form).
+- **Multitude** = the wider political subject formed by heterogeneous
+  singularities and rhizomes.
+
+> **Rhizomes are composed of assemblages. Rhizomes produce and govern
+> the Common. Multiple rhizomes compose the Multitude.**
+
+> **Panpsychic Cyborg Multitude is a rhizome of human–AI assemblages
+> that produces and governs a common without collapsing its members
+> into a sovereign One.**
 
 ## The six layers
 
@@ -42,14 +64,14 @@ not a user account, a whole being.
 |---|---|---|
 | **Physical** | location in spacetime | "at the co-op, Pasila" |
 | **Biological** | the organism: species, sleep, hunger, mood | needs rest, is fed |
-| **Social** | tribes, ties, institutions, power | member of tribe X, close tie to Y |
+| **Social** | rhizomes, ties, institutions, power | member of rhizome X, close tie to Y |
 | **Linguistic** | languages, vocabularies, capacities | fluent fi/en, legal jargon |
 | **Psychic** | consciousness state, valence, attention | conscious, awake, focused |
 | **Cybernetic** | interfaces to machine systems | text-mode now, BCI later |
 
 A human fills all six naturally. An AI node fills five (no biology —
 and the kernel never pretends otherwise). A sensor fills two. The
-same vocabulary covers everyone, so the tribe's memory can reason
+same vocabulary covers everyone, so the rhizome's memory can reason
 about all of them together — and the layer model is where BCI and
 sensor context will land in later phases.
 
@@ -87,7 +109,7 @@ NETWORKING_STACK.md               node-to-node networking architecture
 requirements.txt                  dependencies
 LICENSE                           CC0 1.0 Universal
 src/multitude/
-  tribe.py      — tribe model: members, events, memory, proposals
+  rhizome.py      — rhizome model: members, events, memory, proposals
   store.py      — append-only event store (JSONL)
   service.py    — application layer (all operations)
   cli.py        — the CLI interface
@@ -116,7 +138,7 @@ constitution: memory, voice, decision.
 pip install -r requirements.txt
 
 python multitude.py found --name "My Multitude" --founder alice
-python multitude.py say --as alice --text "The tribe is alive."
+python multitude.py say --as alice --text "The rhizome is alive."
 python multitude.py status
 ```
 
@@ -170,7 +192,7 @@ Phase 4    GATED BCI/biosignal nodes over the same subjects (after 3b)
 ## Principles
 
 - Event-sourced and replayable — history belongs to the members.
-- Local-first — the tribe's data lives with the tribe.
+- Local-first — the rhizome's data lives with the rhizome.
 - Kind-aware membership — biological and technological nodes, same log.
 - Consent-first governance with explicit block power.
 - Thin adapters, small kernel — transports never touch the core.
@@ -179,7 +201,7 @@ Phase 4    GATED BCI/biosignal nodes over the same subjects (after 3b)
 
 ## Scope
 
-This repository is self-contained: the tribe kernel and the node
+This repository is self-contained: the rhizome kernel and the node
 fabric, nothing else. Research tooling, discourse-analysis pipelines,
 and game/simulation work live in separate projects with their own
 repositories — they are not part of PCM's public distribution.

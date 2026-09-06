@@ -4,9 +4,9 @@
 Ties the identity, envelope and bridge modules into one call surface for
 the Hermes node. Called from agent.py's command dispatch:
 
-  - ``ensure_node_identity(tribe_dir)``  — idempotent; generates the
+  - ``ensure_node_identity(rhizome_dir)``  — idempotent; generates the
     node's did:key on first use, loads it afterwards.
-  - ``node_status(tribe_dir)``           — identity + protocol info for
+  - ``node_status(rhizome_dir)``           — identity + protocol info for
     the ``status`` command.
   - ``signed_say_envelope(...)``         — builds and signs a ``say``
     envelope for outbound delivery.
@@ -31,14 +31,14 @@ from multitude.pcm.identity import (
 PROTOCOL_BANNER = "PCM 1"
 
 
-def ensure_node_identity(tribe_dir: str) -> dict:
-    """Generate-or-load the node identity inside the tribe directory."""
-    return generate_identity(tribe_dir)
+def ensure_node_identity(rhizome_dir: str) -> dict:
+    """Generate-or-load the node identity inside the rhizome directory."""
+    return generate_identity(rhizome_dir)
 
 
-def node_status(tribe_dir: str) -> dict[str, Any]:
+def node_status(rhizome_dir: str) -> dict[str, Any]:
     """Identity + protocol status for the node's status command."""
-    identity = ensure_node_identity(tribe_dir)
+    identity = ensure_node_identity(rhizome_dir)
     return {
         "protocol": PROTOCOL_BANNER,
         "did": identity["did"],
@@ -48,11 +48,11 @@ def node_status(tribe_dir: str) -> dict[str, Any]:
     }
 
 
-def signed_say_envelope(tribe_dir: str, text: str, *, interface: str = "jsonl",
+def signed_say_envelope(rhizome_dir: str, text: str, *, interface: str = "jsonl",
                         actor_kind: str = "ai",
                         capabilities: list[str] | None = None) -> dict[str, Any]:
     """Build a signed say envelope attributed to this node."""
-    identity = ensure_node_identity(tribe_dir)
+    identity = ensure_node_identity(rhizome_dir)
     env = Envelope.create(
         "say", identity["did"], identity["did"],
         {"text": text, "interface": interface},

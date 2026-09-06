@@ -53,7 +53,7 @@ Selected recent work (verified via publisher metadata, 2026-09-06):
    doi:10.1111/tops.12679, 2023). Contributes a socio-cognitive
    architecture for human–machine collectives: shared representation,
    roles, and interaction regimes as design targets. PCM relevance: the
-   tribe kernel is a minimal instantiation of exactly such an
+   rhizome kernel is a minimal instantiation of exactly such an
    architecture — shared memory = shared representation, member layers =
    role/visibility structure, proposals = interaction regime.
 
@@ -62,7 +62,7 @@ Selected recent work (verified via publisher metadata, 2026-09-06):
    doi:10.1007/s00146-020-01005-y, 2020). Argues hybrid CI should be
    studied at the level of the *society* of humans and AIs, not lone
    human+AI pairs, with attention to how responsibility and epistemic
-   contributions distribute. PCM relevance: validates the tribe (not the
+   contributions distribute. PCM relevance: validates the rhizome (not the
    dyad) as the unit of design; warns that blending human and machine
    contributions has accountability implications — hence PCM's
    provenance discipline (`author`, `human` flag, `meta.source` on every
@@ -133,7 +133,7 @@ Selected recent work:
    social simulation on a recommender-system substrate. PCM relevance:
    shows scale-up of agent societies is engineering-feasible, but also
    that emergent phenomena at scale diverge from small-community
-   dynamics — PCM is explicitly small-community-first (tribe scale),
+   dynamics — PCM is explicitly small-community-first (rhizome scale),
    and says so.
 
 5. **AgentSociety** (arXiv:2502.08691, 2025) — large-scale LLM-driven
@@ -141,7 +141,7 @@ Selected recent work:
    questions. Together with OASIS and Generative Agents it defines the
    state of the art in LLM society simulation. PCM relevance: a
    simulation harness PCM could adopt for testing governance changes
-   in silico before deploying them on real tribes.
+   in silico before deploying them on real rhizomes.
 
 6. **SwarmBench: benchmarking LLM agents as swarm orchestrators**
    (2025). Evaluates LLMs in swarm-style coordination — whether LLM
@@ -162,7 +162,7 @@ Selected recent work:
 
 | Concept | Definition | PCM analogue |
 |---|---|---|
-| **Multi-agent system (MAS)** | multiple intelligent agents interacting | a tribe with several members |
+| **Multi-agent system (MAS)** | multiple intelligent agents interacting | a rhizome with several members |
 | **Organization** | coordination via explicit roles/hierarchy | roles, memberships, governance rules |
 | **Swarm** | decentralized local interaction producing emergent collective behaviour | the Zenoh fabric's peer-to-peer layer: no router authority, local rules only |
 | **Multitude** (Hardt/Negri) | heterogeneous singularities capable of collective action *without* becoming a single homogeneous sovereign actor | the whole design: kind-aware nodes, dissent preserved, no global owner |
@@ -197,7 +197,7 @@ Bringing the two literatures together against PCM's hypothesis:
   [EST as research programmes]: cognition can be analyzed at the system
   level, spanning people and artifacts; memory and computation live in
   the environment. PCM's shared event log + per-node memory is a
-  textbook distributed-cognitive system: the log is the tribe's
+  textbook distributed-cognitive system: the log is the rhizome's
   external memory with provenance, the kernel's replay is its
   reconstructive recall.
 - **Social machines** (the Web-science line: human+machine collectives
@@ -213,7 +213,7 @@ Bringing the two literatures together against PCM's hypothesis:
 
 The synthesis PCM takes:
 
-> A PCM tribe is a **sociotechnical cognitive system**: a hybrid
+> A PCM rhizome is a **sociotechnical cognitive system**: a hybrid
 > collective whose memory is an append-only commons, whose coordination
 > is peer-to-peer with local governance, and whose members — human and
 > artificial, simple and assemblage — remain heterogeneous singularities.
@@ -240,7 +240,7 @@ The synthesis PCM takes:
    kernel scale.
 4. **Peer-to-peer communication, no central authority.** The fabric
    layer (peers/routers, liveliness presence) is PCM's swarm layer;
-   governance stays local to tribes; no global consensus.
+   governance stays local to rhizomes; no global consensus.
 5. **Emergent norms need a substrate.** The lexicon and protocol-term
    records are where conventions stabilize; agent-society research
    suggests explicit convention layers outperform implicit ones — keep
@@ -266,13 +266,13 @@ The synthesis PCM takes:
 - Can CI metrics from the hybrid-intelligence literature be computed
   directly on PCM logs (contribution entropy, epistemic diversity)?
   [open, testable]
-- Do LLM-node participation patterns in real tribes reproduce the
+- Do LLM-node participation patterns in real rhizomes reproduce the
   failure modes CAMEL/SwarmBench document — and do PCM's governance
   events actually prevent them? [open, testable in simulation first]
 - Does the swarm layer (fabric) need emergent-behaviour guardrails as
-  it grows past tribe scale? [open]
+  it grows past rhizome scale? [open]
 - Where exactly is the line between "organization" and "multitude" in
-  a running tribe — when does role structure start violating
+  a running rhizome — when does role structure start violating
   singularity-heterogeneity? [open, political]
 
 ## Selected references

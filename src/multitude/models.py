@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
-"""Domain models for the Panpsychic Cyborg Multitude tribe kernel.
+"""Domain models for the Panpsychic Cyborg Multitude rhizome kernel.
 
-Every participant in a tribe is a node. Nodes are biological (humans,
+Every participant in a rhizome is a node. Nodes are biological (humans,
 acting through the interface) or technological (LLM-backed agents acting
 through the same interface). Node equality is structural here, not
 policy: both kinds speak, propose, vote, and remember through the same
@@ -200,7 +200,7 @@ class WorkAllocation(BaseModel):
     ts: str = ""
 
 
-class TribeMembershipRecord(BaseModel):
+class RhizomeMembershipRecord(BaseModel):
     id: str
     ts: str
     member_id: str
@@ -236,7 +236,7 @@ class GovernanceRuleRecord(BaseModel):
     title: str
     description: str
     kind: str = "policy"  # policy | access | economic | care | moderation
-    scope: str = "tribe"  # tribe | business | social | health | federated
+    scope: str = "tribe"  # rhizome | business | social | health | federated
     applies_to: list[str] = Field(default_factory=list)
     status: str = "active"  # draft | active | deprecated
     defined_by: str
@@ -286,7 +286,7 @@ class EconomicAgreementRecord(BaseModel):
     meta: dict[str, Any] = Field(default_factory=dict)
 
 
-class TribeEconomyProfileRecord(BaseModel):
+class RhizomeEconomyProfileRecord(BaseModel):
     id: str
     ts: str
     created_by: str
@@ -307,7 +307,7 @@ class FederationAgreementRecord(BaseModel):
     ts: str
     created_by: str
     title: str
-    partner_tribe: str
+    partner_rhizome: str = Field(alias="partner_tribe")  # legacy wire name
     partner_slug: Optional[str] = None
     agreement_type: str = "alliance"  # alliance | mutual_aid | commercial | research
     scopes: list[str] = Field(default_factory=list)
@@ -317,6 +317,8 @@ class FederationAgreementRecord(BaseModel):
     related_agreement_ids: list[str] = Field(default_factory=list)
     notes: str = ""
     meta: dict[str, Any] = Field(default_factory=dict)
+
+    model_config = {"populate_by_name": True}
 
 
 class EconomicAgentRecord(BaseModel):
@@ -500,9 +502,9 @@ class MemoryEntry(BaseModel):
     human: bool = True  # governance: human vs AI authorship stays visible
     visibility: str = "shared"  # shared | private | restricted
     source: str = ""  # provenance: self_report | imported | agent | decision | external
-    audience: list[str] = Field(default_factory=lambda: ["tribe"])
+    audience: list[str] = Field(default_factory=lambda: ["rhizome"])
     revisions: list[str] = Field(default_factory=list)  # append-only: old text kept
-    scope: str = "tribe"  # tribe | research | federated
+    scope: str = "tribe"  # rhizome | research | federated
     meta: dict[str, Any] = Field(default_factory=dict)
 
 
@@ -575,7 +577,7 @@ class EntityLink(BaseModel):
 
 
 class Event(BaseModel):
-    """One fact in the tribe's history. The tribe's memory IS this log."""
+    """One fact in the rhizome's history. The rhizome's memory IS this log."""
 
     id: str
     type: str

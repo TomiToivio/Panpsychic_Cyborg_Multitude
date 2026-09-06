@@ -8,7 +8,7 @@ technological, or mixed - is described along six layers:
               relevant for IoT devices and unembodied tech nodes
 * biological  - flesh and its needs: sleep, hunger, mood, the ape in
               human agents; later non-human nodes (dogs, chimpanzees)
-* social      - the tribe plus wider Castellsian networks and Luhmannian
+* social      - the rhizome plus wider Castellsian networks and Luhmannian
               systems; designed to be subdivided later
 * linguistic  - languages spoken and special vocabularies known
 * psychic     - the psyche of conscious agents (Faggin's Quantum

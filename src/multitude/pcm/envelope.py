@@ -12,7 +12,7 @@ Envelope shape (pcm "1"):
       "id": "pcm_<...>",
       "type": "layer_recorded",
       "from": "did:key:z...",     sender node
-      "to": "did:key:z...",       recipient node or tribe square
+      "to": "did:key:z...",       recipient node or rhizome square
       "ts": "2026-09-05T22:40:00Z",
       "interface": "jsonl",
       "actor_kind": "ai",

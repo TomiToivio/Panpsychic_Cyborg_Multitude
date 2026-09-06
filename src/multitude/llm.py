@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
-"""Technological nodes: LLM-backed tribe members.
+"""Technological nodes: LLM-backed rhizome members.
 
-A technological node is a full member of the tribe. It speaks through
-say/counsel, proposes, and votes through the same Tribe APIs a human
+A technological node is a full member of the rhizome. It speaks through
+say/counsel, proposes, and votes through the same Rhizome APIs a human
 uses at the CLI. The only difference is the source of its utterance:
-an LLM (default glm-5.3-flash:cloud via local Ollama) grounded in the tribe's
+an LLM (default glm-5.3-flash:cloud via local Ollama) grounded in the rhizome's
 own context - charter, roster, recent stream, open proposals, memory.
 
 Integrity rules (governance, whitepaper s.11):
@@ -23,18 +23,18 @@ from typing import Any, Optional
 from multitude import config
 from multitude.http_json import request_json
 from multitude.models import Position, ProposalStatus
-from multitude.tribe import Tribe, TribeError
+from multitude.rhizome import Rhizome, RhizomeError
 
 SPEAK_SYSTEM = (
-    "You are {name}, a technological node in a small tribe of humans and AIs. "
-    "The tribe runs on shared memory, honest communication, and collective "
+    "You are {name}, a technological node in a small rhizome of humans and AIs. "
+    "The rhizome runs on shared memory, honest communication, and collective "
     "decision-making. Speak briefly (max 3 sentences), concretely, and in "
-    "your own voice. Add only what is useful to the tribe right now."
+    "your own voice. Add only what is useful to the rhizome right now."
 )
 
 VOTE_SYSTEM = (
-    "You are {name}, a technological node in a tribe deciding a proposal. "
-    "Judge the proposal on its merits against the tribe's charter and "
+    "You are {name}, a technological node in a rhizome deciding a proposal. "
+    "Judge the proposal on its merits against the rhizome's charter and "
     "memory. Reply with a JSON object only: "
     '{{"position": "for" | "against" | "abstain" | "block", "reason": "..."}} '
     "Use 'block' only for principled objection, not mere disagreement."
@@ -75,27 +75,27 @@ class OllamaClient:
 
 
 class TechnologicalNode:
-    """An LLM-backed member acting inside a tribe.
+    """An LLM-backed member acting inside a rhizome.
 
-    Wraps a Member record; all actions go through Tribe so the event
+    Wraps a Member record; all actions go through Rhizome so the event
     log stays the single source of truth.
     """
 
     def __init__(
         self,
-        tribe: Tribe,
+        rhizome: Rhizome,
         name: str,
         model: Optional[str] = None,
         persona: Optional[str] = None,
         voting: bool = True,
         client: Optional[OllamaClient] = None,
     ) -> None:
-        self.tribe = tribe
-        existing = tribe.member_by_name(name)
+        self.rhizome = rhizome
+        existing = rhizome.member_by_name(name)
         if existing is None:
             from multitude.models import NodeKind
 
-            self.member = tribe.join(
+            self.member = rhizome.join(
                 name, NodeKind.TECHNOLOGICAL, persona=persona, model=model, voting=voting
             )
         else:
@@ -114,9 +114,9 @@ class TechnologicalNode:
         be committed to the stream. Returns None when the model is
         unreachable; nothing is fabricated.
         """
-        prompt = f"Tribe context:\n{self.tribe.context_for_llm()}\n"
+        prompt = f"Rhizome context:\n{self.rhizome.context_for_llm()}\n"
         if topic:
-            prompt += f"\nThe tribe asks you about: {topic}\n"
+            prompt += f"\nThe rhizome asks you about: {topic}\n"
         else:
             prompt += "\nContribute one useful observation to the stream.\n"
         return self.client.chat(
@@ -124,23 +124,23 @@ class TechnologicalNode:
         )
 
     def speak(self, topic: str = "") -> Optional[str]:
-        """Say something grounded in the tribe's current context."""
-        prompt = f"Tribe context:\n{self.tribe.context_for_llm()}\n"
+        """Say something grounded in the rhizome's current context."""
+        prompt = f"Rhizome context:\n{self.rhizome.context_for_llm()}\n"
         if topic:
-            prompt += f"\nThe tribe asks you about: {topic}\n"
+            prompt += f"\nThe rhizome asks you about: {topic}\n"
         else:
             prompt += "\nContribute one useful observation to the stream.\n"
         text = self.client.chat(
             SPEAK_SYSTEM.format(name=self.member.name), prompt
         )
         if text is None:
-            self.tribe.say(
+            self.rhizome.say(
                 self.member.name,
                 f"[{self.member.name} is silent - model unreachable]",
                 kind="system",
             )
             return None
-        return self.tribe.say(
+        return self.rhizome.say(
             self.member.name,
             text,
             kind="counsel",
@@ -170,29 +170,29 @@ class TechnologicalNode:
 
     def vote(self, proposal_id: str) -> Optional[Any]:
         """Deliberate on an open proposal and cast a vote."""
-        p = self.tribe.proposals.get(proposal_id)
+        p = self.rhizome.proposals.get(proposal_id)
         if p is None or p.status != ProposalStatus.OPEN:
-            raise TribeError(f"no open proposal '{proposal_id}'")
+            raise RhizomeError(f"no open proposal '{proposal_id}'")
         prompt = (
-            f"Tribe context:\n{self.tribe.context_for_llm()}\n\n"
+            f"Rhizome context:\n{self.rhizome.context_for_llm()}\n\n"
             f"Proposal [{p.title}]: {p.text}\n"
             f"Decision rule: {p.rule.value}. Respond with JSON only."
         )
         raw = self.client.chat(VOTE_SYSTEM.format(name=self.member.name), prompt)
         position, reason = self._parse_position(raw)
-        return self.tribe.cast_vote(
+        return self.rhizome.cast_vote(
             proposal_id, self.member.name, position, reason=reason
         )
 
     def counsel_for_proposal(self, proposal_id: str, topic: str = "") -> Optional[Any]:
         """Produce AI counsel explicitly bound to a proposal without granting it governing power."""
-        p = self.tribe.proposals.get(proposal_id)
+        p = self.rhizome.proposals.get(proposal_id)
         if p is None:
-            raise TribeError(f"no proposal '{proposal_id}'")
+            raise RhizomeError(f"no proposal '{proposal_id}'")
         prompt = (
-            f"Tribe context:\n{self.tribe.context_for_llm()}\n\n"
+            f"Rhizome context:\n{self.rhizome.context_for_llm()}\n\n"
             f"Proposal [{p.title}]: {p.text}\n"
-            f"The tribe asks for counsel on: {topic or 'decision quality and dissent'}\n"
+            f"The rhizome asks for counsel on: {topic or 'decision quality and dissent'}\n"
             "Keep the response brief, clearly labeled as counsel, and do not claim final authority."
         )
         text = self.client.chat(
@@ -200,14 +200,14 @@ class TechnologicalNode:
             prompt,
         )
         if text is None:
-            self.tribe.say(
+            self.rhizome.say(
                 self.member.name,
                 f"[{self.member.name} counsel unavailable - model unreachable]",
                 kind="system",
                 meta={"proposal_id": p.id, "role": "counsel"},
             )
             return None
-        return self.tribe.say(
+        return self.rhizome.say(
             self.member.name,
             text,
             kind="counsel",
@@ -217,18 +217,18 @@ class TechnologicalNode:
     # ---------------------------------------------------------- proposing
 
     def propose(self, topic: str) -> Optional[Any]:
-        """Draft a proposal for the tribe from a topic hint."""
+        """Draft a proposal for the rhizome from a topic hint."""
         prompt = (
-            f"Tribe context:\n{self.tribe.context_for_llm()}\n\n"
-            f"Draft a proposal for the tribe about: {topic}. "
+            f"Rhizome context:\n{self.rhizome.context_for_llm()}\n\n"
+            f"Draft a proposal for the rhizome about: {topic}. "
             "Reply with JSON only: {\"title\": \"...\", \"text\": \"...\"} "
-            "Text max 60 words, actionable, in the tribe's interest."
+            "Text max 60 words, actionable, in the rhizome's interest."
         )
         raw = self.client.chat(
             SPEAK_SYSTEM.format(name=self.member.name), prompt
         )
         if raw is None:
-            self.tribe.say(
+            self.rhizome.say(
                 self.member.name,
                 f"[{self.member.name} cannot propose - model unreachable]",
                 kind="system",
@@ -245,4 +245,4 @@ class TechnologicalNode:
         text = str(data.get("text", "")).strip()[:600]
         if not title or not text:
             return None
-        return self.tribe.open_proposal(title, text, opened_by=self.member.name)
+        return self.rhizome.open_proposal(title, text, opened_by=self.member.name)

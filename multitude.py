@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""Canonical repository entrypoint for the tribe kernel.
+"""Canonical repository entrypoint for the rhizome kernel.
 
 All local agents should invoke the root-level kernel through this file so
 they share one launcher and one import path strategy.

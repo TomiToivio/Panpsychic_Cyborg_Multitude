@@ -19,7 +19,7 @@ before extending policy to a stranger.
 
 What a grant says:
 
-    "The tribe (or node) with did <issuer> grants the node with did
+    "The rhizome (or node) with did <issuer> grants the node with did
      <subject> capability <action> on <target> from <not_before> until
      <expires>, under constraints <limits>."
 

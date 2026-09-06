@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
-"""TribeStore: append-only event log plus tribe config, one directory per tribe.
+"""RhizomeStore: append-only event log plus rhizome config, one directory per rhizome.
 
-Local-first by design. The event log is the tribe's collective memory:
+Local-first by design. The event log is the rhizome's collective memory:
 nothing is ever deleted or rewritten, corrections are new events, and any
 node can replay the full history. tribe.json only carries discovery
 metadata (name, slug, charter, founded timestamp); everything else lives
@@ -24,10 +24,10 @@ PRIVATE_NOTES_FILE = "private_notes.jsonl"
 
 def slugify(name: str) -> str:
     s = re.sub(r"[^a-z0-9]+", "-", name.lower()).strip("-")
-    return s or "tribe"
+    return s or "rhizome"
 
 
-class TribeStore:
+class RhizomeStore:
     def __init__(self, path: str) -> None:
         self.path = path
         os.makedirs(path, exist_ok=True)
@@ -36,18 +36,18 @@ class TribeStore:
         self.private_notes_path = os.path.join(path, PRIVATE_NOTES_FILE)
 
     @classmethod
-    def create(cls, root: str, name: str, charter: str = "") -> "TribeStore":
-        """Create a fresh tribe directory under root (slug deduplicated)."""
-        tribe_dir = os.path.join(root, slugify(name))
-        base, n = tribe_dir, 2
-        while os.path.exists(tribe_dir):
-            tribe_dir = f"{base}-{n}"
+    def create(cls, root: str, name: str, charter: str = "") -> "RhizomeStore":
+        """Create a fresh rhizome directory under root (slug deduplicated)."""
+        rhizome_dir = os.path.join(root, slugify(name))
+        base, n = rhizome_dir, 2
+        while os.path.exists(rhizome_dir):
+            rhizome_dir = f"{base}-{n}"
             n += 1
-        store = cls(tribe_dir)
+        store = cls(rhizome_dir)
         store.write_config(
             {
                 "name": name,
-                "slug": os.path.basename(tribe_dir),
+                "slug": os.path.basename(rhizome_dir),
                 "charter": charter,
                 "founded_ts": now_iso(),
             }

@@ -10,8 +10,8 @@ from typing import Any, Optional
 
 from multitude import config
 from multitude.llm import OllamaClient
-from multitude.store import TribeStore
-from multitude.tribe import Tribe
+from multitude.store import RhizomeStore
+from multitude.rhizome import Rhizome
 from multitude.integrations.hermes.adapter import MultitudeHermesAdapter
 from multitude.integrations.hermes.config import (
     DEFAULT_AGENT_NAME,
@@ -29,8 +29,8 @@ class HermesAgentUnavailable(RuntimeError):
 class IndividualMemoryStore:
     """Separate mutable memory for one Hermes node.
 
-    This is intentionally distinct from the tribe's append-only social
-    memory. It lives in its own file under the tribe directory.
+    This is intentionally distinct from the rhizome's append-only social
+    memory. It lives in its own file under the rhizome directory.
     """
 
     path: Path
@@ -66,7 +66,7 @@ class HermesAgent:
         self.adapter = adapter
         self.member = adapter.ensure_agent()
         self.client = client or OllamaClient(model=adapter.model or self.member.model)
-        self.memory = IndividualMemoryStore(memory_path(adapter.tribe.store.path, self.member.name))
+        self.memory = IndividualMemoryStore(memory_path(adapter.rhizome.store.path, self.member.name))
 
     def who_are_members(self) -> str:
         members = self.adapter.list_agents()
@@ -74,13 +74,13 @@ class HermesAgent:
             f"{m.name} ({m.kind.value}, {'voting' if m.voting else 'voice'})"
             for m in members
         ]
-        return "Members of the tribe: " + ", ".join(parts) + "."
+        return "Members of the rhizome: " + ", ".join(parts) + "."
 
     def summarize_recent_history(self, days: int = 7, limit: int = 50) -> str:
         events = self.adapter.get_recent_events(limit=limit, days=days)
         if not events:
-            return f"No tribe events were recorded in the last {days} days."
-        lines = [f"Recorded tribe events in the last {days} days:"]
+            return f"No rhizome events were recorded in the last {days} days."
+        lines = [f"Recorded rhizome events in the last {days} days:"]
         for ev in events:
             if ev.type == "proposal_closed":
                 d = ev.payload["decision"]
@@ -129,7 +129,7 @@ class HermesAgent:
             return "There are no unresolved proposals."
         lines = ["Unresolved proposals:"]
         for p in open_props:
-            tally = self.adapter.tribe.tally(p.id)
+            tally = self.adapter.rhizome.tally(p.id)
             lines.append(
                 f"- {p.id}: {p.title} (rule={p.rule.value}, votes={tally['counts']}, quorum_met={tally['quorum_met']})"
             )
@@ -148,15 +148,15 @@ class HermesAgent:
             items = goals_text.get(category, [])
             if items:
                 return f"Next action: pick one open {category} goal and turn it into a concrete task or proposal."
-        if self.adapter.tribe.memory:
-            return "Next action: review the shared memory and define the tribe's next concrete business or health goal."
-        return "Next action: record the tribe's first concrete goal or proposal."
+        if self.adapter.rhizome.memory:
+            return "Next action: review the shared memory and define the rhizome's next concrete business or health goal."
+        return "Next action: record the rhizome's first concrete goal or proposal."
 
     def draft_proposal(self, topic: str) -> dict[str, str]:
         self.adapter.permissions.require("draft")
         title = self._proposal_title(topic)
         body = (
-            f"The tribe proposes to {topic.strip().rstrip('.')}.\n\n"
+            f"The rhizome proposes to {topic.strip().rstrip('.')}.\n\n"
             f"This draft is AI-authored by {self.member.name} as a knowledge steward. "
             "It should be reviewed, revised, and then explicitly created by instruction."
         )
@@ -186,7 +186,7 @@ class HermesAgent:
     def counsel(self, topic: str) -> str:
         self.adapter.permissions.require("counsel")
         prompt = (
-            f"Tribe context:\n{self.adapter.tribe.context_for_llm()}\n\n"
+            f"Rhizome context:\n{self.adapter.rhizome.context_for_llm()}\n\n"
             f"Question for {self.member.name}: {topic}\n\n"
             "Reply briefly, preserve disagreement, and never impersonate a human."
         )
@@ -198,13 +198,13 @@ class HermesAgent:
             prompt,
         )
         if raw is None:
-            self.adapter.tribe.say(
+            self.adapter.rhizome.say(
                 self.member.name,
                 f"[{self.member.name} is silent - model unreachable]",
                 kind="system",
             )
             raise HermesAgentUnavailable("live Hermes counsel unavailable - model unreachable")
-        msg = self.adapter.tribe.say(
+        msg = self.adapter.rhizome.say(
             self.member.name,
             raw,
             kind="counsel",
@@ -215,7 +215,7 @@ class HermesAgent:
     def ask(self, question: str) -> str:
         q = question.strip().lower()
         self.memory.note(question.strip())
-        if "who are the members" in q or q == "members" or "members of the tribe" in q:
+        if "who are the members" in q or q == "members" or "members of the rhizome" in q:
             return self.who_are_members()
         if "what happened" in q or "last week" in q or "history" in q:
             return self.summarize_recent_history()
@@ -235,10 +235,10 @@ class HermesAgent:
 
 
 def _load_agent(args: argparse.Namespace) -> HermesAgent:
-    tribe_dir = config.find_tribe_dir(getattr(args, "tribe", None))
-    tribe = Tribe(TribeStore(tribe_dir))
+    rhizome_dir = config.find_rhizome_dir(getattr(args, "rhizome", getattr(args, "tribe", None)))
+    rhizome = Rhizome(RhizomeStore(rhizome_dir))
     adapter = MultitudeHermesAdapter(
-        tribe=tribe,
+        rhizome=rhizome,
         agent_name=args.name,
         role=args.role,
         model=args.model,
@@ -248,7 +248,7 @@ def _load_agent(args: argparse.Namespace) -> HermesAgent:
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="hermes-pcm", description="Hermes technological node for PCM")
-    parser.add_argument("--tribe", default=None, help="tribe directory (default: most recent)")
+    parser.add_argument("--tribe", default=None, help="rhizome directory (default: most recent)")
     parser.add_argument("--name", default=DEFAULT_AGENT_NAME)
     parser.add_argument("--role", default=DEFAULT_AGENT_ROLE)
     parser.add_argument("--model", default=None)
@@ -257,7 +257,7 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("ask", help="ask the technological node a grounded question")
     p.add_argument("question")
 
-    p = sub.add_parser("draft-proposal", help="draft a proposal without mutating tribe state")
+    p = sub.add_parser("draft-proposal", help="draft a proposal without mutating rhizome state")
     p.add_argument("topic")
 
     p = sub.add_parser("create-proposal", help="create a real proposal attributed to the technological node")
@@ -266,7 +266,7 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("counsel", help="live model-backed counsel; fails cleanly if unavailable")
     p.add_argument("topic")
 
-    p = sub.add_parser("status", help="show node and tribe status")
+    p = sub.add_parser("status", help="show node and rhizome status")
 
     p = sub.add_parser("telegram-message", help="handle one Telegram message through the technological node")
     p.add_argument("--user-id", required=True)
@@ -304,14 +304,14 @@ def main(argv: list[str] | None = None) -> int:
         status = agent.adapter.get_status()
         try:
             from multitude.pcm.bootstrap import node_status
-            status["pcm_node"] = node_status(str(agent.adapter.tribe.store.path))
+            status["pcm_node"] = node_status(str(agent.adapter.rhizome.store.path))
         except Exception:
             status["pcm_node"] = None
         print(json.dumps(status, indent=2, ensure_ascii=False))
         return 0
     if args.command == "telegram-message":
         telegram = TelegramAdapter(
-            tribe=agent.adapter.tribe,
+            rhizome=agent.adapter.rhizome,
             agent_name=agent.member.name,
             role=agent.adapter.role,
             model=agent.adapter.model,

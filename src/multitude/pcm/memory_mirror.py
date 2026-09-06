@@ -14,7 +14,7 @@ Design decisions (spec-aligned):
   medium*, exactly as the roadmap's risk mitigation states: conflicts
   surface as new events, never silent overwrites. The mirror carries
   the *last-writer-wins* projection of each memory field; the audit
-  trail remains the tribe log.
+  trail remains the rhizome log.
 - **Automerge is optional, not required.** automerge-py is stale on
   PyPI (0.1.2, 2022 — verified 2026-09-05). The mirror therefore uses
   a plain JSON *merge document* with per-field LWW registers keyed by
@@ -48,7 +48,7 @@ from multitude.pcm.envelope import Envelope
 from multitude.pcm.identity import Ed25519PrivateKey
 
 MIRROR_SCHEMA = "pcm.memory-mirror/1"
-DEFAULT_TRIBE_SQUARE = "pcm/memory/shared/event"
+DEFAULT_RHIZOME_SQUARE = "pcm/memory/shared/event"
 
 
 def _now() -> str:
@@ -180,12 +180,12 @@ class MemorySync:
     """Sync glue between a MemoryMirror and a PCM Transport (ABC).
 
     Publishes the mirror as a signed ``memory_share`` envelope on the
-    tribe square on ``push()``; applies VERIFIED inbound
+    rhizome square on ``push()``; applies VERIFIED inbound
     ``memory_share`` envelopes for the same did on ``handle()``.
     """
 
     def __init__(self, transport, did: str, private_key: Ed25519PrivateKey,
-                 topic: str = DEFAULT_TRIBE_SQUARE) -> None:
+                 topic: str = DEFAULT_RHIZOME_SQUARE) -> None:
         from multitude.pcm.transport import Transport  # noqa: F401  type check
         if not isinstance(transport, Transport):
             raise TypeError("transport must implement pcm.transport.Transport")
@@ -198,7 +198,7 @@ class MemorySync:
     async def push(self, mirror: MemoryMirror) -> str:
         """Sign and publish the current mirror document."""
         env = Envelope.create(
-            "memory_share", self.did, self.did,  # to: tribe square broadcast
+            "memory_share", self.did, self.did,  # to: rhizome square broadcast
             {"mirror": mirror.to_document()},
             interface="pcm.transport",
         )

@@ -6,7 +6,7 @@ Replaces the Matrix room as the primary peer transport for Phase 2
 §7 Phase 2 changes transport; the MVP criterion is unchanged:
 
     Two PCM nodes exchange signed envelopes, and both can rebuild
-    identical tribe state from their own event logs. No third party.
+    identical rhizome state from their own event logs. No third party.
 
 Why zenoh fits PCM (and why Matrix was the wrong shape for it):
 
@@ -16,7 +16,7 @@ Why zenoh fits PCM (and why Matrix was the wrong shape for it):
     becomes architectural instead of aspirational.
   - No account infrastructure: no registration, no homeserver database,
     no Postgres. A node is a process, not a user on someone's server.
-  - Pub/sub + queryables: envelope broadcast (tribe square) is a plain
+  - Pub/sub + queryables: envelope broadcast (rhizome square) is a plain
     keyed subscription; peer request/response (DM-like counsel) is a
     zenoh query — both primitives the PCM protocol needs.
   - Liveliness tokens: node presence (did:key online) is a first-class
@@ -26,17 +26,17 @@ Why zenoh fits PCM (and why Matrix was the wrong shape for it):
 Key layout (all under the pcm/ prefix so unrelated zenoh traffic never
 sees PCM):
 
-    pcm/v1/square/<tribe_id>       — the tribe square (every node's
+    pcm/v1/square/<rhizome_id>       — the rhizome square (every node's
                                      signed envelopes, broadcast)
     pcm/v1/direct/<from>/<to>      — pairwise peer channel (DMs)
-    pcm/v1/liveliness/<tribe>/<did> — node presence (liveliness token)
+    pcm/v1/liveliness/<rhizome>/<did> — node presence (liveliness token)
 
 Envelope flow:
 
   outbound  Envelope.create -> sign(identity key) -> canonical JSON ->
-            session.put("pcm/v1/square/<tribe>", payload)
+            session.put("pcm/v1/square/<rhizome>", payload)
   inbound   subscriber -> Envelope.model_validate -> envelope.verify()
-            -> handler(trusts verified from_did) -> tribe/service layer
+            -> handler(trusts verified from_did) -> rhizome/service layer
 
 Verification happens BEFORE any handler sees the message — a bad
 signature is dropped at the transport edge, exactly as the spec's rule
@@ -60,16 +60,16 @@ from dataclasses import dataclass, field
 from typing import Any, Callable, Optional
 
 PCM_KEY_PREFIX = "pcm/v1"
-DEFAULT_TRIBE = "default"
+DEFAULT_RHIZOME = "default"
 
 
 class ZenohConfigError(RuntimeError):
     """Zenoh transport is not configured or is disabled."""
 
 
-def square_key(tribe_id: str = DEFAULT_TRIBE) -> str:
-    """Key expression for a tribe square (broadcast channel)."""
-    safe = tribe_id.replace("*", "").replace("?", "").strip("/")
+def square_key(rhizome_id: str = DEFAULT_RHIZOME) -> str:
+    """Key expression for a rhizome square (broadcast channel)."""
+    safe = rhizome_id.replace("*", "").replace("?", "").strip("/")
     return f"{PCM_KEY_PREFIX}/square/{safe}"
 
 
@@ -84,18 +84,18 @@ def direct_key(from_did: str, to_did: str) -> str:
 class ZenohTransportConfig:
     """All configuration comes from the environment or explicit kwargs."""
 
-    tribe_id: str = DEFAULT_TRIBE
+    rhizome_id: str = DEFAULT_RHIZOME
     # peer (LAN multicast scouting) or router (via PCM_ZENOH_CONNECT)
     mode: str = "peer"
     connect_endpoints: list[str] = field(default_factory=list)
     listen_endpoints: list[str] = field(default_factory=list)
 
     @classmethod
-    def from_env(cls, tribe_id: str = DEFAULT_TRIBE) -> "ZenohTransportConfig":
+    def from_env(cls, rhizome_id: str = DEFAULT_RHIZOME) -> "ZenohTransportConfig":
         connect = [e for e in os.environ.get("PCM_ZENOH_CONNECT", "").split(",") if e.strip()]
         listen = [e for e in os.environ.get("PCM_ZENOH_LISTEN", "").split(",") if e.strip()]
         mode = "router" if connect else "peer"
-        return cls(tribe_id=tribe_id, mode=mode,
+        return cls(rhizome_id=rhizome_id, mode=mode,
                    connect_endpoints=connect, listen_endpoints=listen)
 
 
@@ -108,7 +108,7 @@ class ZenohTransport:
     drops its own loops (same envelope id seen twice) silently.
     """
 
-    tribe: Any                        # tribe or service layer; the handler decides
+    rhizome: Any                        # rhizome or service layer; the handler decides
     member_name: str
     on_envelope: Optional[Callable[[dict[str, Any]], None]] = None
     config: ZenohTransportConfig = field(default_factory=ZenohTransportConfig)
@@ -138,18 +138,18 @@ class ZenohTransport:
         return cfg
 
     def start(self) -> None:
-        """Open the session, subscribe the tribe square, declare presence."""
+        """Open the session, subscribe the rhizome square, declare presence."""
         self._guard()
         import zenoh
         self._session = zenoh.open(self._build_config())
-        key = square_key(self.config.tribe_id)
+        key = square_key(self.config.rhizome_id)
         self._subscriber = self._session.declare_subscriber(
             key, self._on_sample)
-        # presence: liveliness token keyed by tribe + our short DID
-        did = getattr(self.tribe, "did", "") or self.member_name
+        # presence: liveliness token keyed by rhizome + our short DID
+        did = getattr(self.rhizome, "did", "") or self.member_name
         try:
             self._liveliness = self._session.liveliness().declare_token(
-                f"{PCM_KEY_PREFIX}/liveliness/{self.config.tribe_id}/{did[:24]}")
+                f"{PCM_KEY_PREFIX}/liveliness/{self.config.rhizome_id}/{did[:24]}")
         except Exception:  # liveliness is optional nicety, not load-bearing
             self._liveliness = None
 
@@ -176,7 +176,7 @@ class ZenohTransport:
         if self._session is None:
             raise ZenohConfigError("transport not started; call start() first")
         payload = json.dumps(envelope_dict, ensure_ascii=False).encode("utf-8")
-        key = key or square_key(self.config.tribe_id)
+        key = key or square_key(self.config.rhizome_id)
         self._session.put(key, payload)
         return key
 
@@ -235,7 +235,7 @@ class ZenohTransport:
         except Exception:
             return  # rule 2: unverified envelopes die at the edge
         # Drop our own publications (both nodes sit on the same square key).
-        my_did = getattr(self.tribe, "did", "")
+        my_did = getattr(self.rhizome, "did", "")
         if my_did and env.get("from") == my_did:
             return
         with self._lock:
@@ -251,11 +251,11 @@ class ZenohTransport:
                 pass
 
     def _default_handler(self, env: dict[str, Any]) -> None:
-        """Default dispatch: write to the tribe log via the service layer."""
+        """Default dispatch: write to the rhizome log via the service layer."""
         content = env.get("content", {}) or {}
         text = content.get("text") or content.get("message") or ""
-        if text and hasattr(self.tribe, "say"):
-            self.tribe.say(str(text), kind="say", meta={
+        if text and hasattr(self.rhizome, "say"):
+            self.rhizome.say(str(text), kind="say", meta={
                 "interface": "zenoh",
                 "from_did": env.get("from"),
                 "envelope_id": env.get("id"),
@@ -271,7 +271,7 @@ def _verify_or_raise(data: dict[str, Any]) -> dict[str, Any]:
     return env.model_dump(by_alias=True)
 
 
-def start_transport(tribe: Any, member_name: str,
+def start_transport(rhizome: Any, member_name: str,
                     identity: dict[str, Any], private_key: Any,
                     config: ZenohTransportConfig | None = None,
                     on_envelope: Callable[[dict[str, Any]], None] | None = None
@@ -288,7 +288,7 @@ def start_transport(tribe: Any, member_name: str,
     actual = did_from_pubkey(_pub_raw(private_key))
     if actual != did:
         raise ZenohConfigError(f"identity/did mismatch: key is {actual}, claimed {did}")
-    transport = ZenohTransport(tribe=tribe, member_name=member_name,
+    transport = ZenohTransport(rhizome=rhizome, member_name=member_name,
                                on_envelope=on_envelope,
                                config=config or ZenohTransportConfig.from_env())
     transport.start()

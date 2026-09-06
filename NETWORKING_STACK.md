@@ -54,13 +54,13 @@ AI              Hermes Agent nodes — replaceable LLM behind Ollama (already tr
 BCI             OpenBCI → BrainFlow → derived context → agent (already scaffolded)
 ```
 
-**No central mind. No mandatory central server. No master database.** The tribe's memory stays where it is born; the fabric moves *events*, not custody.
+**No central mind. No mandatory central server. No master database.** The rhizome's memory stays where it is born; the fabric moves *events*, not custody.
 
 ---
 
 ## 1. Why Matrix was removed
 
-Verified in the repo audit (2026-09-06): the Matrix integration was a dormant read-only skeleton — `src/multitude/integrations/matrix/adapter.py` with an envelope dataclass, a `handle_message` mapping onto `tribe.say()`, and a `poll_once` placeholder that raised "not implemented". No homeserver, no credentials, no matrix-nio dependency, no live traffic ever rode it.
+Verified in the repo audit (2026-09-06): the Matrix integration was a dormant read-only skeleton — `src/multitude/integrations/matrix/adapter.py` with an envelope dataclass, a `handle_message` mapping onto `rhizome.say()`, and a `poll_once` placeholder that raised "not implemented". No homeserver, no credentials, no matrix-nio dependency, no live traffic ever rode it.
 
 Removing it costs nothing and deletes a category error:
 
@@ -83,7 +83,7 @@ Zenoh unifies data in motion (pub/sub), data at rest (queryables/storage), and c
 
 - **Python binding maintained**: `eclipse-zenoh` 1.10.0 on PyPI (Rust core, wheels for Linux/macOS/Windows). Smoke-tested on Python 3.12 in this repo: peer-mode pub/sub + queryable round trip passed on the first configured run.
 - **Peer-native**: UDP multicast scouting connects nodes on the LAN with zero infrastructure. Client mode attaches a session to routers for WAN/NAT.
-- **Pub/sub + queryables**: broadcast (tribe square, sensor streams) is a keyed subscription; request/response (counsel, queries, device status) is a query — both are first-class primitives.
+- **Pub/sub + queryables**: broadcast (rhizome square, sensor streams) is a keyed subscription; request/response (counsel, queries, device status) is a query — both are first-class primitives.
 - **Liveliness tokens**: node presence (`agent:hermes` online) is a first-class primitive, not a heartbeat hack. Verified: alive/gone semantics work cross-session.
 - **Edge support**: zenoh-pico targets ESP32/STM32-class devices; the MQTT bridge (`zenoh-plugin-mqtt`, active 2026-09) integrates existing MQTT fleets instead of rewriting them; `ros2/rmw_zenoh` (active 2026-09-04) is the ROS 2 middleware path.
 

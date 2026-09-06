@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-"""CLI for the tribe kernel.
+"""CLI for the rhizome kernel.
 
 Usage examples:
-  multitude found --name "First Tribe" --founder alice
+  multitude found --name "First Rhizome" --founder alice
   multitude join --as "Panpsychic Cyborg Multitude" --kind technological --model glm-5.3-flash:cloud
   multitude say --as alice --text "Welcome, all nodes."
   multitude counsel --as "Panpsychic Cyborg Multitude" --topic "our first shared goal"
@@ -29,8 +29,8 @@ from multitude.interfaces.web import run_api_server
 from multitude.layers import ALIASES, LayerError, format_member_layers
 from multitude.models import Layer, NodeKind, Position, ProposalStatus, Rule
 from multitude.service import MultitudeService
-from multitude.store import TribeStore
-from multitude.tribe import Tribe, TribeError
+from multitude.store import RhizomeStore
+from multitude.rhizome import Rhizome, RhizomeError
 
 # Layer fields that hold lists of values; --set accepts comma-separated them.
 LIST_KEYS = {
@@ -48,33 +48,33 @@ LIST_KEYS = {
 def _parse_gps(value: str) -> dict[str, float]:
     parts = [part.strip() for part in value.split(",")]
     if len(parts) != 2:
-        raise TribeError("--gps expects lat,lon")
+        raise RhizomeError("--gps expects lat,lon")
     try:
         lat = float(parts[0])
         lon = float(parts[1])
     except ValueError as exc:
-        raise TribeError("--gps expects numeric lat,lon") from exc
+        raise RhizomeError("--gps expects numeric lat,lon") from exc
     return {"lat": lat, "lon": lon}
 
 
-def _load_tribe(args: argparse.Namespace) -> Tribe:
-    tribe_dir = config.find_tribe_dir(getattr(args, "tribe", None))
-    return Tribe(TribeStore(tribe_dir))
+def _load_rhizome(args: argparse.Namespace) -> Rhizome:
+    rhizome_dir = config.find_rhizome_dir(getattr(args, "rhizome", getattr(args, "tribe", None)))
+    return Rhizome(RhizomeStore(rhizome_dir))
 
 
 def cmd_found(args: argparse.Namespace) -> int:
-    root = config.tribes_root()
-    tribe = Tribe.found(root, args.name, args.charter, args.founder)
-    print(f"founded: {tribe.name}")
-    print(f"tribe dir: {tribe.store.path}")
+    root = config.rhizomes_root()
+    rhizome = Rhizome.found(root, args.name, args.charter, args.founder)
+    print(f"founded: {rhizome.name}")
+    print(f"rhizome dir: {rhizome.store.path}")
     print(f"founder: {args.founder} (biological, voting)")
     return 0
 
 
 def cmd_join(args: argparse.Namespace) -> int:
-    tribe = _load_tribe(args)
+    rhizome = _load_rhizome(args)
     kind = NodeKind.BIOLOGICAL if args.kind == "biological" else NodeKind.TECHNOLOGICAL
-    m = tribe.join(
+    m = rhizome.join(
         args.as_name,
         kind,
         persona=args.persona,
@@ -86,15 +86,15 @@ def cmd_join(args: argparse.Namespace) -> int:
 
 
 def cmd_say(args: argparse.Namespace) -> int:
-    tribe = _load_tribe(args)
-    msg = tribe.say(args.as_name, args.text)
+    rhizome = _load_rhizome(args)
+    msg = rhizome.say(args.as_name, args.text)
     print(f"[{msg.ts}] {msg.author}: {msg.text}")
     return 0
 
 
 def cmd_counsel(args: argparse.Namespace) -> int:
-    tribe = _load_tribe(args)
-    msg = MultitudeService(tribe).counsel(args.as_name, topic=args.topic, model=args.model)
+    rhizome = _load_rhizome(args)
+    msg = MultitudeService(rhizome).counsel(args.as_name, topic=args.topic, model=args.model)
     if msg is not None:
         print(f"[{msg['ts']}] {msg['author']} (counsel): {msg['text']}")
         print(f"  model: {msg.get('meta', {}).get('model', '?')}")
@@ -102,16 +102,16 @@ def cmd_counsel(args: argparse.Namespace) -> int:
 
 
 def cmd_propose(args: argparse.Namespace) -> int:
-    tribe = _load_tribe(args)
-    p = MultitudeService(tribe).create_proposal(author=args.by, title=args.title, text=args.text, rule=args.rule)
+    rhizome = _load_rhizome(args)
+    p = MultitudeService(rhizome).create_proposal(author=args.by, title=args.title, text=args.text, rule=args.rule)
     print(f"proposal {p['id']} OPEN: {p['title']}")
     print(f"  rule={p['rule']} quorum={p['quorum']}")
     return 0
 
 
 def cmd_vote(args: argparse.Namespace) -> int:
-    tribe = _load_tribe(args)
-    result = MultitudeService(tribe).vote(args.proposal, args.as_name, args.position, reason=args.reason)
+    rhizome = _load_rhizome(args)
+    result = MultitudeService(rhizome).vote(args.proposal, args.as_name, args.position, reason=args.reason)
     t = result["tally"]
     print(f"vote recorded: {args.as_name} -> {args.position}")
     print(f"tally: {t['counts']} (cast {t['votes_cast']}, quorum {t['quorum']})")
@@ -119,9 +119,9 @@ def cmd_vote(args: argparse.Namespace) -> int:
 
 
 def cmd_proposals(args: argparse.Namespace) -> int:
-    tribe = _load_tribe(args)
+    rhizome = _load_rhizome(args)
     shown = 0
-    for p in tribe.proposals.values():
+    for p in rhizome.proposals.values():
         if args.open and p.status != ProposalStatus.OPEN:
             continue
         votes = f" votes={len(p.votes)}" if p.votes else ""
@@ -145,15 +145,15 @@ def cmd_proposals(args: argparse.Namespace) -> int:
 
 
 def cmd_tally(args: argparse.Namespace) -> int:
-    tribe = _load_tribe(args)
-    t = tribe.tally(args.proposal)
+    rhizome = _load_rhizome(args)
+    t = rhizome.tally(args.proposal)
     print(json.dumps(t, indent=2, ensure_ascii=False))
     return 0
 
 
 def cmd_close(args: argparse.Namespace) -> int:
-    tribe = _load_tribe(args)
-    d = tribe.close_proposal(args.proposal, closed_by=args.by)
+    rhizome = _load_rhizome(args)
+    d = rhizome.close_proposal(args.proposal, closed_by=args.by)
     print(f"decision {d.id}: {d.outcome.value} ({d.rule.value} rule)")
     print(f"  tally: {d.tally} | votes {d.votes_cast}/{d.quorum_required} quorum")
     for row in d.dissent:
@@ -162,9 +162,9 @@ def cmd_close(args: argparse.Namespace) -> int:
 
 
 def cmd_members(args: argparse.Namespace) -> int:
-    tribe = _load_tribe(args)
-    print(f"tribe: {tribe.name}")
-    for m in MultitudeService(tribe).list_agents():
+    rhizome = _load_rhizome(args)
+    print(f"rhizome: {rhizome.name}")
+    for m in MultitudeService(rhizome).list_agents():
         persona = f" - {m['persona']}" if m.get("persona") else ""
         model = f" [model: {m['model']}]" if m.get("model") else ""
         print(
@@ -175,8 +175,8 @@ def cmd_members(args: argparse.Namespace) -> int:
 
 
 def cmd_member_update(args: argparse.Namespace) -> int:
-    tribe = _load_tribe(args)
-    service = MultitudeService(tribe)
+    rhizome = _load_rhizome(args)
+    service = MultitudeService(rhizome)
     updated = service.update_member(
         args.name,
         voting=None if args.voting is None else args.voting == "voting",
@@ -191,15 +191,15 @@ def cmd_member_update(args: argparse.Namespace) -> int:
 
 
 def cmd_promote(args: argparse.Namespace) -> int:
-    tribe = _load_tribe(args)
-    updated = MultitudeService(tribe).promote(args.name, actor=args.by)
+    rhizome = _load_rhizome(args)
+    updated = MultitudeService(rhizome).promote(args.name, actor=args.by)
     print(f"promoted {updated['name']} -> voting member")
     return 0
 
 
 def cmd_demote(args: argparse.Namespace) -> int:
-    tribe = _load_tribe(args)
-    updated = MultitudeService(tribe).demote(args.name, actor=args.by)
+    rhizome = _load_rhizome(args)
+    updated = MultitudeService(rhizome).demote(args.name, actor=args.by)
     print(f"demoted {updated['name']} -> voice-only")
     return 0
 
@@ -212,7 +212,7 @@ def _parse_set_pairs(pairs: list[str]) -> dict:
     changes: dict = {}
     for item in pairs:
         if "=" not in item:
-            raise TribeError(f"--set expects key=value, got: {item}")
+            raise RhizomeError(f"--set expects key=value, got: {item}")
         key, _, val = item.partition("=")
         key = ALIASES.get(key.strip(), key.strip())
         if key in LIST_KEYS:
@@ -225,24 +225,24 @@ def _parse_set_pairs(pairs: list[str]) -> dict:
 def cmd_layers(args: argparse.Namespace) -> int:
     from multitude.layers import format_member_layers
 
-    tribe = _load_tribe(args)
+    rhizome = _load_rhizome(args)
     if args.as_name:
-        m = tribe._require_member(args.as_name)
-        print(f"tribe: {tribe.name}")
+        m = rhizome._require_member(args.as_name)
+        print(f"rhizome: {rhizome.name}")
         print(f"node: {m.name} ({m.kind.value})")
         print(format_member_layers(m) or "  (no layer data)")
         return 0
-    print(f"tribe: {tribe.name}")
-    for m in tribe.members.values():
+    print(f"rhizome: {rhizome.name}")
+    for m in rhizome.members.values():
         print(f"node: {m.name} ({m.kind.value})")
         print(format_member_layers(m))
     return 0
 
 
 def cmd_layer_set(args: argparse.Namespace) -> int:
-    tribe = _load_tribe(args)
+    rhizome = _load_rhizome(args)
     changes = _parse_set_pairs(args.set)
-    tribe.record_layer(
+    rhizome.record_layer(
         args.as_name,
         args.layer,
         data=changes,
@@ -255,8 +255,8 @@ def cmd_layer_set(args: argparse.Namespace) -> int:
 
 
 def cmd_layer_history(args: argparse.Namespace) -> int:
-    tribe = _load_tribe(args)
-    events = tribe.layer_history(args.as_name, args.layer)
+    rhizome = _load_rhizome(args)
+    events = rhizome.layer_history(args.as_name, args.layer)
     if not events:
         print("no layer records")
         return 1
@@ -273,8 +273,8 @@ def cmd_layer_history(args: argparse.Namespace) -> int:
 
 
 def cmd_log(args: argparse.Namespace) -> int:
-    tribe = _load_tribe(args)
-    events = tribe.store.replay()
+    rhizome = _load_rhizome(args)
+    events = rhizome.store.replay()
     for ev in events[-args.limit :]:
         print(f"[{ev.ts}] {ev.type} ({ev.actor})")
         for k, v in ev.payload.items():
@@ -284,9 +284,9 @@ def cmd_log(args: argparse.Namespace) -> int:
 
 
 def cmd_status(args: argparse.Namespace) -> int:
-    tribe = _load_tribe(args)
-    data = MultitudeService(tribe).status()
-    print(f"tribe: {data['tribe']}")
+    rhizome = _load_rhizome(args)
+    data = MultitudeService(rhizome).status()
+    print(f"rhizome: {data['rhizome']}")
     print(
         f"members: {data['members']} "
         f"({data['biological_members']} biological, {data['technological_members']} technological)"
@@ -298,14 +298,14 @@ def cmd_status(args: argparse.Namespace) -> int:
     print(f"devices: {data['devices']}")
     print(f"physical events: {data['physical_events']}")
     for proposal_id in data["open_proposal_ids"]:
-        p = tribe.proposals[proposal_id]
+        p = rhizome.proposals[proposal_id]
         print(f"open proposal {p.id}: {p.title}")
     return 0
 
 
 def cmd_lexicon_add(args: argparse.Namespace) -> int:
-    tribe = _load_tribe(args)
-    entry = tribe.define_term(
+    rhizome = _load_rhizome(args)
+    entry = rhizome.define_term(
         args.term,
         args.definition,
         added_by=args.by,
@@ -317,9 +317,9 @@ def cmd_lexicon_add(args: argparse.Namespace) -> int:
 
 
 def cmd_lexicon(args: argparse.Namespace) -> int:
-    tribe = _load_tribe(args)
-    entries = tribe.search_lexicon(args.query) if args.query else list(
-        sorted(tribe.lexicon.values(), key=lambda item: item.ts)
+    rhizome = _load_rhizome(args)
+    entries = rhizome.search_lexicon(args.query) if args.query else list(
+        sorted(rhizome.lexicon.values(), key=lambda item: item.ts)
     )
     if not entries:
         print("no lexicon entries")
@@ -333,8 +333,8 @@ def cmd_lexicon(args: argparse.Namespace) -> int:
 
 
 def cmd_device_register(args: argparse.Namespace) -> int:
-    tribe = _load_tribe(args)
-    device = tribe.register_device(
+    rhizome = _load_rhizome(args)
+    device = rhizome.register_device(
         registered_by=args.by,
         name=args.name,
         kind=args.kind,
@@ -350,12 +350,12 @@ def cmd_device_register(args: argparse.Namespace) -> int:
 
 
 def cmd_devices(args: argparse.Namespace) -> int:
-    tribe = _load_tribe(args)
-    if not tribe.devices:
+    rhizome = _load_rhizome(args)
+    if not rhizome.devices:
         print("no devices")
         return 1
-    members = {member.id: member.name for member in tribe.members.values()}
-    for device in sorted(tribe.devices.values(), key=lambda item: item.registered_ts):
+    members = {member.id: member.name for member in rhizome.members.values()}
+    for device in sorted(rhizome.devices.values(), key=lambda item: item.registered_ts):
         linked = members.get(device.linked_member_id or "", device.linked_member_id or "")
         owner = device.owner or linked or "-"
         location = device.location_label or "-"
@@ -364,8 +364,8 @@ def cmd_devices(args: argparse.Namespace) -> int:
 
 
 def cmd_physical_event(args: argparse.Namespace) -> int:
-    tribe = _load_tribe(args)
-    event = tribe.record_physical_event(
+    rhizome = _load_rhizome(args)
+    event = rhizome.record_physical_event(
         reported_by=args.by,
         event_type=args.type,
         description=args.description,
@@ -379,12 +379,12 @@ def cmd_physical_event(args: argparse.Namespace) -> int:
 
 
 def cmd_physical_events(args: argparse.Namespace) -> int:
-    tribe = _load_tribe(args)
-    if not tribe.physical_events:
+    rhizome = _load_rhizome(args)
+    if not rhizome.physical_events:
         print("no physical events")
         return 1
-    member_names = {member.id: member.name for member in tribe.members.values()}
-    for event in tribe.physical_events[-args.limit:]:
+    member_names = {member.id: member.name for member in rhizome.members.values()}
+    for event in rhizome.physical_events[-args.limit:]:
         members = [member_names.get(member_id, member_id) for member_id in event.member_ids]
         devices = ", ".join(event.device_ids) if event.device_ids else "-"
         members_s = ", ".join(members) if members else "-"
@@ -396,8 +396,8 @@ def cmd_physical_events(args: argparse.Namespace) -> int:
 
 
 def cmd_economy_profile_set(args: argparse.Namespace) -> int:
-    tribe = _load_tribe(args)
-    profile = MultitudeService(tribe).define_economy_profile(
+    rhizome = _load_rhizome(args)
+    profile = MultitudeService(rhizome).define_economy_profile(
         created_by=args.by,
         mission=args.mission,
         recognized_value_types=args.value_type,
@@ -415,8 +415,8 @@ def cmd_economy_profile_set(args: argparse.Namespace) -> int:
 
 
 def cmd_economy_profile(args: argparse.Namespace) -> int:
-    tribe = _load_tribe(args)
-    profile = MultitudeService(tribe).current_economy_profile()
+    rhizome = _load_rhizome(args)
+    profile = MultitudeService(rhizome).current_economy_profile()
     if profile is None:
         print("no economy profile")
         return 1
@@ -433,11 +433,11 @@ def cmd_economy_profile(args: argparse.Namespace) -> int:
 
 
 def cmd_federation_add(args: argparse.Namespace) -> int:
-    tribe = _load_tribe(args)
-    record = MultitudeService(tribe).record_federation_agreement(
+    rhizome = _load_rhizome(args)
+    record = MultitudeService(rhizome).record_federation_agreement(
         created_by=args.by,
         title=args.title,
-        partner_tribe=args.partner_tribe,
+        partner_rhizome=args.partner_tribe,
         partner_slug=args.partner_slug,
         agreement_type=args.agreement_type,
         scopes=args.scope,
@@ -448,28 +448,28 @@ def cmd_federation_add(args: argparse.Namespace) -> int:
         notes=args.notes,
     )
     print(f"federation agreement: {record['id']} [{record['status']}]")
-    print(f"  partner: {record['partner_tribe']} type={record['agreement_type']}")
+    print(f"  partner: {record['partner_rhizome']} type={record['agreement_type']}")
     return 0
 
 
 def cmd_federations(args: argparse.Namespace) -> int:
-    tribe = _load_tribe(args)
-    records = MultitudeService(tribe).list_federation_agreements()
+    rhizome = _load_rhizome(args)
+    records = MultitudeService(rhizome).list_federation_agreements()
     if not records:
         print("no federation agreements")
         return 1
     for record in records:
         scopes = f" scopes={','.join(record['scopes'])}" if record["scopes"] else ""
         print(
-            f"- {record['id']} {record['title']} partner={record['partner_tribe']} "
+            f"- {record['id']} {record['title']} partner={record['partner_rhizome']} "
             f"type={record['agreement_type']} status={record['status']}{scopes}"
         )
     return 0
 
 
 def cmd_resource_register(args: argparse.Namespace) -> int:
-    tribe = _load_tribe(args)
-    record = MultitudeService(tribe).register_resource(
+    rhizome = _load_rhizome(args)
+    record = MultitudeService(rhizome).register_resource(
         args.name, args.by, kind=args.kind, owner=args.owner, status=args.status
     )
     print(f"resource {record['id']} [{record['status']}]: {record['name']} ({record['kind']}, owner={record['owner']})")
@@ -477,8 +477,8 @@ def cmd_resource_register(args: argparse.Namespace) -> int:
 
 
 def cmd_resources(args: argparse.Namespace) -> int:
-    tribe = _load_tribe(args)
-    records = tribe.resources.values()
+    rhizome = _load_rhizome(args)
+    records = rhizome.resources.values()
     shown = 0
     for r in sorted(records, key=lambda item: item.created_ts):
         if args.status and r.status != args.status:
@@ -492,8 +492,8 @@ def cmd_resources(args: argparse.Namespace) -> int:
 
 
 def cmd_resource_allocate(args: argparse.Namespace) -> int:
-    tribe = _load_tribe(args)
-    record = MultitudeService(tribe).allocate_resource(
+    rhizome = _load_rhizome(args)
+    record = MultitudeService(rhizome).allocate_resource(
         args.resource, args.to, purpose=args.purpose, status=args.status
     )
     print(f"allocation {record['id']}: {record['resource_id']} -> {record['assignee']} [{record['status']}]")
@@ -501,8 +501,8 @@ def cmd_resource_allocate(args: argparse.Namespace) -> int:
 
 
 def cmd_work_log(args: argparse.Namespace) -> int:
-    tribe = _load_tribe(args)
-    record = MultitudeService(tribe).log_work(
+    rhizome = _load_rhizome(args)
+    record = MultitudeService(rhizome).log_work(
         member=args.as_name,
         description=args.description,
         hours=args.hours,
@@ -518,8 +518,8 @@ def cmd_work_log(args: argparse.Namespace) -> int:
 
 
 def cmd_work_summary(args: argparse.Namespace) -> int:
-    tribe = _load_tribe(args)
-    summary = MultitudeService(tribe).work_summary()
+    rhizome = _load_rhizome(args)
+    summary = MultitudeService(rhizome).work_summary()
     print("hours by member:")
     for name, hours in sorted(summary["hours_by_member"].items()):
         print(f"  {name}: {hours}h")
@@ -539,8 +539,8 @@ def cmd_work_summary(args: argparse.Namespace) -> int:
 
 
 def cmd_intent_record(args: argparse.Namespace) -> int:
-    tribe = _load_tribe(args)
-    record = MultitudeService(tribe).record_intent(
+    rhizome = _load_rhizome(args)
+    record = MultitudeService(rhizome).record_intent(
         title=args.title,
         created_by=args.by,
         description=args.description,
@@ -555,8 +555,8 @@ def cmd_intent_record(args: argparse.Namespace) -> int:
 
 
 def cmd_intents(args: argparse.Namespace) -> int:
-    tribe = _load_tribe(args)
-    records = MultitudeService(tribe).list_intents()
+    rhizome = _load_rhizome(args)
+    records = MultitudeService(rhizome).list_intents()
     if args.status:
         records = [r for r in records if r["status"] == args.status]
     if not records:
@@ -568,8 +568,8 @@ def cmd_intents(args: argparse.Namespace) -> int:
 
 
 def cmd_commitment_record(args: argparse.Namespace) -> int:
-    tribe = _load_tribe(args)
-    record = MultitudeService(tribe).record_commitment(
+    rhizome = _load_rhizome(args)
+    record = MultitudeService(rhizome).record_commitment(
         title=args.title,
         committed_by=args.by,
         owed_by=args.owed_by,
@@ -587,8 +587,8 @@ def cmd_commitment_record(args: argparse.Namespace) -> int:
 
 
 def cmd_commitments(args: argparse.Namespace) -> int:
-    tribe = _load_tribe(args)
-    records = MultitudeService(tribe).list_commitments()
+    rhizome = _load_rhizome(args)
+    records = MultitudeService(rhizome).list_commitments()
     if args.status:
         records = [r for r in records if r["status"] == args.status]
     if not records:
@@ -602,8 +602,8 @@ def cmd_commitments(args: argparse.Namespace) -> int:
 
 
 def cmd_agreement_record(args: argparse.Namespace) -> int:
-    tribe = _load_tribe(args)
-    record = MultitudeService(tribe).record_agreement(
+    rhizome = _load_rhizome(args)
+    record = MultitudeService(rhizome).record_agreement(
         title=args.title,
         created_by=args.by,
         parties=args.party,
@@ -618,8 +618,8 @@ def cmd_agreement_record(args: argparse.Namespace) -> int:
 
 
 def cmd_agreements(args: argparse.Namespace) -> int:
-    tribe = _load_tribe(args)
-    records = MultitudeService(tribe).list_agreements()
+    rhizome = _load_rhizome(args)
+    records = MultitudeService(rhizome).list_agreements()
     if not records:
         print("no agreements")
         return 1
@@ -629,8 +629,8 @@ def cmd_agreements(args: argparse.Namespace) -> int:
 
 
 def cmd_rule_define(args: argparse.Namespace) -> int:
-    tribe = _load_tribe(args)
-    record = MultitudeService(tribe).define_governance_rule(
+    rhizome = _load_rhizome(args)
+    record = MultitudeService(rhizome).define_governance_rule(
         title=args.title,
         description=args.description,
         defined_by=args.by,
@@ -644,8 +644,8 @@ def cmd_rule_define(args: argparse.Namespace) -> int:
 
 
 def cmd_rules(args: argparse.Namespace) -> int:
-    tribe = _load_tribe(args)
-    records = MultitudeService(tribe).list_governance_rules()
+    rhizome = _load_rhizome(args)
+    records = MultitudeService(rhizome).list_governance_rules()
     if not records:
         print("no governance rules")
         return 1
@@ -657,8 +657,8 @@ def cmd_rules(args: argparse.Namespace) -> int:
 
 
 def cmd_care_record(args: argparse.Namespace) -> int:
-    tribe = _load_tribe(args)
-    record = MultitudeService(tribe).record_care(
+    rhizome = _load_rhizome(args)
+    record = MultitudeService(rhizome).record_care(
         member=args.member,
         summary=args.summary,
         recorded_by=args.by,
@@ -674,8 +674,8 @@ def cmd_care_record(args: argparse.Namespace) -> int:
 
 
 def cmd_care(args: argparse.Namespace) -> int:
-    tribe = _load_tribe(args)
-    records = MultitudeService(tribe).list_care_records()
+    rhizome = _load_rhizome(args)
+    records = MultitudeService(rhizome).list_care_records()
     if args.member:
         records = [r for r in records if r["member_name"] == args.member]
     if not records:
@@ -687,8 +687,8 @@ def cmd_care(args: argparse.Namespace) -> int:
 
 
 def cmd_rhythm_define(args: argparse.Namespace) -> int:
-    tribe = _load_tribe(args)
-    record = MultitudeService(tribe).define_rhythm(
+    rhizome = _load_rhizome(args)
+    record = MultitudeService(rhizome).define_rhythm(
         name=args.name,
         cadence=args.cadence,
         purpose=args.purpose,
@@ -701,8 +701,8 @@ def cmd_rhythm_define(args: argparse.Namespace) -> int:
 
 
 def cmd_rhythms(args: argparse.Namespace) -> int:
-    tribe = _load_tribe(args)
-    records = MultitudeService(tribe).list_rhythms()
+    rhizome = _load_rhizome(args)
+    records = MultitudeService(rhizome).list_rhythms()
     if not records:
         print("no rhythms")
         return 1
@@ -713,8 +713,8 @@ def cmd_rhythms(args: argparse.Namespace) -> int:
 
 
 def cmd_term_record(args: argparse.Namespace) -> int:
-    tribe = _load_tribe(args)
-    record = MultitudeService(tribe).record_protocol_term(
+    rhizome = _load_rhizome(args)
+    record = MultitudeService(rhizome).record_protocol_term(
         term=args.term,
         definition=args.definition,
         created_by=args.by,
@@ -728,8 +728,8 @@ def cmd_term_record(args: argparse.Namespace) -> int:
 
 
 def cmd_terms(args: argparse.Namespace) -> int:
-    tribe = _load_tribe(args)
-    records = [item.model_dump() for item in sorted(tribe.protocol_terms.values(), key=lambda record: record.ts)]
+    rhizome = _load_rhizome(args)
+    records = [item.model_dump() for item in sorted(rhizome.protocol_terms.values(), key=lambda record: record.ts)]
     if args.domain:
         records = [r for r in records if r["domain"] == args.domain]
     if not records:
@@ -741,8 +741,8 @@ def cmd_terms(args: argparse.Namespace) -> int:
 
 
 def cmd_agent_record(args: argparse.Namespace) -> int:
-    tribe = _load_tribe(args)
-    record = MultitudeService(tribe).record_economic_agent(
+    rhizome = _load_rhizome(args)
+    record = MultitudeService(rhizome).record_economic_agent(
         name=args.name,
         created_by=args.by,
         role=args.role,
@@ -762,8 +762,8 @@ def cmd_agent_record(args: argparse.Namespace) -> int:
 
 
 def cmd_agents(args: argparse.Namespace) -> int:
-    tribe = _load_tribe(args)
-    records = [item.model_dump() for item in sorted(tribe.economic_agents.values(), key=lambda record: record.ts)]
+    rhizome = _load_rhizome(args)
+    records = [item.model_dump() for item in sorted(rhizome.economic_agents.values(), key=lambda record: record.ts)]
     if not records:
         print("no economic agents")
         return 1
@@ -775,8 +775,8 @@ def cmd_agents(args: argparse.Namespace) -> int:
 
 
 def cmd_remember(args: argparse.Namespace) -> int:
-    tribe = _load_tribe(args)
-    e = tribe.remember(
+    rhizome = _load_rhizome(args)
+    e = rhizome.remember(
         args.title,
         args.text,
         author=args.as_name or "",
@@ -789,8 +789,8 @@ def cmd_remember(args: argparse.Namespace) -> int:
 
 
 def cmd_search(args: argparse.Namespace) -> int:
-    tribe = _load_tribe(args)
-    hits = MultitudeService(tribe).search_memory(args.query)
+    rhizome = _load_rhizome(args)
+    hits = MultitudeService(rhizome).search_memory(args.query)
     if not hits:
         print("no matches")
         return 1
@@ -801,8 +801,8 @@ def cmd_search(args: argparse.Namespace) -> int:
 
 
 def cmd_entity_link(args: argparse.Namespace) -> int:
-    tribe = _load_tribe(args)
-    link = MultitudeService(tribe).link_entities(
+    rhizome = _load_rhizome(args)
+    link = MultitudeService(rhizome).link_entities(
         author=args.by,
         source_kind=args.source_kind,
         source=args.source,
@@ -819,8 +819,8 @@ def cmd_entity_link(args: argparse.Namespace) -> int:
 
 
 def cmd_links(args: argparse.Namespace) -> int:
-    tribe = _load_tribe(args)
-    links = MultitudeService(tribe).list_entity_links(
+    rhizome = _load_rhizome(args)
+    links = MultitudeService(rhizome).list_entity_links(
         entity_kind=args.kind,
         entity=args.entity,
         direction=args.direction,
@@ -839,8 +839,8 @@ def cmd_links(args: argparse.Namespace) -> int:
 
 
 def cmd_private_note_add(args: argparse.Namespace) -> int:
-    tribe = _load_tribe(args)
-    note = MultitudeService(tribe).add_private_note(
+    rhizome = _load_rhizome(args)
+    note = MultitudeService(rhizome).add_private_note(
         owner=args.as_name,
         title=args.title,
         text=args.text,
@@ -852,8 +852,8 @@ def cmd_private_note_add(args: argparse.Namespace) -> int:
 
 
 def cmd_private_notes(args: argparse.Namespace) -> int:
-    tribe = _load_tribe(args)
-    notes = MultitudeService(tribe).list_private_notes(args.as_name)
+    rhizome = _load_rhizome(args)
+    notes = MultitudeService(rhizome).list_private_notes(args.as_name)
     if not notes:
         print("no private notes")
         return 1
@@ -864,8 +864,8 @@ def cmd_private_notes(args: argparse.Namespace) -> int:
 
 
 def cmd_private_note_publish(args: argparse.Namespace) -> int:
-    tribe = _load_tribe(args)
-    entry = MultitudeService(tribe).publish_private_note(
+    rhizome = _load_rhizome(args)
+    entry = MultitudeService(rhizome).publish_private_note(
         owner=args.as_name,
         note_id=args.note,
         published_by=args.by,
@@ -881,8 +881,8 @@ def cmd_private_note_publish(args: argparse.Namespace) -> int:
 
 
 def cmd_serve_api(args: argparse.Namespace) -> int:
-    tribe = _load_tribe(args)
-    return run_api_server(MultitudeService(tribe), host=args.host, port=args.port)
+    rhizome = _load_rhizome(args)
+    return run_api_server(MultitudeService(rhizome), host=args.host, port=args.port)
 
 
 def cmd_telegram(args: argparse.Namespace) -> int:
@@ -958,9 +958,9 @@ def cmd_scrape(args: argparse.Namespace) -> int:
 def cmd_goal_open(args: argparse.Namespace) -> int:
     from multitude import goals
 
-    tribe = _load_tribe(args)
+    rhizome = _load_rhizome(args)
     g = goals.open_goal(
-        tribe, args.title, args.text, category=args.category, opened_by=args.by
+        rhizome, args.title, args.text, category=args.category, opened_by=args.by
     )
     print(f"goal {g.id} OPEN [{g.category}]: {g.title}")
     return None
@@ -969,9 +969,9 @@ def cmd_goal_open(args: argparse.Namespace) -> int:
 def cmd_goals(args: argparse.Namespace) -> int:
     from multitude import goals
 
-    tribe = _load_tribe(args)
+    rhizome = _load_rhizome(args)
     shown = 0
-    for g in tribe.goals.values():
+    for g in rhizome.goals.values():
         if args.category and g.category != args.category:
             continue
         print(f"  [{g.category}] {g.id} {g.status}: {g.title}")
@@ -987,9 +987,9 @@ def cmd_goals(args: argparse.Namespace) -> int:
 def cmd_goal_close(args: argparse.Namespace) -> int:
     from multitude import goals
 
-    tribe = _load_tribe(args)
+    rhizome = _load_rhizome(args)
     g = goals.close_goal(
-        tribe, args.goal, closed_by=args.by, status=args.status, notes=args.notes
+        rhizome, args.goal, closed_by=args.by, status=args.status, notes=args.notes
     )
     print(f"goal {g.id} {g.status}: {g.title}")
     return 0
@@ -998,9 +998,9 @@ def cmd_goal_close(args: argparse.Namespace) -> int:
 def cmd_task_open(args: argparse.Namespace) -> int:
     from multitude import goals
 
-    tribe = _load_tribe(args)
+    rhizome = _load_rhizome(args)
     t = goals.open_task(
-        tribe,
+        rhizome,
         args.title,
         opened_by=args.by,
         description=args.text,
@@ -1016,9 +1016,9 @@ def cmd_task_open(args: argparse.Namespace) -> int:
 def cmd_tasks(args: argparse.Namespace) -> int:
     from multitude import goals as _goals  # noqa: F401
 
-    tribe = _load_tribe(args)
+    rhizome = _load_rhizome(args)
     shown = 0
-    for t in tribe.tasks.values():
+    for t in rhizome.tasks.values():
         if args.status and t.status != args.status:
             continue
         extra = ""
@@ -1038,8 +1038,8 @@ def cmd_tasks(args: argparse.Namespace) -> int:
 def cmd_task_claim(args: argparse.Namespace) -> int:
     from multitude import goals
 
-    tribe = _load_tribe(args)
-    t = goals.claim_task(tribe, args.task, args.as_name)
+    rhizome = _load_rhizome(args)
+    t = goals.claim_task(rhizome, args.task, args.as_name)
     print(f"claimed: {t.title} -> {args.as_name}")
     return 0
 
@@ -1047,8 +1047,8 @@ def cmd_task_claim(args: argparse.Namespace) -> int:
 def cmd_task_done(args: argparse.Namespace) -> int:
     from multitude import goals
 
-    tribe = _load_tribe(args)
-    t = goals.done_task(tribe, args.task, member=args.as_name)
+    rhizome = _load_rhizome(args)
+    t = goals.done_task(rhizome, args.task, member=args.as_name)
     print(f"task done: {t.title} (by {t.done_by})")
     return 0
 
@@ -1056,12 +1056,12 @@ def cmd_task_done(args: argparse.Namespace) -> int:
 def cmd_task_assign(args: argparse.Namespace) -> int:
     from multitude import goals
 
-    tribe = _load_tribe(args)
-    t = tribe.tasks.get(args.task)
+    rhizome = _load_rhizome(args)
+    t = rhizome.tasks.get(args.task)
     if t is None:
         print(f"error: no task '{args.task}'", file=sys.stderr)
         return 2
-    ranked = goals.suggest_task_assignment(tribe, t)
+    ranked = goals.suggest_task_assignment(rhizome, t)
     print("suggested order (best skill match first):")
     for name in ranked:
         print(f"  {name}")
@@ -1071,19 +1071,19 @@ def cmd_task_assign(args: argparse.Namespace) -> int:
 def cmd_profit_record(args: argparse.Namespace) -> int:
     from multitude import goals
 
-    tribe = _load_tribe(args)
+    rhizome = _load_rhizome(args)
     payload = goals.record_profit(
-        tribe, args.amount, source=args.source, recorded_by=args.by
+        rhizome, args.amount, source=args.source, recorded_by=args.by
     )
     print(f"recorded: {payload['amount']} ({payload['source'] or 'no source'})")
-    print(f"treasury total: {tribe.treasury['total']}")
+    print(f"treasury total: {rhizome.treasury['total']}")
     return 0
 
 
 def cmd_profit_distribute(args: argparse.Namespace) -> int:
     from multitude import goals
 
-    tribe = _load_tribe(args)
+    rhizome = _load_rhizome(args)
     weights = None
     if args.weight:
         weights = {}
@@ -1093,8 +1093,8 @@ def cmd_profit_distribute(args: argparse.Namespace) -> int:
                 return 2
             name, _, val = item.partition("=")
             weights[name.strip()] = float(val)
-    payload = goals.distribute_profit(tribe, args.amount, args.by, weights=weights)
-    members = {m.id: m.name for m in tribe.members.values()}
+    payload = goals.distribute_profit(rhizome, args.amount, args.by, weights=weights)
+    members = {m.id: m.name for m in rhizome.members.values()}
     print(f"distributed {payload['amount']}:")
     for mid, amount in payload["distribution"].items():
         print(f"  {members.get(mid, mid)}: {amount}")
@@ -1102,14 +1102,14 @@ def cmd_profit_distribute(args: argparse.Namespace) -> int:
 
 
 def cmd_ledger(args: argparse.Namespace) -> int:
-    tribe = _load_tribe(args)
-    print(f"treasury: {tribe.treasury['total']}")
-    for p in tribe.treasury.get("entries", [])[-10:]:
+    rhizome = _load_rhizome(args)
+    print(f"treasury: {rhizome.treasury['total']}")
+    for p in rhizome.treasury.get("entries", [])[-10:]:
         print(f"  +{p['amount']} from {p['source'] or '?'} [{p['ts']}]")
-    members = {m.id: m.name for m in tribe.members.values()}
-    if tribe.profit_ledger:
+    members = {m.id: m.name for m in rhizome.members.values()}
+    if rhizome.profit_ledger:
         print("profit shares:")
-        for mid, amount in tribe.profit_ledger.items():
+        for mid, amount in rhizome.profit_ledger.items():
             print(f"  {members.get(mid, mid)}: {amount}")
     return 0
 
@@ -1117,10 +1117,10 @@ def cmd_ledger(args: argparse.Namespace) -> int:
 def cmd_wellbeing(args: argparse.Namespace) -> int:
     from multitude import goals
 
-    tribe = _load_tribe(args)
+    rhizome = _load_rhizome(args)
     if args.domain and args.level:
         payload = goals.record_wellbeing(
-            tribe,
+            rhizome,
             args.as_name,
             args.domain,
             args.level,
@@ -1130,7 +1130,7 @@ def cmd_wellbeing(args: argparse.Namespace) -> int:
         print(f"recorded: {payload['member']} {payload['domain']}={payload['level']}")
         return 0
     # show mode
-    wb = goals.latest_wellbeing(tribe, member=args.as_name)
+    wb = goals.latest_wellbeing(rhizome, member=args.as_name)
     if args.as_name:
         doms = wb["by_member"].get(args.as_name, {})
         if not doms:
@@ -1149,13 +1149,13 @@ def cmd_wellbeing(args: argparse.Namespace) -> int:
 def cmd_interests(args: argparse.Namespace) -> int:
     from multitude import goals
 
-    tribe = _load_tribe(args)
+    rhizome = _load_rhizome(args)
     if args.add:
         items = [s.strip() for s in args.add.split(",") if s.strip()]
-        payload = goals.declare_interests(tribe, args.as_name, items)
+        payload = goals.declare_interests(rhizome, args.as_name, items)
         print(f"declared for {payload['member']}: {payload['interests']}")
         return 0
-    shared = goals.shared_interests(tribe)
+    shared = goals.shared_interests(rhizome)
     if not shared:
         print("no shared interests yet")
         return 1
@@ -1168,15 +1168,15 @@ def cmd_interests(args: argparse.Namespace) -> int:
 def cmd_health(args: argparse.Namespace) -> int:
     from multitude import goals
 
-    tribe = _load_tribe(args)
-    health = goals.tribe_health(tribe)
+    rhizome = _load_rhizome(args)
+    health = goals.rhizome_health(rhizome)
     wb = health["wellbeing"]
-    print(f"tribe health: {tribe.name}")
+    print(f"rhizome health: {rhizome.name}")
     for name, doms in wb["by_member"].items():
         doms_str = ", ".join(f"{d}={v}/5" for d, v in doms.items())
         print(f"  {name}: {doms_str or 'no readings'}")
     if wb["averages"]:
-        print(f"tribe averages: {wb['averages']}")
+        print(f"rhizome averages: {wb['averages']}")
     shared = health["shared_interests"]
     if shared:
         print("shared interests:")
@@ -1189,18 +1189,18 @@ def cmd_health(args: argparse.Namespace) -> int:
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        prog="multitude", description="Tribe kernel for hybrid human-AI groups"
+        prog="multitude", description="Rhizome kernel for hybrid human-AI groups"
     )
-    parser.add_argument("--tribe", help="tribe directory (default: most recent)")
+    parser.add_argument("--rhizome", "--tribe", dest="rhizome", help="rhizome directory (default: most recent; --tribe legacy alias)")
     sub = parser.add_subparsers(dest="command", required=True)
 
-    p = sub.add_parser("found", help="found a new tribe")
+    p = sub.add_parser("found", help="found a new rhizome")
     p.add_argument("--name", required=True)
     p.add_argument("--charter", default="")
     p.add_argument("--founder", required=True)
     p.set_defaults(func=cmd_found)
 
-    p = sub.add_parser("join", help="join the tribe as a new node")
+    p = sub.add_parser("join", help="join the rhizome as a new node")
     p.add_argument("--as", dest="as_name", required=True)
     p.add_argument("--kind", choices=["biological", "technological"], default="biological")
     p.add_argument("--persona", default=None)
@@ -1273,7 +1273,7 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--limit", type=int, default=30)
     p.set_defaults(func=cmd_log)
 
-    p = sub.add_parser("status", help="tribe summary")
+    p = sub.add_parser("status", help="rhizome summary")
     p.set_defaults(func=cmd_status)
 
     p = sub.add_parser("remember", help="write to shared memory")
@@ -1281,7 +1281,7 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--text", required=True)
     p.add_argument("--kind", default="note")
     p.add_argument("--tags", default="")
-    p.add_argument("--scope", choices=["tribe", "research", "federated"], default="tribe")
+    p.add_argument("--scope", choices=["rhizome", "research", "federated", "tribe"], default="rhizome")
     p.add_argument("--as", dest="as_name", default="")
     p.set_defaults(func=cmd_remember)
 
@@ -1305,7 +1305,7 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--as", dest="as_name", required=True, help="private note owner")
     p.add_argument("--note", required=True)
     p.add_argument("--by", required=True, help="member who performs the publication")
-    p.add_argument("--scope", choices=["tribe", "research", "federated"], default="tribe")
+    p.add_argument("--scope", choices=["rhizome", "research", "federated", "tribe"], default="rhizome")
     p.add_argument("--title", default="")
     p.add_argument("--text", default="")
     p.add_argument("--kind", default="")
@@ -1328,7 +1328,7 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--relation", default=None)
     p.set_defaults(func=cmd_links)
 
-    p = sub.add_parser("lexicon-add", help="define or update a tribe lexicon term")
+    p = sub.add_parser("lexicon-add", help="define or update a rhizome lexicon term")
     p.add_argument("--by", required=True)
     p.add_argument("--term", required=True)
     p.add_argument("--definition", required=True)
@@ -1336,7 +1336,7 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--tag", action="append", default=[])
     p.set_defaults(func=cmd_lexicon_add)
 
-    p = sub.add_parser("lexicon", help="list or search tribe lexicon")
+    p = sub.add_parser("lexicon", help="list or search rhizome lexicon")
     p.add_argument("--query", default="")
     p.set_defaults(func=cmd_lexicon)
 
@@ -1369,7 +1369,7 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--limit", type=int, default=20)
     p.set_defaults(func=cmd_physical_events)
 
-    p = sub.add_parser("economy-profile-set", help="record the tribe's current intentional economy profile")
+    p = sub.add_parser("economy-profile-set", help="record the rhizome's current intentional economy profile")
     p.add_argument("--by", required=True)
     p.add_argument("--mission", required=True)
     p.add_argument("--value-type", action="append", required=True)
@@ -1382,13 +1382,13 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--status", default="active")
     p.set_defaults(func=cmd_economy_profile_set)
 
-    p = sub.add_parser("economy-profile", help="show the latest tribe economy profile")
+    p = sub.add_parser("economy-profile", help="show the latest rhizome economy profile")
     p.set_defaults(func=cmd_economy_profile)
 
     p = sub.add_parser("federation-add", help="record an inter-tribal federation agreement")
     p.add_argument("--by", required=True)
     p.add_argument("--title", required=True)
-    p.add_argument("--partner-tribe", required=True)
+    p.add_argument("--partner-rhizome", required=True)
     p.add_argument("--partner-slug")
     p.add_argument("--agreement-type", default="alliance")
     p.add_argument("--scope", action="append", default=[])
@@ -1407,7 +1407,7 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--by", required=True)
     p.add_argument("--name", required=True)
     p.add_argument("--kind", default="resource")
-    p.add_argument("--owner", default="tribe")
+    p.add_argument("--owner", default="rhizome")
     p.add_argument("--status", default="available")
     p.set_defaults(func=cmd_resource_register)
 
@@ -1487,7 +1487,7 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--title", required=True)
     p.add_argument("--description", required=True)
     p.add_argument("--kind", default="policy", choices=["policy", "access", "economic", "care", "moderation"])
-    p.add_argument("--scope", default="tribe", choices=["tribe", "business", "social", "health", "federated"])
+    p.add_argument("--scope", default="rhizome", choices=["rhizome", "business", "social", "health", "federated", "tribe"])
     p.add_argument("--applies-to", action="append", default=[])
     p.add_argument("--status", default="active")
     p.set_defaults(func=cmd_rule_define)
@@ -1511,7 +1511,7 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--member", default=None)
     p.set_defaults(func=cmd_care)
 
-    p = sub.add_parser("rhythm-define", help="define a tribe rhythm (recurring practice with cadence)")
+    p = sub.add_parser("rhythm-define", help="define a rhizome rhythm (recurring practice with cadence)")
     p.add_argument("--by", required=True)
     p.add_argument("--name", required=True)
     p.add_argument("--cadence", required=True)
@@ -1674,7 +1674,7 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--add", default="", help="comma-separated interests to declare")
     p.set_defaults(func=cmd_interests)
 
-    p = sub.add_parser("health", help="tribe health: wellbeing averages + shared interests")
+    p = sub.add_parser("health", help="rhizome health: wellbeing averages + shared interests")
     p.set_defaults(func=cmd_health)
 
     return parser
@@ -1687,7 +1687,7 @@ def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     try:
         return args.func(args)
-    except (TribeError, ServiceError, LayerError, GoalError, FileNotFoundError) as exc:
+    except (RhizomeError, ServiceError, LayerError, GoalError, FileNotFoundError) as exc:
         print(f"error: {exc}", file=sys.stderr)
         return 2
 

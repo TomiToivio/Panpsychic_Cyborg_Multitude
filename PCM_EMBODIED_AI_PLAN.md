@@ -218,7 +218,7 @@ Rules **[EST as discipline]**:
 - **Temporal reasoning:** events, durations, trends, anomalies —
   "temperature rose 21→25 °C in 40 min" beats "temperature = 25 °C".
   Time-series summaries are derived events like any other.
-- **Embodiment memory** is separate from conversation memory: the tribe
+- **Embodiment memory** is separate from conversation memory: the rhizome
   log already distinguishes event kinds; physical episodes
   (`14:02 motion in kitchen → 14:03 camera sees package → 14:06 agent
   reports`) are first-class, retrievable, inspectable, deletable.

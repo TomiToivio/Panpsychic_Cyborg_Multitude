@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
-"""Panpsychic Cyborg Multitude - tribe kernel for hybrid human-AI groups.
+"""Panpsychic Cyborg Multitude - rhizome kernel for hybrid human-AI groups.
 
-A tribe is a small collective of biological nodes (humans) and
+A rhizome is a small collective of biological nodes (humans) and
 technological nodes (LLM-backed agents) with a shared stream, shared
 memory, and shared decision-making. All state is derived by replaying
 an append-only event log.
@@ -35,34 +35,34 @@ from multitude.models import (
     ProtocolTermRecord,
     RhythmRecord,
     Rule,
-    TribeEconomyProfileRecord,
-    TribeMembershipRecord,
+    RhizomeEconomyProfileRecord,
+    RhizomeMembershipRecord,
     Vote,
     WorkLogRecord,
 )
 from multitude.service import MultitudeService
-from multitude.store import TribeStore
-from multitude.tribe import Tribe, TribeError
+from multitude.store import RhizomeStore
+from multitude.rhizome import Rhizome, RhizomeError
 
 __all__ = [
-    "Tribe",
-    "TribeStore",
+    "Rhizome",
+    "RhizomeStore",
     "MultitudeService",
     "NoosphereGraphBridge",
-    "TribeError",
+    "RhizomeError",
     "Event",
     "Member",
     "LexiconEntry",
     "DeviceRecord",
     "BiometricSignalRecord",
     "PhysicalEvent",
-    "TribeMembershipRecord",
+    "RhizomeMembershipRecord",
     "WorkLogRecord",
     "GovernanceRuleRecord",
     "EconomicIntentRecord",
     "EconomicCommitmentRecord",
     "EconomicAgreementRecord",
-    "TribeEconomyProfileRecord",
+    "RhizomeEconomyProfileRecord",
     "FederationAgreementRecord",
     "CareRecord",
     "RhythmRecord",

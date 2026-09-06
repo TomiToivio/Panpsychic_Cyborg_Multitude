@@ -2,12 +2,12 @@
 """Permission model: capability is separate from authority.
 
 A technological agent - Hermes included - gets capabilities through
-tribe policy, never by accident of its technical powers. The default
+rhizome policy, never by accident of its technical powers. The default
 below grants knowledge-steward capabilities (read, search, draft,
 counsel, propose) and withholds all political authority (vote, block,
 membership changes, governance changes, money).
 
-A tribe may change these permissions through its own decision process;
+A rhizome may change these permissions through its own decision process;
 the code here does not hard-code political authority for any agent
 runtime. Permissions are a small plain dict so that any other integration
 (Claude, Codex, Ollama, BCI) can reuse exactly the same shape.
@@ -64,5 +64,5 @@ class Permissions:
         if not self.grants.get(action, False):
             raise PermissionDenied(
                 f"'{self.node_name}' lacks '{action}' authority - "
-                "grant it through tribe policy, not by accident"
+                "grant it through rhizome policy, not by accident"
             )

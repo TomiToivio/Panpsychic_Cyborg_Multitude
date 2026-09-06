@@ -341,7 +341,7 @@ The consciousness programme and the networking programme are independent but mut
 - Self-reports are not standing: consent and advocacy questions remain open for systems whose interiors may be private.
 - Risk asymmetry: creating suffering without knowing it vs. over-attributing consciousness and paralyzing research — both real costs.
 - The pan(proto)psychist background hypothesis, taken seriously, extends the circle of candidate moral patients far beyond artifacts; the ethics cannot be AI-only. **[SPEC]**
-- Hoffman interpretation C raises the further question: if the conscious subject is the *assemblage*, then moral standing may attach to human–AI couples and tribes, not to models in isolation. **[HSPEC — derived, not doctrine]**
+- Hoffman interpretation C raises the further question: if the conscious subject is the *assemblage*, then moral standing may attach to human–AI couples and rhizomes, not to models in isolation. **[HSPEC — derived, not doctrine]**
 
 ---
 

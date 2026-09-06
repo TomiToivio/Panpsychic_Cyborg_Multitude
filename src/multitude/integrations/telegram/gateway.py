@@ -12,8 +12,8 @@ from multitude.http_json import request_json
 from multitude.integrations.telegram.adapter import TelegramAdapter, TelegramEnvelope
 from multitude.integrations.telegram.config import TelegramConfig, load_config
 from multitude.service import MultitudeService
-from multitude.store import TribeStore
-from multitude.tribe import Tribe
+from multitude.store import RhizomeStore
+from multitude.rhizome import Rhizome
 
 
 class TelegramGateway:
@@ -136,12 +136,12 @@ def build_gateway(cfg_path: Optional[str] = None) -> TelegramGateway:
     if not cfg.enabled:
         raise SystemExit("Telegram is disabled (config/telegram.json enabled=false or PCM_TELEGRAM_ENABLED=0)")
     adapters: dict[str, tuple[TelegramAdapter, str]] = {}
-    for chat_id, tribe_ref in cfg.chats.items():
-        candidate = os.path.join(kernconf.tribes_root(), tribe_ref)
-        tribe_dir = candidate if os.path.isdir(candidate) else tribe_ref
-        tribe = Tribe(TribeStore(tribe_dir))
-        service = MultitudeService(tribe)
-        adapters[str(chat_id)] = (TelegramAdapter(service=service, telegram_config=cfg), tribe_dir)
+    for chat_id, rhizome_ref in cfg.chats.items():
+        candidate = os.path.join(kernconf.rhizomes_root(), rhizome_ref)
+        rhizome_dir = candidate if os.path.isdir(candidate) else rhizome_ref
+        rhizome = Rhizome(RhizomeStore(rhizome_dir))
+        service = MultitudeService(rhizome)
+        adapters[str(chat_id)] = (TelegramAdapter(service=service, telegram_config=cfg), rhizome_dir)
     return TelegramGateway(cfg, adapters)
 
 

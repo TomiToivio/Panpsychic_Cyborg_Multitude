@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
-"""Domain reducer registry — keep Tribe._apply() small (design note).
+"""Domain reducer registry — keep Rhizome._apply() small (design note).
 
-PCM's kernel is event-sourced: ``Tribe._apply(type, payload)`` replays
+PCM's kernel is event-sourced: ``Rhizome._apply(type, payload)`` replays
 one event into state. As domains accumulate (goals, economy, care,
 embodiment, biosignals, assemblages...), a single monolithic reducer
 becomes the kernel's biggest maintenance risk.
@@ -11,13 +11,13 @@ The registration pattern (used by goals.py already, generalized here):
     # multitude/domains/<name>.py
     EVENT_TYPES = frozenset({"economy_profile_defined", ...})
 
-    def replay(tribe, type_, payload) -> None:
+    def replay(rhizome, type_, payload) -> None:
         ...
 
-    # tribe.py binds it once:
+    # rhizome.py binds it once:
     register_domain("economy", EVENT_TYPES, replay)
 
-``Tribe._apply`` then routes: unknown types fall through to the core
+``Rhizome._apply`` then routes: unknown types fall through to the core
 governance reducer; registered domain types dispatch to their module's
 replay function. Domains stay independent, testable, and removable —
 the kernel core (events, identity, membership, memory, governance)
@@ -25,14 +25,14 @@ never grows domain branches.
 
 This module is deliberately tiny: the registry plus the canonical
 core/domain split as documentation. New domains SHOULD register here
-instead of adding elif-chains to tribe.py.
+instead of adding elif-chains to rhizome.py.
 """
 from __future__ import annotations
 
 from typing import Any, Callable, Protocol
 
 
-class TribeLike(Protocol):
+class RhizomeLike(Protocol):
     """The surface a domain reducer may touch (small by design)."""
 
     members: dict
@@ -80,7 +80,7 @@ def registered_domains() -> dict[str, list[str]]:
 
 # The canonical split (design contract, enforced by review):
 #
-#   CORE (tribe.py owns the reducer, never delegated):
+#   CORE (rhizome.py owns the reducer, never delegated):
 #     member_joined / member_updated / member_left / membership_recorded
 #     message / memory_added / memory_revised
 #     proposal_opened / vote_cast / proposal_closed
@@ -91,7 +91,7 @@ def registered_domains() -> dict[str, list[str]]:
 #     assemblages    -> assemblage_defined / assemblage_updated
 #     (future: care, rhythms, embodiment, biosignals, federation)
 #
-# A new domain = one module + one register_domain call. tribe.py's
+# A new domain = one module + one register_domain call. rhizome.py's
 # _apply stays: core branches + one dispatch() fallback.
 
 
@@ -118,6 +118,6 @@ __all__ = [
     "dispatch",
     "registered_domains",
     "register_builtin_domains",
-    "TribeLike",
+    "RhizomeLike",
     "Reducer",
 ]

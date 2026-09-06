@@ -13,8 +13,8 @@ from multitude.layers import (  # noqa: E402
     normalize_layer_name,
 )
 from multitude.models import Layer, NodeKind  # noqa: E402
-from multitude.store import TribeStore  # noqa: E402
-from multitude.tribe import Tribe, TribeError  # noqa: E402
+from multitude.store import RhizomeStore  # noqa: E402
+from multitude.rhizome import Rhizome, RhizomeError  # noqa: E402
 
 
 class LayerTestBase(unittest.TestCase):
@@ -22,9 +22,9 @@ class LayerTestBase(unittest.TestCase):
         self.tmp = tempfile.TemporaryDirectory()
         self.root = os.path.join(self.tmp.name, "tribes")
         os.makedirs(self.root)
-        self.tribe = Tribe.found(
+        self.rhizome = Rhizome.found(
             self.root,
-            "Layer Tribe",
+            "Layer Rhizome",
             charter="Track the whole agent.",
             founder_name="Alice",
         )
@@ -75,82 +75,82 @@ class TestNormalizedVocabulary(LayerTestBase):
 
 class TestJoinSeeds(LayerTestBase):
     def test_biological_join_seeds_psychic_conscious(self):
-        self.tribe.join("Mari", NodeKind.BIOLOGICAL)
-        m = self.tribe.member_by_name("Mari")
+        self.rhizome.join("Mari", NodeKind.BIOLOGICAL)
+        m = self.rhizome.member_by_name("Mari")
         self.assertTrue(m.profile.psychic.is_conscious)
         self.assertIn("ape", m.profile.psychic.notes)
 
     def test_technological_join_seeds_distributed_physical(self):
-        self.tribe.join("Panpsychic Cyborg Multitude", NodeKind.TECHNOLOGICAL, model="glm-5.3-flash:cloud")
-        m = self.tribe.member_by_name("Panpsychic Cyborg Multitude")
+        self.rhizome.join("Panpsychic Cyborg Multitude", NodeKind.TECHNOLOGICAL, model="glm-5.3-flash:cloud")
+        m = self.rhizome.member_by_name("Panpsychic Cyborg Multitude")
         self.assertIn("distributed", m.profile.physical.notes)
         self.assertIsNone(m.profile.psychic.is_conscious)  # unknown, not asserted
         self.assertEqual(m.profile.cybernetic.interface_mode, "text")
 
     def test_founder_gets_seeds_and_replay_keeps_them(self):
-        tom = self.tribe.member_by_name("Alice")
+        tom = self.rhizome.member_by_name("Alice")
         self.assertTrue(tom.profile.biological.is_biological)
         self.assertTrue(tom.profile.psychic.is_conscious)
-        # fresh Tribe instance replays the same log
-        again = Tribe(TribeStore(self.tribe.store.path))
+        # fresh Rhizome instance replays the same log
+        again = Rhizome(RhizomeStore(self.rhizome.store.path))
         tom2 = again.member_by_name("Alice")
         self.assertTrue(tom2.profile.psychic.is_conscious)
 
 
 class TestRecordAndReplay(LayerTestBase):
     def test_record_layer_updates_state_and_log(self):
-        self.tribe.record_layer("Alice", "physical", {"location": "Springfield"})
-        m = self.tribe.member_by_name("Alice")
+        self.rhizome.record_layer("Alice", "physical", {"location": "Springfield"})
+        m = self.rhizome.member_by_name("Alice")
         self.assertEqual(m.profile.physical.location_label, "Springfield")
         events = [
-            e for e in self.tribe.store.replay() if e.type == "layer_recorded"
+            e for e in self.rhizome.store.replay() if e.type == "layer_recorded"
         ]
         self.assertTrue(any(e.payload["layer"] == "physical" for e in events))
 
     def test_self_report_default_and_observer_report(self):
-        self.tribe.join("Panpsychic Cyborg Multitude", NodeKind.TECHNOLOGICAL)
-        self.tribe.record_layer("Panpsychic Cyborg Multitude", "cybernetic", {"interface_mode": "text"})
-        self.tribe.record_layer(
+        self.rhizome.join("Panpsychic Cyborg Multitude", NodeKind.TECHNOLOGICAL)
+        self.rhizome.record_layer("Panpsychic Cyborg Multitude", "cybernetic", {"interface_mode": "text"})
+        self.rhizome.record_layer(
             "Alice", "Panpsychic Cyborg Multitude",  # wrong order on purpose: member, then layer handled below
         ) if False else None
-        self.tribe.record_layer("Panpsychic Cyborg Multitude", "psychic", {"state": "attentive"},
+        self.rhizome.record_layer("Panpsychic Cyborg Multitude", "psychic", {"state": "attentive"},
                                 reported_by="Alice")
-        history = self.tribe.layer_history("Panpsychic Cyborg Multitude", "psychic")
+        history = self.rhizome.layer_history("Panpsychic Cyborg Multitude", "psychic")
         self.assertEqual(len(history), 1)
         self.assertEqual(history[0]["reported_by"], "Alice")
 
     def test_history_is_append_only(self):
-        self.tribe.record_layer("Alice", "biological", {"mood": "focused"})
-        self.tribe.record_layer("Alice", "biological", {"mood": "restless"})
-        history = self.tribe.layer_history("Alice", "biological")
+        self.rhizome.record_layer("Alice", "biological", {"mood": "focused"})
+        self.rhizome.record_layer("Alice", "biological", {"mood": "restless"})
+        history = self.rhizome.layer_history("Alice", "biological")
         self.assertEqual(len(history), 2)
-        m = self.tribe.member_by_name("Alice")
+        m = self.rhizome.member_by_name("Alice")
         # newest reading wins in replayed profile
         self.assertEqual(m.profile.biological.mood, "restless")
         # replay from scratch preserves it
-        again = Tribe(TribeStore(self.tribe.store.path))
+        again = Rhizome(RhizomeStore(self.rhizome.store.path))
         self.assertEqual(
             again.member_by_name("Alice").profile.biological.mood, "restless"
         )
 
     def test_unknown_member_raises(self):
-        with self.assertRaises(TribeError):
-            self.tribe.record_layer("Ghost", "physical", {"location_label": "nowhere"})
+        with self.assertRaises(RhizomeError):
+            self.rhizome.record_layer("Ghost", "physical", {"location_label": "nowhere"})
 
     def test_invalid_gps_rejected_end_to_end(self):
         with self.assertRaises(LayerError):
-            self.tribe.record_layer("Alice", "physical", {"lat": 200, "lon": 0})
+            self.rhizome.record_layer("Alice", "physical", {"lat": 200, "lon": 0})
 
     def test_private_flag_stored(self):
-        self.tribe.record_layer("Alice", "psychic", {"state": "low"}, visible=False)
-        history = self.tribe.layer_history("Alice", "psychic")
+        self.rhizome.record_layer("Alice", "psychic", {"state": "low"}, visible=False)
+        history = self.rhizome.layer_history("Alice", "psychic")
         self.assertFalse(history[-1]["visible"])
 
 
 class TestFormatting(LayerTestBase):
     def test_format_shows_filled_layers_only(self):
-        self.tribe.join("Panpsychic Cyborg Multitude", NodeKind.TECHNOLOGICAL)
-        text = self.tribe.member_by_name("Panpsychic Cyborg Multitude")
+        self.rhizome.join("Panpsychic Cyborg Multitude", NodeKind.TECHNOLOGICAL)
+        text = self.rhizome.member_by_name("Panpsychic Cyborg Multitude")
         from multitude.layers import format_member_layers
 
         rendered = format_member_layers(text)
@@ -159,8 +159,8 @@ class TestFormatting(LayerTestBase):
         self.assertNotIn("linguistic:", rendered)
 
     def test_context_includes_layer_summaries(self):
-        self.tribe.join("Panpsychic Cyborg Multitude", NodeKind.TECHNOLOGICAL)
-        ctx = self.tribe.context_for_llm()
+        self.rhizome.join("Panpsychic Cyborg Multitude", NodeKind.TECHNOLOGICAL)
+        ctx = self.rhizome.context_for_llm()
         self.assertIn("Member layer summaries:", ctx)
         self.assertIn("distributed", ctx)
 

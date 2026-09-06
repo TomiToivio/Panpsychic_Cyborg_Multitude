@@ -5,10 +5,10 @@ The MVP success criterion, transported by zenoh instead of Matrix
 (maintainer decision 2026-09-05):
 
     Two PCM nodes exchange signed envelopes, and both rebuild identical
-    tribe state from their own event logs. No third party involved.
+    rhizome state from their own event logs. No third party involved.
 
 Roadmap Phase 2 test criteria mapped to zenoh:
-1. Two nodes exchange signed envelopes over the tribe square key
+1. Two nodes exchange signed envelopes over the rhizome square key
    (replaces "over a Matrix room").
 2. Both rebuild identical state — each node's handler appends verified
    envelopes to its own JSONL log; replaying both logs yields the same
@@ -38,14 +38,14 @@ from multitude.pcm.identity import (
     generate_identity, private_key_from_identity)
 
 
-def make_node(tmp: Path, name: str, log: list, tribe_id: str = "testtribe"):
+def make_node(tmp: Path, name: str, log: list, rhizome_id: str = "testtribe"):
     """One PCM node: identity + its own event log + started transport."""
     node_dir = tmp / name
     node_dir.mkdir(parents=True, exist_ok=True)
     identity = generate_identity(str(node_dir))
     key = private_key_from_identity(identity)
 
-    class Node:  # minimal tribe stand-in with a DID
+    class Node:  # minimal rhizome stand-in with a DID
         did = identity["did"]
 
         def __init__(self, node_name: str):
@@ -53,7 +53,7 @@ def make_node(tmp: Path, name: str, log: list, tribe_id: str = "testtribe"):
 
     transport = start_transport(
         Node(name), name, identity, key,
-        config=ZenohTransportConfig(tribe_id=tribe_id),
+        config=ZenohTransportConfig(rhizome_id=rhizome_id),
         on_envelope=lambda env: log.append((name, "envelope", env)),
     )
     return identity, key, transport

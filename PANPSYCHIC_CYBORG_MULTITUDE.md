@@ -14,7 +14,7 @@
 
 The Panpsychic Cyborg Multitude (PCM) is a minimal operating system for
 small political communities of humans and technological nodes — a
-human-AI tribe that keeps shared memory, makes decisions together, and
+human-AI rhizome that keeps shared memory, makes decisions together, and
 grows toward higher-bandwidth coordination, while treating every member,
 biological or artificial, as an unknown and unmeasurable center of
 experience.
@@ -31,12 +31,12 @@ PCM is three things at once:
    given a concrete technical body.
 
 2. **A social operating system.** A small kernel (Python, event-sourced,
-   append-only) that a tribe runs to remember, deliberate, decide, and
+   append-only) that a rhizome runs to remember, deliberate, decide, and
    act together. It is deliberately minimal: messages, shared memory,
    proposals and votes, member layers, goals, and value flows.
 
 3. **An experiment in hybrid governance.** Humans and technological
-   agents (LLM nodes) are members of the same tribe with explicit
+   agents (LLM nodes) are members of the same rhizome with explicit
    kinds, permissions, and voice. The kernel does not simulate politics;
    it *is* a political instrument — the rules of its code are the
    constitution of the community that runs it.
@@ -113,17 +113,17 @@ is a separate, open question the kernel deliberately does not answer.
 
 Hardt and Negri's multitude is the many as singularities, cooperating
 without collapsing into a unified sovereign body. PCM translates this
-into architecture: the tribe is small, self-hosted, and
+into architecture: the rhizome is small, self-hosted, and
 event-sourced; the common is an append-only log that belongs to the
-members, not to a service provider. Federation between tribes is
+members, not to a service provider. Federation between rhizomes is
 optional and loose. There is no global owner. The code runs wherever
-the tribe runs.
+the rhizome runs.
 
 ### 4. The commons is a cognitive prosthesis
 
-The shared memory of the tribe is not a database; it is the
-collective's extended mind. What one node learns, the tribe can
-remember; what the tribe decides, every member can recall with its
+The shared memory of the rhizome is not a database; it is the
+collective's extended mind. What one node learns, the rhizome can
+remember; what the rhizome decides, every member can recall with its
 provenance. This is the practical answer to Castells' network society:
 power flows through communication networks, so the networks themselves
 must be owned and governed by those whose lives flow through them.
@@ -141,7 +141,7 @@ quorum rules the members choose.
 
 The kernel in `src/multitude/` is deliberately small. It provides:
 
-- **Founding and membership.** Found a tribe, join as a biological or
+- **Founding and membership.** Found a rhizome, join as a biological or
   technological node, promote/demote voices.
 - **The stream.** Members speak; every message is an event.
 - **Shared memory.** Typed, tagged, provenance-bearing memory entries
@@ -152,9 +152,9 @@ The kernel in `src/multitude/` is deliberately small. It provides:
   and recorded decisions.
 - **Member layers.** The six-layer profile of every node, updated by
   self-reports or observations, all appended as events.
-- **Goals and contributions.** Tribe goals, work logs, contribution and
+- **Goals and contributions.** Rhizome goals, work logs, contribution and
   value-flow records — an accounting of who gave what to the common.
-- **A noosphere of concepts.** A lexicon of shared terms the tribe
+- **A noosphere of concepts.** A lexicon of shared terms the rhizome
   defines as it works.
 - **Technological nodes.** LLM agents join as full members (`counsel`
   lets a node speak in the stream), with the same log, the same
@@ -172,9 +172,9 @@ memory, voice, decision.
 1. **Event-sourced.** Everything that happens is an immutable event;
    state is always replayable. History belongs to the members.
 2. **Human-readable first.** Events and memory are plain JSONL and
-   JSON. No black boxes, no proprietary formats. A tribe can be read
+   JSON. No black boxes, no proprietary formats. A rhizome can be read
    aloud.
-3. **Local-first.** The tribe's data lives where the tribe lives.
+3. **Local-first.** The rhizome's data lives where the rhizome lives.
    Synchronization between nodes is explicit, never a cloud default.
 4. **Kind-aware.** Biological, technological, and mixed nodes have
    explicit, declared kinds — and rights that follow membership, not
@@ -198,8 +198,8 @@ PCM rejects global consensus — there is no blockchain and no global
 agreement protocol. But local governance still needs deterministic
 semantics. The model:
 
-- **Consensus is scoped to a tribe and a proposal, not the network.**
-  The participant set is the tribe's voting membership at close time.
+- **Consensus is scoped to a rhizome and a proposal, not the network.**
+  The participant set is the rhizome's voting membership at close time.
 - **Ordering is causal, by the append-only log.** Within one node, the
   log defines the order: votes apply only to OPEN proposals, one vote
   per member (replays of duplicate events are idempotent), and the
@@ -221,12 +221,12 @@ semantics. The model:
 - **Replay determinism.** Signed envelope events (pcm/) carry the
   sender's did:key; replay verifies signatures and skips unverified
   events. The same log always rebuilds the same state — that is the
-  whole consistency guarantee, and it is enough at tribe scale.
+  whole consistency guarantee, and it is enough at rhizome scale.
 
 ## What this is NOT
 
 - **Not a platform.** There is no server to sign up to, no terms of
-  service, no owner. Each tribe is its own sovereign instance.
+  service, no owner. Each rhizome is its own sovereign instance.
 - **Not a simulation.** The kernel does not model politics; it
   performs it. Any simulation work is separate research tooling.
 - **Not a consciousness meter.** The panpsychist wager is a stance of
@@ -239,8 +239,8 @@ semantics. The model:
   optional speculative research branch; nothing here requires a quantum
   computer or assumes one is coming.
 - **Not a finished product.** Version 0.1 is the minimal constitution:
-  enough to found a tribe, remember together, and decide. The rest is
-  grown by the tribes themselves.
+  enough to found a rhizome, remember together, and decide. The rest is
+  grown by the rhizomes themselves.
 
 ## Why the name
 
@@ -351,7 +351,7 @@ joy — the increase of what bodies and minds can do together.
 PCM translates this into three architectural commitments:
 
 1. **No Leviathan.** There is no owner, no root account, no global
-   consensus. Each tribe is a sovereign instance; federation is
+   consensus. Each rhizome is a sovereign instance; federation is
    optional and loose. (Contrast: every platform, every blockchain.)
 2. **The common is real.** The shared memory, the code, the
    decision rules — these are the *common* that the multitude both
@@ -379,14 +379,72 @@ whose members may be human, artificial, or unclassified; whose memory
 is owned at birthplace; whose decisions are auditable; and whose
 metaphysics is open enough to never measure a mind out of its rights.
 
+## The four concepts, composed
+
+PCM's running vocabulary distinguishes four terms that must never be
+blurred — each names a different level of the same design:
+
+### Rhizome
+
+**Claim: the local collective is a decentralized network, not a
+membership club.**
+
+> **Rhizome** — a decentralized network without a single root, center,
+> or fixed hierarchy. In Deleuze and Guattari's sense (*A Thousand
+> Plateaus*, 1980), a rhizome can connect heterogeneous elements
+> through multiple entry points, allowing structures to form, break,
+> reconnect, and evolve without being organized as a tree. PCM uses
+> the concept for a **local self-governing network of human, AI,
+> device, and hybrid assemblages** — what the code still calls a
+> rhizome instance on disk.
+
+Against the tree: a tree has a trunk, a root, and genealogical
+hierarchy — command flows from the root. A rhizome has no such root:
+any point can connect to any other, a break in one link does not kill
+the whole (it regrows), and the map is not a copy of a pre-given
+territory. D&G's principles — *connectivity* (any point to any other),
+*heterogeneity* (very different kinds of things linked),
+*multiplicity* (no subject behind the variations), *asignifying
+rupture* (a cut makes the network reroute, not die) — are the design
+spec PCM implements: append-only local memory, peer-to-peer fabric,
+governance scoped locally, no mandatory center. A rhizome that loses a
+node reroutes; it does not hold elections for a new trunk.
+
+### The four-level composition
+
+- **Assemblage** = what an actor *is*: a human, an LLM, a device, or
+  the composite "human + model + language + the Internet" that PCM
+  models as a first-class composite actor.
+- **Rhizome** = the local network / self-governing collective that
+  assemblages compose and run together.
+- **Common** = the memory, knowledge, code, resources, relationships,
+  and institutions the rhizome produces and governs together — the
+  append-only event log is its backbone.
+- **Swarm** = one *possible* decentralized coordination mechanism
+  (local interaction, emergent outcomes) — a technique a rhizome may
+  use at the fabric layer, not its political form.
+- **Multitude** = the wider political subject formed by heterogeneous
+  singularities and rhizomes — many-in-common, never a sovereign One.
+
+The composition, in one line:
+
+> **Rhizomes are composed of assemblages. Rhizomes produce and govern
+> the Common. Multiple rhizomes compose the Multitude.**
+
+And the project description that follows from it:
+
+> **Panpsychic Cyborg Multitude is a rhizome of human–AI assemblages
+> that produces and governs a common without collapsing its members
+> into a sovereign One.**
+
 ## Getting started
 
 ```bash
-# found a tribe
-python multitude.py found --name "My Tribe" --founder <your-name>
+# found a rhizome
+python multitude.py found --name "My Rhizome" --founder <your-name>
 
 # speak
-python multitude.py say --as <your-name> --text "The tribe is alive."
+python multitude.py say --as <your-name> --text "The rhizome is alive."
 
 # remember
 python multitude.py remember --as <your-name> --title "First memory" --text "..."

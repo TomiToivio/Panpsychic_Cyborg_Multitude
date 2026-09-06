@@ -12,7 +12,7 @@ Test criteria:
 3. Sync: node A pushes a signed memory_share envelope; node B's mirror
    updates ONLY via verified envelope; tampered envelope is rejected.
 4. events.jsonl stays authoritative — mirror changes append to the
-   tribe log as audit events, never silently overwrite.
+   rhizome log as audit events, never silently overwrite.
 5. private fields survive local merge but are excluded from the
    shareable projection.
 
@@ -116,17 +116,17 @@ def main() -> int:
     asyncio.run(sync_flow())
 
     # ---- 4. events.jsonl authoritative: audit event appended ----
-    from multitude.tribe import Tribe
+    from multitude.rhizome import Rhizome
     import os
     root = tmp / "tribe"; root.mkdir()
-    tribe = Tribe.found(str(root), "Mirror Tribe", "Share memory.", "Alice")
-    tribe.remember("mirror-sync", "memory_share envelope received and merged",
+    rhizome = Rhizome.found(str(root), "Mirror Rhizome", "Share memory.", "Alice")
+    rhizome.remember("mirror-sync", "memory_share envelope received and merged",
                    author="Alice", kind="note")
-    audit = [e for e in tribe.memory.values() if e.title == "mirror-sync"]
+    audit = [e for e in rhizome.memory.values() if e.title == "mirror-sync"]
     if not audit:
-        failures.append("audit event missing from tribe log")
+        failures.append("audit event missing from rhizome log")
     else:
-        print(f"[audit] tribe log records mirror sync (title={audit[0].title!r})")
+        print(f"[audit] rhizome log records mirror sync (title={audit[0].title!r})")
 
     # ---- 5. privacy: private fields stay local ----
     m_priv = MemoryMirror("did:key:A")

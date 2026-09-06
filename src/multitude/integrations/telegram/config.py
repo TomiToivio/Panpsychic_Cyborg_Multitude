@@ -124,8 +124,8 @@ def load_config(path: str | None = None) -> TelegramConfig:
     return cfg
 
 
-def load_telegram_settings(tribe_dir: str) -> TelegramConfig:
+def load_telegram_settings(rhizome_dir: str) -> TelegramConfig:
     cfg = load_config()
     if not cfg.state_path:
-        cfg.state_path = str(Path(tribe_dir) / "telegram.state.json")
+        cfg.state_path = str(Path(rhizome_dir) / "telegram.state.json")
     return cfg

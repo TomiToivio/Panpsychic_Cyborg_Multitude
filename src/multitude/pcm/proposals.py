@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """PCM proposal envelopes — Phase 1 component (NETWORKING_STACK.md §7).
 
-Phase 1 wires the Phase 0 primitives into the tribe kernel's proposal
+Phase 1 wires the Phase 0 primitives into the rhizome kernel's proposal
 flow:
 
   - ``signed_proposal_envelope`` — a ``proposal_open`` envelope carrying
@@ -32,39 +32,39 @@ from multitude.pcm.identity import (
 PROTOCOL_BANNER = "PCM 1"
 
 
-def _identity_for(tribe_dir: str) -> dict:
-    return generate_identity(tribe_dir)
+def _identity_for(rhizome_dir: str) -> dict:
+    return generate_identity(rhizome_dir)
 
 
-def _key_for(tribe_dir: str) -> Ed25519PrivateKey:
-    return private_key_from_identity(_identity_for(tribe_dir))
+def _key_for(rhizome_dir: str) -> Ed25519PrivateKey:
+    return private_key_from_identity(_identity_for(rhizome_dir))
 
 
-def signed_proposal_envelope(tribe_dir: str, title: str, text: str, *,
+def signed_proposal_envelope(rhizome_dir: str, title: str, text: str, *,
                              interface: str = "jsonl") -> dict[str, Any]:
     """Build a signed proposal_open envelope attributed to this node."""
-    identity = _identity_for(tribe_dir)
+    identity = _identity_for(rhizome_dir)
     env = Envelope.create(
         "proposal_open", identity["did"], identity["did"],
         {"title": title, "text": text},
         interface=interface,
     )
-    env.sign(_key_for(tribe_dir), identity["did"])
+    env.sign(_key_for(rhizome_dir), identity["did"])
     return env.model_dump(by_alias=True)
 
 
-def signed_vote_envelope(tribe_dir: str, proposal_id: str, position: str, *,
+def signed_vote_envelope(rhizome_dir: str, proposal_id: str, position: str, *,
                          reason: str = "", interface: str = "jsonl") -> dict[str, Any]:
     """Build a signed vote_cast envelope. position: for|against|abstain."""
     if position not in ("for", "against", "abstain"):
         raise EnvelopeError(f"bad vote position {position!r}")
-    identity = _identity_for(tribe_dir)
+    identity = _identity_for(rhizome_dir)
     env = Envelope.create(
         "vote_cast", identity["did"], identity["did"],
         {"proposal_id": proposal_id, "position": position, "reason": reason},
         interface=interface,
     )
-    env.sign(_key_for(tribe_dir), identity["did"])
+    env.sign(_key_for(rhizome_dir), identity["did"])
     return env.model_dump(by_alias=True)
 
 

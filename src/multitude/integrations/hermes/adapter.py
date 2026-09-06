@@ -10,7 +10,7 @@ from multitude import goals
 from multitude.integrations.hermes.config import DEFAULT_LANGUAGES
 from multitude.models import AgentProfile, NodeKind, Position
 from multitude.service import MultitudeService
-from multitude.tribe import Tribe
+from multitude.rhizome import Rhizome
 
 
 class HermesPermissionError(PermissionError):
@@ -47,7 +47,7 @@ class HermesPermissions:
 class MultitudeHermesAdapter:
     """Narrow, kernel-facing API for Hermes-like agents."""
 
-    tribe: Tribe
+    rhizome: Rhizome
     agent_name: str = "Panpsychic Cyborg Multitude"
     role: str = "knowledge_steward"
     model: Optional[str] = None
@@ -55,12 +55,12 @@ class MultitudeHermesAdapter:
 
     @property
     def service(self) -> MultitudeService:
-        return MultitudeService(self.tribe)
+        return MultitudeService(self.rhizome)
 
     def ensure_agent(self) -> Any:
-        member = self.tribe.member_by_name(self.agent_name)
+        member = self.rhizome.member_by_name(self.agent_name)
         if member is None:
-            member = self.tribe.join(
+            member = self.rhizome.join(
                 self.agent_name,
                 NodeKind.TECHNOLOGICAL,
                 model=self.model,
@@ -76,7 +76,7 @@ class MultitudeHermesAdapter:
         if self.role not in roles:
             roles.append(self.role)
         desired_vote = member.voting if self.permissions.vote else False
-        updated = self.tribe.update_member(
+        updated = self.rhizome.update_member(
             member.name,
             model=self.model,
             voting=desired_vote,
@@ -101,7 +101,7 @@ class MultitudeHermesAdapter:
             },
             social={
                 "tribe_role": self.role,
-                "notes": "technological node in the tribe",
+                "notes": "technological node in the rhizome",
             },
             linguistic={
                 "languages": list(DEFAULT_LANGUAGES),
@@ -122,7 +122,7 @@ class MultitudeHermesAdapter:
         )
 
     def _ensure_identity_layers(self, member_name: str) -> None:
-        member = self.tribe._require_member(member_name)
+        member = self.rhizome._require_member(member_name)
         wants = {
             "physical": {
                 "location_label": member.profile.physical.location_label or "local-machine",
@@ -135,7 +135,7 @@ class MultitudeHermesAdapter:
             },
             "social": {
                 "tribe_role": member.profile.social.tribe_role or self.role,
-                "notes": member.profile.social.notes or "technological node in the tribe",
+                "notes": member.profile.social.notes or "technological node in the rhizome",
             },
             "linguistic": {
                 "languages": member.profile.linguistic.languages or list(DEFAULT_LANGUAGES),
@@ -156,7 +156,7 @@ class MultitudeHermesAdapter:
         }
         for layer, changes in wants.items():
             if layer not in member.layers:
-                self.tribe.record_layer(member.name, layer, changes, reported_by=member.name)
+                self.rhizome.record_layer(member.name, layer, changes, reported_by=member.name)
 
     def get_status(self) -> dict[str, Any]:
         self.permissions.require("read_memory")
@@ -165,16 +165,16 @@ class MultitudeHermesAdapter:
     def get_agent(self, name: Optional[str] = None) -> Any:
         self.permissions.require("read_memory")
         self.ensure_agent()
-        member = self.tribe._require_member(name or self.agent_name)
+        member = self.rhizome._require_member(name or self.agent_name)
         return member
 
     def list_agents(self) -> list[Any]:
         self.permissions.require("read_memory")
-        return [self.tribe._require_member(item["name"]) for item in self.service.list_agents()]
+        return [self.rhizome._require_member(item["name"]) for item in self.service.list_agents()]
 
     def get_recent_events(self, limit: int = 20, days: Optional[int] = None) -> list[Any]:
         self.permissions.require("read_memory")
-        events = self.tribe.store.replay()
+        events = self.rhizome.store.replay()
         if days is not None:
             cutoff = datetime.now(timezone.utc) - timedelta(days=days)
             filtered = []
@@ -190,16 +190,16 @@ class MultitudeHermesAdapter:
 
     def search_memory(self, query: str) -> list[Any]:
         self.permissions.require("search_memory")
-        return self.tribe.search_memory(query)
+        return self.rhizome.search_memory(query)
 
     def list_proposals(self, status: Optional[str] = None) -> list[Any]:
         self.permissions.require("read_memory")
         items = self.service.list_proposals(status=status)
-        return [self.tribe.proposals[item["id"]] for item in items]
+        return [self.rhizome.proposals[item["id"]] for item in items]
 
     def list_goals(self, status: Optional[str] = None) -> list[Any]:
         self.permissions.require("read_memory")
-        items = list(self.tribe.goals.values())
+        items = list(self.rhizome.goals.values())
         if status is not None:
             items = [g for g in items if g.status == status]
         return sorted(items, key=lambda g: g.opened_ts)
@@ -208,7 +208,7 @@ class MultitudeHermesAdapter:
         self.permissions.require("propose")
         self.ensure_agent()
         data = self.service.create_proposal(author=author_name or self.agent_name, title=title, text=text)
-        return self.tribe.proposals[data["id"]]
+        return self.rhizome.proposals[data["id"]]
 
     def cast_vote(
         self,
@@ -223,12 +223,12 @@ class MultitudeHermesAdapter:
             self.permissions.require("block")
         self.ensure_agent()
         data = self.service.vote(proposal_id, voter_name or self.agent_name, pos, reason=reason)
-        return self.tribe.proposals[proposal_id].votes[data["vote"]["member"]]
+        return self.rhizome.proposals[proposal_id].votes[data["vote"]["member"]]
 
     def close_proposal(self, proposal_id: str, closer_name: Optional[str] = None) -> Any:
         self.permissions.require("modify_governance")
         self.ensure_agent()
-        return self.tribe.close_proposal(proposal_id, closer_name or self.agent_name)
+        return self.rhizome.close_proposal(proposal_id, closer_name or self.agent_name)
 
     def modify_governance(self, *_args: Any, **_kwargs: Any) -> None:
         self.permissions.require("modify_governance")
@@ -237,7 +237,7 @@ class MultitudeHermesAdapter:
     def current_goals_summary(self) -> dict[str, Any]:
         self.permissions.require("read_memory")
         goals_by_category: dict[str, list[str]] = {"business": [], "social": [], "health": []}
-        for goal in self.tribe.goals.values():
+        for goal in self.rhizome.goals.values():
             if goal.status == goals.GoalStatus.OPEN.value:
                 goals_by_category.setdefault(goal.category, []).append(goal.title)
         return goals_by_category

@@ -10,7 +10,7 @@ from typing import Any, Optional
 
 from multitude.llm import TechnologicalNode
 from multitude.models import NodeKind, Position, ProposalStatus, Rule
-from multitude.tribe import Tribe, TribeError
+from multitude.rhizome import Rhizome, RhizomeError
 
 
 class ServiceError(RuntimeError):
@@ -18,7 +18,7 @@ class ServiceError(RuntimeError):
 
 
 class UnknownMember(ServiceError):
-    """Named author/voter/node does not exist in the tribe."""
+    """Named author/voter/node does not exist in the rhizome."""
 
 
 @dataclass
@@ -29,58 +29,59 @@ class MultitudeService:
     shared operations so interface adapters stop duplicating them.
     """
 
-    tribe: Tribe
+    rhizome: Rhizome
 
     @classmethod
-    def for_tribe_dir(cls, tribe_dir: str) -> "MultitudeService":
-        from multitude.store import TribeStore
+    def for_tribe_dir(cls, rhizome_dir: str) -> "MultitudeService":
+        from multitude.store import RhizomeStore
 
-        return cls(Tribe(TribeStore(tribe_dir)))
+        return cls(Rhizome(RhizomeStore(rhizome_dir)))
 
     def _require_member(self, name: str) -> str:
-        if not name or self.tribe.member_by_name(name) is None:
+        if not name or self.rhizome.member_by_name(name) is None:
             raise UnknownMember(f"unknown member '{name}'")
-        return self.tribe.member_by_name(name).name
+        return self.rhizome.member_by_name(name).name
 
     def status(self) -> dict[str, Any]:
-        bio = sum(1 for m in self.tribe.members.values() if m.kind == NodeKind.BIOLOGICAL)
-        tech = sum(1 for m in self.tribe.members.values() if m.kind == NodeKind.TECHNOLOGICAL)
-        open_props = [p for p in self.tribe.proposals.values() if p.status == ProposalStatus.OPEN]
+        bio = sum(1 for m in self.rhizome.members.values() if m.kind == NodeKind.BIOLOGICAL)
+        tech = sum(1 for m in self.rhizome.members.values() if m.kind == NodeKind.TECHNOLOGICAL)
+        open_props = [p for p in self.rhizome.proposals.values() if p.status == ProposalStatus.OPEN]
         return {
-            "tribe": self.tribe.name,
-            "charter": self.tribe.charter,
-            "events": len(self.tribe.store.replay()),
-            "events_total": len(self.tribe.store.replay()),
-            "members_total": len(self.tribe.members),
-            "members": len(self.tribe.members),
+            "rhizome": self.rhizome.name,
+            "tribe": self.rhizome.name,  # legacy key, wire consumers read it
+            "charter": self.rhizome.charter,
+            "events": len(self.rhizome.store.replay()),
+            "events_total": len(self.rhizome.store.replay()),
+            "members_total": len(self.rhizome.members),
+            "members": len(self.rhizome.members),
             "biological_members": bio,
             "technological_members": tech,
-            "messages_total": len(self.tribe.messages),
-            "messages": len(self.tribe.messages),
-            "memory_entries": len(self.tribe.memory),
-            "decisions": len(self.tribe.decisions),
+            "messages_total": len(self.rhizome.messages),
+            "messages": len(self.rhizome.messages),
+            "memory_entries": len(self.rhizome.memory),
+            "decisions": len(self.rhizome.decisions),
             "open_proposals": len(open_props),
             "open_proposal_ids": [p.id for p in open_props],
-            "goals": len(self.tribe.goals),
-            "tasks": len(self.tribe.tasks),
-            "lexicon_terms": len(self.tribe.lexicon),
-            "devices": len(self.tribe.devices),
-            "memberships": len(self.tribe.memberships),
-            "work_logs": len(self.tribe.work_logs),
-            "governance_rules": len(self.tribe.governance_rules),
-            "intents": len(self.tribe.intents),
-            "commitments": len(self.tribe.commitments),
-            "agreements": len(self.tribe.agreements),
-            "economy_profiles": len(self.tribe.economy_profiles),
-            "federation_agreements": len(self.tribe.federation_agreements),
-            "care_records": len(self.tribe.care_log),
-            "rhythms": len(self.tribe.rhythms),
-            "physical_events": len(self.tribe.physical_events),
+            "goals": len(self.rhizome.goals),
+            "tasks": len(self.rhizome.tasks),
+            "lexicon_terms": len(self.rhizome.lexicon),
+            "devices": len(self.rhizome.devices),
+            "memberships": len(self.rhizome.memberships),
+            "work_logs": len(self.rhizome.work_logs),
+            "governance_rules": len(self.rhizome.governance_rules),
+            "intents": len(self.rhizome.intents),
+            "commitments": len(self.rhizome.commitments),
+            "agreements": len(self.rhizome.agreements),
+            "economy_profiles": len(self.rhizome.economy_profiles),
+            "federation_agreements": len(self.rhizome.federation_agreements),
+            "care_records": len(self.rhizome.care_log),
+            "rhythms": len(self.rhizome.rhythms),
+            "physical_events": len(self.rhizome.physical_events),
         }
 
     def list_agents(self) -> list[dict[str, Any]]:
         items = []
-        for member in sorted(self.tribe.members.values(), key=lambda m: m.joined_ts):
+        for member in sorted(self.rhizome.members.values(), key=lambda m: m.joined_ts):
             items.append(
                 {
                     "id": member.id,
@@ -112,7 +113,7 @@ class MultitudeService:
     ) -> dict[str, Any]:
         """Persist a member metadata change through the event log."""
         member_name = self._require_member(name)
-        updated = self.tribe.update_member(
+        updated = self.rhizome.update_member(
             member_name, voting=voting, persona=persona, model=model, meta=meta
         )
         return updated.model_dump()
@@ -120,14 +121,14 @@ class MultitudeService:
     def promote(self, name: str, *, actor: Optional[str] = None) -> dict[str, Any]:
         """Grant voting rights to a voice-only member (member_updated event)."""
         member_name = self._require_member(name)
-        member = self.tribe.member_by_name(member_name)
+        member = self.rhizome.member_by_name(member_name)
         if member.voting:
             raise ServiceError(f"'{member_name}' already has voting rights")
         if actor:
             self._require_member(actor)
-        updated = self.tribe.update_member(member_name, voting=True)
+        updated = self.rhizome.update_member(member_name, voting=True)
         if actor:
-            self.tribe.say(
+            self.rhizome.say(
                 actor,
                 f"promoted {member_name} to voting member (member_updated event)",
                 meta={"action": "promote", "target": member_name, "interface": "cli"},
@@ -137,14 +138,14 @@ class MultitudeService:
     def demote(self, name: str, *, actor: Optional[str] = None) -> dict[str, Any]:
         """Revoke voting rights, keeping the member on the roster (voice-only)."""
         member_name = self._require_member(name)
-        member = self.tribe.member_by_name(member_name)
+        member = self.rhizome.member_by_name(member_name)
         if not member.voting:
             raise ServiceError(f"'{member_name}' is already voice-only")
         if actor:
             self._require_member(actor)
-        updated = self.tribe.update_member(member_name, voting=False)
+        updated = self.rhizome.update_member(member_name, voting=False)
         if actor:
-            self.tribe.say(
+            self.rhizome.say(
                 actor,
                 f"demoted {member_name} to voice-only (member_updated event)",
                 meta={"action": "demote", "target": member_name, "interface": "cli"},
@@ -152,54 +153,54 @@ class MultitudeService:
         return updated.model_dump()
 
     def list_lexicon(self) -> list[dict[str, Any]]:
-        return [entry.model_dump() for entry in sorted(self.tribe.lexicon.values(), key=lambda item: item.ts)]
+        return [entry.model_dump() for entry in sorted(self.rhizome.lexicon.values(), key=lambda item: item.ts)]
 
     def list_devices(self) -> list[dict[str, Any]]:
-        return [device.model_dump() for device in sorted(self.tribe.devices.values(), key=lambda item: item.registered_ts)]
+        return [device.model_dump() for device in sorted(self.rhizome.devices.values(), key=lambda item: item.registered_ts)]
 
     def list_memberships(self) -> list[dict[str, Any]]:
-        return [item.model_dump() for item in sorted(self.tribe.memberships.values(), key=lambda record: record.ts)]
+        return [item.model_dump() for item in sorted(self.rhizome.memberships.values(), key=lambda record: record.ts)]
 
     def list_work_logs(self) -> list[dict[str, Any]]:
-        return [item.model_dump() for item in sorted(self.tribe.work_logs.values(), key=lambda record: record.ts)]
+        return [item.model_dump() for item in sorted(self.rhizome.work_logs.values(), key=lambda record: record.ts)]
 
     def list_governance_rules(self) -> list[dict[str, Any]]:
-        return [item.model_dump() for item in sorted(self.tribe.governance_rules.values(), key=lambda record: record.ts)]
+        return [item.model_dump() for item in sorted(self.rhizome.governance_rules.values(), key=lambda record: record.ts)]
 
     def list_intents(self) -> list[dict[str, Any]]:
-        return [item.model_dump() for item in sorted(self.tribe.intents.values(), key=lambda record: record.ts)]
+        return [item.model_dump() for item in sorted(self.rhizome.intents.values(), key=lambda record: record.ts)]
 
     def list_commitments(self) -> list[dict[str, Any]]:
-        return [item.model_dump() for item in sorted(self.tribe.commitments.values(), key=lambda record: record.ts)]
+        return [item.model_dump() for item in sorted(self.rhizome.commitments.values(), key=lambda record: record.ts)]
 
     def list_agreements(self) -> list[dict[str, Any]]:
-        return [item.model_dump() for item in sorted(self.tribe.agreements.values(), key=lambda record: record.ts)]
+        return [item.model_dump() for item in sorted(self.rhizome.agreements.values(), key=lambda record: record.ts)]
 
     def list_economy_profiles(self) -> list[dict[str, Any]]:
         return [
             item.model_dump()
-            for item in sorted(self.tribe.economy_profiles.values(), key=lambda record: record.ts)
+            for item in sorted(self.rhizome.economy_profiles.values(), key=lambda record: record.ts)
         ]
 
     def current_economy_profile(self) -> Optional[dict[str, Any]]:
-        profile = self.tribe.current_economy_profile()
+        profile = self.rhizome.current_economy_profile()
         return None if profile is None else profile.model_dump()
 
     def list_federation_agreements(self) -> list[dict[str, Any]]:
         return [
             item.model_dump()
-            for item in sorted(self.tribe.federation_agreements.values(), key=lambda record: record.ts)
+            for item in sorted(self.rhizome.federation_agreements.values(), key=lambda record: record.ts)
         ]
 
     def list_care_records(self) -> list[dict[str, Any]]:
-        return [item.model_dump() for item in sorted(self.tribe.care_log.values(), key=lambda record: record.ts)]
+        return [item.model_dump() for item in sorted(self.rhizome.care_log.values(), key=lambda record: record.ts)]
 
     def list_rhythms(self) -> list[dict[str, Any]]:
-        return [item.model_dump() for item in sorted(self.tribe.rhythms.values(), key=lambda record: record.ts)]
+        return [item.model_dump() for item in sorted(self.rhizome.rhythms.values(), key=lambda record: record.ts)]
 
     # --------------------------------------------------
     # Work / commons write methods (Priority 1, ValueFlows-inspired).
-    # All writes go through Tribe methods -> single append-only event log.
+    # All writes go through Rhizome methods -> single append-only event log.
     # --------------------------------------------------
 
     def register_resource(
@@ -207,11 +208,11 @@ class MultitudeService:
         name: str,
         registered_by: str,
         kind: str = "resource",
-        owner: str = "tribe",
+        owner: str = "rhizome",
         status: str = "available",
         meta: Optional[dict[str, Any]] = None,
     ) -> dict[str, Any]:
-        record = self.tribe.register_resource(
+        record = self.rhizome.register_resource(
             name, kind=kind, owner=registered_by if owner == "__member__" else owner,
             status=status, meta=meta,
         )
@@ -221,7 +222,7 @@ class MultitudeService:
         self, resource_id: str, assignee: str, purpose: str = "",
         status: str = "allocated",
     ) -> dict[str, Any]:
-        allocation = self.tribe.allocate_resource(
+        allocation = self.rhizome.allocate_resource(
             resource_id, assignee, purpose=purpose, status=status
         )
         return allocation.model_dump()
@@ -241,7 +242,7 @@ class MultitudeService:
         notes: str = "",
         meta: Optional[dict[str, Any]] = None,
     ) -> dict[str, Any]:
-        record = self.tribe.log_work(
+        record = self.rhizome.log_work(
             member=member, description=description, hours=hours,
             logged_by=logged_by, kind=kind, task_id=task_id, goal_id=goal_id,
             contribution_id=contribution_id, tags=tags, notes=notes, meta=meta,
@@ -255,12 +256,12 @@ class MultitudeService:
         description: str,
         defined_by: str,
         kind: str = "policy",
-        scope: str = "tribe",
+        scope: str = "rhizome",
         applies_to: Optional[list[str]] = None,
         status: str = "active",
         meta: Optional[dict[str, Any]] = None,
     ) -> dict[str, Any]:
-        record = self.tribe.define_governance_rule(
+        record = self.rhizome.define_governance_rule(
             title=title, description=description, defined_by=defined_by,
             kind=kind, scope=scope, applies_to=applies_to, status=status, meta=meta,
         )
@@ -279,7 +280,7 @@ class MultitudeService:
         notes: str = "",
         meta: Optional[dict[str, Any]] = None,
     ) -> dict[str, Any]:
-        record = self.tribe.record_intent(
+        record = self.rhizome.record_intent(
             title=title, created_by=created_by, description=description,
             kind=kind, target_members=target_members, resource_ids=resource_ids,
             status=status, notes=notes, meta=meta,
@@ -301,7 +302,7 @@ class MultitudeService:
         notes: str = "",
         meta: Optional[dict[str, Any]] = None,
     ) -> dict[str, Any]:
-        record = self.tribe.record_commitment(
+        record = self.rhizome.record_commitment(
             title=title, committed_by=committed_by, owed_by=owed_by,
             owed_to=owed_to, description=description, resource_ids=resource_ids,
             task_id=task_id, due_ts=due_ts, status=status, notes=notes, meta=meta,
@@ -320,7 +321,7 @@ class MultitudeService:
         notes: str = "",
         meta: Optional[dict[str, Any]] = None,
     ) -> dict[str, Any]:
-        record = self.tribe.record_agreement(
+        record = self.rhizome.record_agreement(
             title=title, created_by=created_by, parties=parties,
             description=description, commitment_ids=commitment_ids,
             status=status, notes=notes, meta=meta,
@@ -346,7 +347,7 @@ class MultitudeService:
         from multitude.goals import record_contribution as goals_record_contribution
 
         record = goals_record_contribution(
-            self.tribe,
+            self.rhizome,
             contributed_by=contributed_by,
             title=title,
             kind=kind,
@@ -376,7 +377,7 @@ class MultitudeService:
         tags: Optional[list[str]] = None,
         meta: Optional[dict[str, Any]] = None,
     ) -> dict[str, Any]:
-        record = self.tribe.record_care(
+        record = self.rhizome.record_care(
             member=member, summary=summary, recorded_by=recorded_by,
             care_type=care_type, domain=domain, beneficiaries=beneficiaries,
             hours=hours, notes=notes, tags=tags, meta=meta,
@@ -397,7 +398,7 @@ class MultitudeService:
         notes: str = "",
         meta: Optional[dict[str, Any]] = None,
     ) -> dict[str, Any]:
-        record = self.tribe.record_economic_agent(
+        record = self.rhizome.record_economic_agent(
             name=name, created_by=created_by, role=role, obligations=obligations,
             claims=claims, resource_ids=resource_ids,
             contribution_ids=contribution_ids, status=status, notes=notes, meta=meta,
@@ -416,7 +417,7 @@ class MultitudeService:
         notes: str = "",
         meta: Optional[dict[str, Any]] = None,
     ) -> dict[str, Any]:
-        record = self.tribe.record_protocol_term(
+        record = self.rhizome.record_protocol_term(
             term=term, definition=definition, created_by=created_by,
             domain=domain, tags=tags, status=status, notes=notes, meta=meta,
         )
@@ -435,7 +436,7 @@ class MultitudeService:
         notes: str = "",
         meta: Optional[dict[str, Any]] = None,
     ) -> dict[str, Any]:
-        record = self.tribe.define_rhythm(
+        record = self.rhizome.define_rhythm(
             name=name, cadence=cadence, purpose=purpose, created_by=created_by,
             participants=participants, care_required=care_required,
             status=status, notes=notes, meta=meta,
@@ -446,7 +447,7 @@ class MultitudeService:
         """Derived work view: hours by member/kind, open obligations."""
         hours_by_member: dict[str, float] = {}
         hours_by_kind: dict[str, float] = {}
-        for log in self.tribe.work_logs.values():
+        for log in self.rhizome.work_logs.values():
             hours_by_member[log.member_name] = round(
                 hours_by_member.get(log.member_name, 0.0) + log.hours, 2
             )
@@ -455,12 +456,12 @@ class MultitudeService:
             )
         open_commitments = [
             item.model_dump()
-            for item in self.tribe.commitments.values()
+            for item in self.rhizome.commitments.values()
             if item.status == "open"
         ]
         costs = [
             item.model_dump()
-            for item in self.tribe.contributions.values()
+            for item in self.rhizome.contributions.values()
             if item.cost_amount is not None
         ]
         return {
@@ -469,15 +470,15 @@ class MultitudeService:
             "open_commitments": open_commitments,
             "costs_recorded": costs,
             "care_hours": round(
-                sum(r.hours for r in self.tribe.care_log.values()), 2
+                sum(r.hours for r in self.rhizome.care_log.values()), 2
             ),
         }
 
     def list_physical_events(self, limit: int = 20) -> list[dict[str, Any]]:
-        return [event.model_dump() for event in self.tribe.physical_events[-limit:]]
+        return [event.model_dump() for event in self.rhizome.physical_events[-limit:]]
 
     def recent_events(self, limit: int = 20, days: Optional[int] = None) -> list[dict[str, Any]]:
-        events = self.tribe.store.replay()
+        events = self.rhizome.store.replay()
         if days is not None:
             cutoff = datetime.now(timezone.utc) - timedelta(days=days)
             filtered = []
@@ -492,22 +493,22 @@ class MultitudeService:
         return [ev.model_dump() for ev in events[-limit:]]
 
     def list_proposals(self, status: Optional[str] = None) -> list[dict[str, Any]]:
-        items = list(self.tribe.proposals.values())
+        items = list(self.rhizome.proposals.values())
         if status is not None:
             items = [p for p in items if p.status.value == status]
         return [p.model_dump() for p in sorted(items, key=lambda p: p.opened_ts)]
 
     def get_proposal(self, proposal_id: str) -> dict[str, Any]:
-        proposal = self.tribe.proposals.get(proposal_id)
+        proposal = self.rhizome.proposals.get(proposal_id)
         if proposal is None:
-            raise TribeError(f"no proposal '{proposal_id}'")
+            raise RhizomeError(f"no proposal '{proposal_id}'")
         data = proposal.model_dump()
-        data["tally"] = self.tribe.tally(proposal_id)
+        data["tally"] = self.rhizome.tally(proposal_id)
         return data
 
     def proposal_view(self, proposal_id: str) -> dict[str, Any]:
         data = self.get_proposal(proposal_id)
-        summary = self.tribe.proposal_summary(proposal_id)
+        summary = self.rhizome.proposal_summary(proposal_id)
         data["summary"] = summary
         data["dissent_summary"] = summary.get("dissent_summary", [])
         data["counsel"] = summary.get("counsel", [])
@@ -521,7 +522,7 @@ class MultitudeService:
     ) -> list[dict[str, Any]]:
         return [
             entry.model_dump()
-            for entry in self.tribe.search_memory(query, scopes=scopes, audiences=audiences)
+            for entry in self.rhizome.search_memory(query, scopes=scopes, audiences=audiences)
         ]
 
     def add_private_note(
@@ -535,7 +536,7 @@ class MultitudeService:
     ) -> dict[str, Any]:
         del interface
         owner_name = self._require_member(owner)
-        note = self.tribe.add_private_note(
+        note = self.rhizome.add_private_note(
             owner=owner_name,
             title=title,
             text=text,
@@ -546,7 +547,7 @@ class MultitudeService:
 
     def list_private_notes(self, owner: str) -> list[dict[str, Any]]:
         owner_name = self._require_member(owner)
-        return [note.model_dump() for note in self.tribe.list_private_notes(owner_name)]
+        return [note.model_dump() for note in self.rhizome.list_private_notes(owner_name)]
 
     def publish_private_note(
         self,
@@ -554,7 +555,7 @@ class MultitudeService:
         owner: str,
         note_id: str,
         published_by: str,
-        scope: str = "tribe",
+        scope: str = "rhizome",
         title: Optional[str] = None,
         text: Optional[str] = None,
         tags: Optional[list[str]] = None,
@@ -564,7 +565,7 @@ class MultitudeService:
         del interface
         owner_name = self._require_member(owner)
         publisher_name = self._require_member(published_by)
-        entry = self.tribe.publish_private_note(
+        entry = self.rhizome.publish_private_note(
             note_id=note_id,
             owner=owner_name,
             published_by=publisher_name,
@@ -590,7 +591,7 @@ class MultitudeService:
     ) -> dict[str, Any]:
         del interface
         author_name = self._require_member(author)
-        link = self.tribe.link_entities(
+        link = self.rhizome.link_entities(
             source_kind=source_kind,
             source=source,
             target_kind=target_kind,
@@ -611,7 +612,7 @@ class MultitudeService:
     ) -> list[dict[str, Any]]:
         return [
             link.model_dump()
-            for link in self.tribe.entity_links_for(
+            for link in self.rhizome.entity_links_for(
                 entity_kind=entity_kind,
                 entity=entity,
                 direction=direction,
@@ -635,7 +636,7 @@ class MultitudeService:
         meta: Optional[dict[str, Any]] = None,
     ) -> dict[str, Any]:
         author = self._require_member(created_by)
-        record = self.tribe.define_economy_profile(
+        record = self.rhizome.define_economy_profile(
             created_by=author,
             mission=mission,
             recognized_value_types=recognized_value_types,
@@ -655,7 +656,7 @@ class MultitudeService:
         *,
         created_by: str,
         title: str,
-        partner_tribe: str,
+        partner_rhizome: str,
         partner_slug: Optional[str] = None,
         agreement_type: str = "alliance",
         scopes: Optional[list[str]] = None,
@@ -667,10 +668,10 @@ class MultitudeService:
         meta: Optional[dict[str, Any]] = None,
     ) -> dict[str, Any]:
         author = self._require_member(created_by)
-        record = self.tribe.record_federation_agreement(
+        record = self.rhizome.record_federation_agreement(
             created_by=author,
             title=title,
-            partner_tribe=partner_tribe,
+            partner_rhizome=partner_tribe,
             partner_slug=partner_slug,
             agreement_type=agreement_type,
             scopes=scopes,
@@ -685,7 +686,7 @@ class MultitudeService:
 
     def say(self, author: str, text: str, interface: str = "cli") -> dict[str, Any]:
         author_name = self._require_member(author)
-        return self.tribe.say(author_name, text, meta={"interface": interface}).model_dump()
+        return self.rhizome.say(author_name, text, meta={"interface": interface}).model_dump()
 
     def remember(
         self,
@@ -695,12 +696,12 @@ class MultitudeService:
         kind: str = "note",
         tags: Optional[list[str]] = None,
         human: bool = True,
-        scope: str = "tribe",
+        scope: str = "rhizome",
         meta: Optional[dict[str, Any]] = None,
         interface: str = "cli",
     ) -> dict[str, Any]:
         author_name = self._require_member(author) if author else ""
-        entry = self.tribe.remember(
+        entry = self.rhizome.remember(
             title,
             text,
             author=author_name,
@@ -723,7 +724,7 @@ class MultitudeService:
         del interface
         author_name = self._require_member(author)
         enum_rule = Rule(rule) if isinstance(rule, str) else rule
-        proposal = self.tribe.open_proposal(title, text, opened_by=author_name, rule=enum_rule)
+        proposal = self.rhizome.open_proposal(title, text, opened_by=author_name, rule=enum_rule)
         return proposal.model_dump()
 
     def cast_vote(
@@ -737,10 +738,10 @@ class MultitudeService:
         del interface
         voter_name = self._require_member(voter)
         enum_position = Position(position) if isinstance(position, str) else position
-        vote = self.tribe.cast_vote(proposal_id, voter_name, enum_position, reason=reason)
+        vote = self.rhizome.cast_vote(proposal_id, voter_name, enum_position, reason=reason)
         return {
             "vote": vote.model_dump(),
-            "tally": self.tribe.tally(proposal_id),
+            "tally": self.rhizome.tally(proposal_id),
         }
 
     def vote(
@@ -760,7 +761,7 @@ class MultitudeService:
         node: Optional[str] = None,
     ) -> Optional[dict[str, Any]]:
         agent = self._require_member(node or agent_name or "")
-        tech = TechnologicalNode(self.tribe, agent, model=model)
+        tech = TechnologicalNode(self.rhizome, agent, model=model)
         msg = tech.speak(topic=topic)
         return None if msg is None else msg.model_dump()
 
@@ -775,7 +776,7 @@ class MultitudeService:
         from multitude.integrations.hermes.adapter import MultitudeHermesAdapter
 
         adapter = MultitudeHermesAdapter(
-            tribe=self.tribe,
+            rhizome=self.rhizome,
             agent_name=agent_name,
             role=role,
             model=model,
@@ -794,7 +795,7 @@ class MultitudeService:
 
         title = HermesAgent._proposal_title(topic)
         body = (
-            f"The tribe proposes to {topic.strip().rstrip('.')}.\n\n"
+            f"The rhizome proposes to {topic.strip().rstrip('.')}.\n\n"
             f"This draft is AI-authored by {agent_name} as a knowledge steward. "
             "It should be reviewed, revised, and then explicitly created by instruction."
         )

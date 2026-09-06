@@ -30,7 +30,7 @@ from typing import Any
 from multitude.pcm.namespace import validate_key
 from multitude.pcm.transport import Transport, TransportError
 
-DEFAULT_TRIBE = "default"
+DEFAULT_RHIZOME = "default"
 
 
 class ZenohTransportConfigError(RuntimeError):
@@ -257,5 +257,5 @@ class ZenohTransport(Transport):
 __all__ = [
     "ZenohTransport",
     "ZenohTransportConfigError",
-    "DEFAULT_TRIBE",
+    "DEFAULT_RHIZOME",
 ]

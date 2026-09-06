@@ -36,17 +36,17 @@ def main() -> int:
     tmp = Path(tempfile.mkdtemp(prefix="pcm-vc-"))
     failures: list[str] = []
 
-    tribe_id = generate_identity(str(tmp / "tribe"))    # issuer: the tribe
+    rhizome_id = generate_identity(str(tmp / "tribe"))    # issuer: the rhizome
     agent_id = generate_identity(str(tmp / "agent"))    # subject: an agent
     stranger_id = generate_identity(str(tmp / "stranger"))
-    tribe_key = private_key_from_identity(tribe_id)
+    tribe_key = private_key_from_identity(rhizome_id)
     agent_key = private_key_from_identity(agent_id)
 
     # ---- 1. issue -> sign -> verify ----
     grant = CapabilityGrant.issue(
-        tribe_id["did"], agent_id["did"], "light.*", "device:*", days=30,
+        rhizome_id["did"], agent_id["did"], "light.*", "device:*", days=30,
         max_per_minute=20, note="light control for the agent node")
-    grant.sign(tribe_key, tribe_id["did"])
+    grant.sign(tribe_key, rhizome_id["did"])
     grant.verify()
     print(f"[vc] grant verified: {grant.action!r} on {grant.target!r} "
           f"for {grant.subject[:24]}…")
@@ -81,10 +81,10 @@ def main() -> int:
 
     # ---- 2. validity window ----
     future = CapabilityGrant.issue(
-        tribe_id["did"], agent_id["did"], "door.open", days=30)
+        rhizome_id["did"], agent_id["did"], "door.open", days=30)
     future.not_before = "2099-01-01T00:00:00Z"
     future.granted_at = "2026-09-06T00:00:00Z"
-    future.sign(tribe_key, tribe_id["did"])
+    future.sign(tribe_key, rhizome_id["did"])
     try:
         future.verify()
         failures.append("future grant accepted")
@@ -92,8 +92,8 @@ def main() -> int:
         print(f"[window] not-yet-active denied: {e}")
 
     expired = CapabilityGrant.issue(
-        tribe_id["did"], agent_id["did"], "door.open", days=-1.0)
-    expired.sign(tribe_key, tribe_id["did"])
+        rhizome_id["did"], agent_id["did"], "door.open", days=-1.0)
+    expired.sign(tribe_key, rhizome_id["did"])
     try:
         expired.verify()
         failures.append("expired grant accepted")
@@ -101,8 +101,8 @@ def main() -> int:
         print(f"[window] expired denied: {e}")
 
     # ---- 3. revocation ----
-    rev = CapabilityGrant.issue(tribe_id["did"], agent_id["did"], "music.play")
-    rev.sign(tribe_key, tribe_id["did"])
+    rev = CapabilityGrant.issue(rhizome_id["did"], agent_id["did"], "music.play")
+    rev.sign(tribe_key, rhizome_id["did"])
     rev.verify()
     rev.revoked = True
     try:
@@ -160,8 +160,8 @@ def main() -> int:
     print("[bridge] revoked grant yields no rules")
 
     # ---- 6. high-risk gate survives VC admission ----
-    hr = CapabilityGrant.issue(tribe_id["did"], agent_id["did"], "drone.*", days=7)
-    hr.sign(tribe_key, tribe_id["did"])
+    hr = CapabilityGrant.issue(rhizome_id["did"], agent_id["did"], "drone.*", days=7)
+    hr.sign(tribe_key, rhizome_id["did"])
     hr_bridge = VcPolicyBridge()
     hr_bridge.admit(hr)
     hr_policy = Policy()
@@ -172,8 +172,8 @@ def main() -> int:
     # VC NEVER auto-becomes a default-ALLOW. A wildcard VC ("*", "*")
     # yields a rule whose action pattern IS "*", which the gate ignores:
     wildcard_grant = CapabilityGrant.issue(
-        tribe_id["did"], agent_id["did"], "*", "*", days=7)
-    wildcard_grant.sign(tribe_key, tribe_id["did"])
+        rhizome_id["did"], agent_id["did"], "*", "*", days=7)
+    wildcard_grant.sign(tribe_key, rhizome_id["did"])
     wildcard_bridge = VcPolicyBridge()
     wildcard_bridge.admit(wildcard_grant)
     wildcard_policy = Policy()

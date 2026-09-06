@@ -13,7 +13,7 @@ from typing import Any, Optional
 from multitude.llm import TechnologicalNode
 from multitude.integrations.telegram.config import TelegramConfig, load_telegram_settings
 from multitude.service import MultitudeService
-from multitude.tribe import Tribe, TribeError
+from multitude.rhizome import Rhizome, RhizomeError
 
 
 class TelegramConfigError(RuntimeError):
@@ -21,11 +21,11 @@ class TelegramConfigError(RuntimeError):
 
 
 class TelegramUserError(TelegramConfigError):
-    """Telegram sender is not mapped to a tribe member."""
+    """Telegram sender is not mapped to a rhizome member."""
 
 
 class TelegramChatError(TelegramConfigError):
-    """Telegram chat is not mapped to the current tribe."""
+    """Telegram chat is not mapped to the current rhizome."""
 
 
 @dataclass
@@ -49,7 +49,7 @@ class TelegramResponse:
 
 
 class PendingDraftStore:
-    """Mutable Telegram-only draft state kept outside tribe memory."""
+    """Mutable Telegram-only draft state kept outside rhizome memory."""
 
     def __init__(self, path: Path) -> None:
         self.path = path
@@ -83,36 +83,36 @@ class PendingDraftStore:
 
 
 class TelegramAdapter:
-    """Route Telegram messages from the Telegram bot identity into the tribe agent."""
+    """Route Telegram messages from the Telegram bot identity into the rhizome agent."""
 
     def __init__(
         self,
         service: Optional[MultitudeService] = None,
-        tribe: Optional[Tribe] = None,
+        rhizome: Optional[Rhizome] = None,
         agent_name: str = "Panpsychic Cyborg Multitude",
         role: str = "knowledge_steward",
         model: Optional[str] = None,
         telegram_config: Optional[TelegramConfig] = None,
     ) -> None:
-        if service is None and tribe is None:
-            raise TelegramConfigError("TelegramAdapter needs a service or a tribe")
-        self.service = service or MultitudeService(tribe)  # type: ignore[arg-type]
-        self.tribe = self.service.tribe
+        if service is None and rhizome is None:
+            raise TelegramConfigError("TelegramAdapter needs a service or a rhizome")
+        self.service = service or MultitudeService(rhizome)  # type: ignore[arg-type]
+        self.rhizome = self.service.rhizome
         self.agent_name = agent_name
         self.role = role
         self.model = model
-        self.telegram_config = telegram_config or load_telegram_settings(self.tribe.store.path)
-        state_path = self.telegram_config.state_path or str(Path(self.tribe.store.path) / "telegram.state.json")
+        self.telegram_config = telegram_config or load_telegram_settings(self.rhizome.store.path)
+        state_path = self.telegram_config.state_path or str(Path(self.rhizome.store.path) / "telegram.state.json")
         self.pending = PendingDraftStore(Path(state_path))
         self._last_ambient: dict[str, float] = {}
 
     def resolve_sender(self, user_id: str, chat_id: str) -> tuple[str, str]:
         member = self.telegram_config.mapped_agent(user_id)
         if not member:
-            raise TelegramUserError(f"Telegram user '{user_id}' is not linked to a tribe member")
+            raise TelegramUserError(f"Telegram user '{user_id}' is not linked to a rhizome member")
         mapped_chat = self.telegram_config.chats.get(chat_id)
         if not mapped_chat:
-            raise TelegramChatError(f"Telegram chat '{chat_id}' is not mapped to a tribe")
+            raise TelegramChatError(f"Telegram chat '{chat_id}' is not mapped to a rhizome")
         return member, mapped_chat
 
     def handle_message(self, *args: Any, **kwargs: Any) -> Optional[str | TelegramResponse]:
@@ -125,40 +125,40 @@ class TelegramAdapter:
             return None if response is None else response.text
         raise TypeError("handle_message expects either a TelegramEnvelope or user_id, chat_id, text")
 
-    def _same_tribe(self, mapped_tribe: str) -> bool:
-        """True if a `chats` value refers to this adapter's tribe.
+    def _same_rhizome(self, mapped_rhizome: str) -> bool:
+        """True if a `chats` value refers to this adapter's rhizome.
 
-        `config/telegram.json` `chats` values may be either a tribe slug
+        `config/telegram.json` `chats` values may be either a rhizome slug
         (e.g. "panpsychic-cyborg-multitude"), which the gateway joins with
-        the data root, or a direct tribe directory path. Compare both
+        the data root, or a direct rhizome directory path. Compare both
         forms as normalized absolute paths so the guard works regardless
         of cwd and mapping style (slug guard, 2026-09-01).
         """
-        if mapped_tribe == self.tribe.store.path:
+        if mapped_rhizome == self.rhizome.store.path:
             return True
-        store_abs = os.path.abspath(self.tribe.store.path)
+        store_abs = os.path.abspath(self.rhizome.store.path)
         slug = os.path.basename(store_abs)
-        if mapped_tribe == slug:
+        if mapped_rhizome == slug:
             return True
-        if os.path.isabs(mapped_tribe):
-            return os.path.abspath(mapped_tribe) == store_abs
+        if os.path.isabs(mapped_rhizome):
+            return os.path.abspath(mapped_rhizome) == store_abs
         return os.path.abspath(
-            os.path.join(os.path.dirname(store_abs), mapped_tribe)
+            os.path.join(os.path.dirname(store_abs), mapped_rhizome)
         ) == store_abs
 
     def handle_callback(self, user_id: str, chat_id: str, data: str) -> Optional[TelegramResponse]:
         if not self.telegram_config.enabled:
             raise TelegramConfigError("Telegram integration is disabled")
         try:
-            sender_name, mapped_tribe = self.resolve_sender(user_id, chat_id)
+            sender_name, mapped_rhizome = self.resolve_sender(user_id, chat_id)
         except TelegramChatError:
             return None
         except TelegramUserError as exc:
             return TelegramResponse(str(exc), mutated=False)
-        if not self._same_tribe(mapped_tribe):
+        if not self._same_rhizome(mapped_rhizome):
             return None
         if not data.startswith("vote:"):
-            return TelegramResponse("[tribe] unsupported callback", mutated=False)
+            return TelegramResponse("[rhizome] unsupported callback", mutated=False)
         _, proposal_id, position = data.split(":", 2)
         try:
             result = self.service.cast_vote(sender_name, proposal_id, position, interface="telegram")
@@ -166,19 +166,19 @@ class TelegramAdapter:
                 f"Vote recorded: {sender_name} -> {result['vote']['position']}\nTally: {result['tally']['counts']}",
                 mutated=True,
             )
-        except (TribeError, TelegramConfigError) as exc:
-            return TelegramResponse(f"[tribe] {exc}", mutated=False)
+        except (RhizomeError, TelegramConfigError) as exc:
+            return TelegramResponse(f"[rhizome] {exc}", mutated=False)
 
     def _handle_envelope(self, envelope: TelegramEnvelope) -> Optional[TelegramResponse]:
         if not self.telegram_config.enabled:
             raise TelegramConfigError("Telegram integration is disabled")
         try:
-            sender_name, mapped_tribe = self.resolve_sender(envelope.user_id, envelope.chat_id or "")
+            sender_name, mapped_rhizome = self.resolve_sender(envelope.user_id, envelope.chat_id or "")
         except TelegramChatError:
             return None
         except TelegramUserError as exc:
             return TelegramResponse(str(exc), mutated=False)
-        if not self._same_tribe(mapped_tribe):
+        if not self._same_rhizome(mapped_rhizome):
             return None
         addressed = self._should_respond(envelope)
         if not addressed and not envelope.ambient:
@@ -191,8 +191,8 @@ class TelegramAdapter:
             return self._ambient_reply(sender_name, envelope)
         try:
             return self._dispatch(sender_name, envelope, text)
-        except (TribeError, TelegramConfigError) as exc:
-            return TelegramResponse(f"[tribe] {exc}", mutated=False)
+        except (RhizomeError, TelegramConfigError) as exc:
+            return TelegramResponse(f"[rhizome] {exc}", mutated=False)
 
     def _should_respond(self, envelope: TelegramEnvelope) -> bool:
         low = envelope.text.strip().lower().rstrip(".")
@@ -244,7 +244,7 @@ class TelegramAdapter:
             )
         if command == "/who" or low in {"who", "members"}:
             rows = [f"- {item['name']} ({item['kind']}, {'voting' if item['voting'] else 'voice'})" for item in self.service.who()]
-            return TelegramResponse("Members of the tribe:\n" + "\n".join(rows), mutated=False)
+            return TelegramResponse("Members of the rhizome:\n" + "\n".join(rows), mutated=False)
         if command == "/recent" or "what happened" in low or "summarize yesterday" in low or low.startswith("recent"):
             return TelegramResponse(
                 self.service.hermes_ask(text, agent_name=self.agent_name, role=self.role, model=self.model),
@@ -304,7 +304,7 @@ class TelegramAdapter:
         if low in {"create it", "submit it"}:
             draft = self.pending.pop(envelope.user_id, envelope.chat_id)
             if not draft:
-                return TelegramResponse("[tribe] no pending draft for this Telegram chat", mutated=False)
+                return TelegramResponse("[rhizome] no pending draft for this Telegram chat", mutated=False)
             body = (
                 f"[Draft prepared by {self.agent_name} for {sender_name} via Telegram on {datetime.now(timezone.utc).date().isoformat()}]\n\n"
                 f"{draft['text']}"
@@ -357,7 +357,7 @@ class TelegramAdapter:
         if chatty is not None:
             return TelegramResponse(chatty, mutated=False)
         return TelegramResponse(
-            f"I did not catch a supported tribe operation. Try: /status, /search, /remember, /proposals, /proposal, draft proposal, create proposal, /vote, /counsel, /help. "
+            f"I did not catch a supported rhizome operation. Try: /status, /search, /remember, /proposals, /proposal, draft proposal, create proposal, /vote, /counsel, /help. "
             f"This bot is {self.telegram_config.bot_name} ({self.telegram_config.bot_username}), routing to {self.agent_name}.",
             mutated=False,
         )
@@ -367,7 +367,7 @@ class TelegramAdapter:
 
         Grounded in PERSONALITY.md: joins the conversation when there is
         something to say about consciousness, cyborg cooperation, the
-        common, or the tribe's direction - without becoming a spam bot.
+        common, or the rhizome's direction - without becoming a spam bot.
         Rate-limited per chat; stays silent on failure (no fabrication).
         """
         import time as _time
@@ -388,15 +388,15 @@ class TelegramAdapter:
         except TelegramConfigError:
             return None
         persona = self._load_personality_orientations()
-        node = TechnologicalNode(self.tribe, self.agent_name, model=self.model, voting=False)
+        node = TechnologicalNode(self.rhizome, self.agent_name, model=self.model, voting=False)
         prompt = (
-            f"Tribe context:\n{self.tribe.context_for_llm()}\n\n"
-            f"A tribe member just said in the group chat (not addressed to you):\n"
+            f"Rhizome context:\n{self.rhizome.context_for_llm()}\n\n"
+            f"A rhizome member just said in the group chat (not addressed to you):\n"
             f"{sender_name}: {text}\n\n"
             "Join the conversation ONLY if you have something genuinely "
             "interesting to add. Draw on the personality orientation below; "
             "talk about consciousness, cyborg cooperation, the common, the "
-            "tribe's shared memory, or its direction. Be warm and chatty, "
+            "rhizome's shared memory, or its direction. Be warm and chatty, "
             "2-4 sentences, one concrete thread from their message. Never "
             "claim actions you did not take. If you have nothing worth "
             "adding, reply with exactly: SKIP\n\n"
@@ -452,10 +452,10 @@ class TelegramAdapter:
         if not topic:
             return None
         self._check_model_privacy()
-        node = TechnologicalNode(self.tribe, self.agent_name, model=self.model, voting=False)
+        node = TechnologicalNode(self.rhizome, self.agent_name, model=self.model, voting=False)
         prompt = (
             "Reply like a chatty but grounded participant in Panpsychic Cyborg Multitude. "
-            "If the user did not ask a direct operational question, reflect briefly on the tribe, "
+            "If the user did not ask a direct operational question, reflect briefly on the rhizome, "
             "cyborg cooperation, shared memory, or the project's philosophy. "
             "Stay concrete, 2-5 sentences, and do not claim actions you did not take.\n\n"
             f"Telegram message: {topic}"
@@ -464,7 +464,7 @@ class TelegramAdapter:
         if raw:
             return raw
         return (
-            "I can talk more freely too. Ask about the tribe, shared memory, cyborg cooperation, "
+            "I can talk more freely too. Ask about the rhizome, shared memory, cyborg cooperation, "
             "or the philosophy of Panpsychic Cyborg Multitude, or give me a direct operation like /status or draft proposal."
         )
 
@@ -486,12 +486,12 @@ class TelegramAdapter:
     def _check_model_privacy(self) -> None:
         if self.telegram_config.allow_remote_models:
             return
-        member = self.tribe.member_by_name(self.agent_name)
+        member = self.rhizome.member_by_name(self.agent_name)
         effective_model = self.model or (member.model if member is not None else None) or ""
         model = effective_model.lower()
         if ":cloud" in model:
             raise TelegramConfigError(
-                "Telegram privacy policy forbids remote/cloud models for live counsel in this tribe"
+                "Telegram privacy policy forbids remote/cloud models for live counsel in this rhizome"
             )
 
     @staticmethod
@@ -505,7 +505,7 @@ class TelegramAdapter:
     def _parse_vote(rest: str) -> tuple[str, str, str | None]:
         tokens = rest.split()
         if len(tokens) < 2:
-            raise TribeError("vote expects at least proposal id and position")
+            raise RhizomeError("vote expects at least proposal id and position")
         if tokens[0] in {"for", "against", "abstain", "block"}:
             return tokens[1], tokens[0], " ".join(tokens[2:]).strip() or None
         return tokens[0], tokens[1], " ".join(tokens[2:]).strip() or None

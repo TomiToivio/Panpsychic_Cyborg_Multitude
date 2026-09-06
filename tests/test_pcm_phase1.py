@@ -104,10 +104,10 @@ def main() -> int:
     # without touching the store (transport-agnostic by construction —
     # Matrix was rejected 2026-09-06; the seam is the generic transport).
     class _ReplayAdapter:
-        def __init__(self, tribe):
-            self.tribe = tribe
+        def __init__(self, rhizome):
+            self.rhizome = rhizome
         def latest_context(self, limit: int = 5) -> list[str]:
-            events = self.tribe.store.replay()
+            events = self.rhizome.store.replay()
             out = []
             for ev in events[-limit:]:
                 payload = ev.payload if isinstance(ev.payload, dict) else {}

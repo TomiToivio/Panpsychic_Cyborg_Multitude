@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 """Tribal goals: running a worker's co-operative and keeping it healthy.
 
-GOALS.md defines three goal layers for the first prototype tribe, a
+GOALS.md defines three goal layers for the first prototype rhizome, a
 worker's co-operative:
 
 * **business**  - running the co-operative: customer work, marketing and
   sales, customer communications, information sharing for collaboration;
-* **social**    - the wider Panpsychic Cyborg Multitude goals: the tribe
+* **social**    - the wider Panpsychic Cyborg Multitude goals: the rhizome
   as one rhizomatic node among future nodes, philosophy, networking;
-* **health**    - the tribe and its agents kept well: entertainment,
+* **health**    - the rhizome and its agents kept well: entertainment,
   social interaction, shared hobbies, and per-agent wellbeing across
   four domains: physical, mental, social, economic.
 
@@ -20,7 +20,7 @@ All of it is event-sourced like everything in the kernel:
 - profit shares are recorded as events; the ledger is the
   co-operative's shared record of its agreement - actual money moves
   outside the kernel;
-- wellbeing readings and declared interests are streams; the tribe's
+- wellbeing readings and declared interests are streams; the rhizome's
   health is derived (averages), never a stored verdict.
 """
 from __future__ import annotations
@@ -169,34 +169,34 @@ def require_amount(amount: Any) -> float:
     return round(val, 2)
 
 
-def _require_task(tribe, task_id: Optional[str]) -> Optional[str]:
+def _require_task(rhizome, task_id: Optional[str]) -> Optional[str]:
     if not task_id:
         return None
-    if task_id not in tribe.tasks:
+    if task_id not in rhizome.tasks:
         raise GoalError(f"no task '{task_id}'")
     return task_id
 
 
-def _require_resource(tribe, resource_id: Optional[str]) -> Optional[str]:
+def _require_resource(rhizome, resource_id: Optional[str]) -> Optional[str]:
     if not resource_id:
         return None
-    if resource_id not in tribe.resources:
+    if resource_id not in rhizome.resources:
         raise GoalError(f"no resource '{resource_id}'")
     return resource_id
 
 
-def _require_device(tribe, device_id: Optional[str]) -> Optional[str]:
+def _require_device(rhizome, device_id: Optional[str]) -> Optional[str]:
     if not device_id:
         return None
-    if device_id not in tribe.devices:
+    if device_id not in rhizome.devices:
         raise GoalError(f"no device '{device_id}'")
     return device_id
 
 
-def _require_memory_entry(tribe, memory_id: Optional[str]) -> Optional[str]:
+def _require_memory_entry(rhizome, memory_id: Optional[str]) -> Optional[str]:
     if not memory_id:
         return None
-    if memory_id not in tribe.memory:
+    if memory_id not in rhizome.memory:
         raise GoalError(f"no memory entry '{memory_id}'")
     return memory_id
 
@@ -210,13 +210,13 @@ def _normalize_id_list(items: Optional[list[str]]) -> list[str]:
     return out
 
 
-def replay_goal_event(tribe, type_: str, payload: dict[str, Any]) -> None:
-    """Replay one tribal-goal event into tribe state (called from Tribe)."""
+def replay_goal_event(rhizome, type_: str, payload: dict[str, Any]) -> None:
+    """Replay one tribal-goal event into rhizome state (called from Rhizome)."""
     if type_ == "goal_opened":
         g = Goal.load(payload["goal"])
-        tribe.goals[g.id] = g
+        rhizome.goals[g.id] = g
     elif type_ == "goal_closed":
-        g = tribe.goals.get(payload["goal_id"])
+        g = rhizome.goals.get(payload["goal_id"])
         if g is not None:
             g.status = payload["status"]
             g.closed_ts = payload.get("closed_ts", "")
@@ -225,63 +225,63 @@ def replay_goal_event(tribe, type_: str, payload: dict[str, Any]) -> None:
                 g.notes = payload["notes"]
     elif type_ == "task_opened":
         t = Task.load(payload["task"])
-        tribe.tasks[t.id] = t
+        rhizome.tasks[t.id] = t
     elif type_ == "task_claimed":
-        t = tribe.tasks.get(payload["task_id"])
+        t = rhizome.tasks.get(payload["task_id"])
         if t is not None:
             t.status = TaskStatus.CLAIMED.value
             t.claimed_by = payload["member"]
             t.claimed_ts = payload.get("ts", "")
     elif type_ == "task_released":
-        t = tribe.tasks.get(payload["task_id"])
+        t = rhizome.tasks.get(payload["task_id"])
         if t is not None:
             t.status = TaskStatus.OPEN.value
             t.claimed_by = None
             t.claimed_ts = ""
     elif type_ == "task_done":
-        t = tribe.tasks.get(payload["task_id"])
+        t = rhizome.tasks.get(payload["task_id"])
         if t is not None:
             t.status = TaskStatus.DONE.value
             t.done_by = payload["member"]
             t.done_ts = payload.get("ts", "")
     elif type_ == "profit_recorded":
-        tribe.treasury["total"] = round(
-            tribe.treasury.get("total", 0.0) + payload["amount"], 2
+        rhizome.treasury["total"] = round(
+            rhizome.treasury.get("total", 0.0) + payload["amount"], 2
         )
-        tribe.treasury.setdefault("entries", []).append(payload)
+        rhizome.treasury.setdefault("entries", []).append(payload)
     elif type_ == "profit_distributed":
         for member_id, amount in payload["distribution"].items():
-            ledger = tribe.profit_ledger
+            ledger = rhizome.profit_ledger
             ledger[member_id] = round(ledger.get(member_id, 0.0) + amount, 2)
-        tribe.treasury["total"] = round(
-            tribe.treasury.get("total", 0.0) - payload["amount"], 2
+        rhizome.treasury["total"] = round(
+            rhizome.treasury.get("total", 0.0) - payload["amount"], 2
         )
     elif type_ == "contribution_recorded":
         contribution = ContributionRecord.model_validate(payload["contribution"])
-        tribe.contributions[contribution.id] = contribution
+        rhizome.contributions[contribution.id] = contribution
     elif type_ == "value_flow_recorded":
         flow = ValueFlowRecord.model_validate(payload["flow"])
-        tribe.value_flows[flow.id] = flow
+        rhizome.value_flows[flow.id] = flow
     elif type_ == "wellbeing_recorded":
-        tribe.wellbeing_stream.append(payload)  # stream of readings
+        rhizome.wellbeing_stream.append(payload)  # stream of readings
     elif type_ == "interests_declared":
         member_id = payload["member_id"]
-        merged = list(tribe.interests.get(member_id, []))
+        merged = list(rhizome.interests.get(member_id, []))
         for item in payload["interests"]:
             if item not in merged:
                 merged.append(item)
-        tribe.interests[member_id] = merged
+        rhizome.interests[member_id] = merged
 
 
 # ------------------------------------------------------------- operations
 
 
-def open_goal(tribe, title: str, text: str, category: str, opened_by: str) -> Goal:
+def open_goal(rhizome, title: str, text: str, category: str, opened_by: str) -> Goal:
     if category not in VALID_CATEGORIES:
         raise GoalError(
             f"unknown category '{category}' - valid: {sorted(VALID_CATEGORIES)}"
         )
-    member = tribe._require_member(opened_by)
+    member = rhizome._require_member(opened_by)
     g = Goal(
         id=new_id("goal"),
         title=title.strip(),
@@ -290,8 +290,8 @@ def open_goal(tribe, title: str, text: str, category: str, opened_by: str) -> Go
         opened_by=member.name,
         opened_ts=now_iso(),
     )
-    tribe._emit("goal_opened", member.name, {"goal": g.dump()})
-    tribe.remember(
+    rhizome._emit("goal_opened", member.name, {"goal": g.dump()})
+    rhizome.remember(
         title=f"Goal: {g.title}",
         text=f"[{g.category}] {g.text}",
         author=member.name,
@@ -302,17 +302,17 @@ def open_goal(tribe, title: str, text: str, category: str, opened_by: str) -> Go
 
 
 def close_goal(
-    tribe, goal_id: str, closed_by: str, status: str, notes: str = ""
+    rhizome, goal_id: str, closed_by: str, status: str, notes: str = ""
 ) -> Goal:
     if status not in (GoalStatus.ACHIEVED.value, GoalStatus.DROPPED.value):
         raise GoalError("status must be 'achieved' or 'dropped'")
-    g = tribe.goals.get(goal_id)
+    g = rhizome.goals.get(goal_id)
     if g is None:
         raise GoalError(f"no goal '{goal_id}'")
     if g.status != GoalStatus.OPEN.value:
         raise GoalError(f"goal '{goal_id}' is already {g.status}")
-    member = tribe._require_member(closed_by)
-    tribe._emit(
+    member = rhizome._require_member(closed_by)
+    rhizome._emit(
         "goal_closed",
         member.name,
         {
@@ -327,14 +327,14 @@ def close_goal(
 
 
 def open_task(
-    tribe,
+    rhizome,
     title: str,
     opened_by: str,
     description: str = "",
     goal_id: Optional[str] = None,
     skills: Optional[list[str]] = None,
 ) -> Task:
-    if goal_id and goal_id not in tribe.goals:
+    if goal_id and goal_id not in rhizome.goals:
         raise GoalError(f"no goal '{goal_id}'")
     if isinstance(skills, str):
         skills = [skills]
@@ -343,7 +343,7 @@ def open_task(
         s = str(s).strip()
         if s and s.lower() not in [x.lower() for x in skills_clean]:
             skills_clean.append(s)
-    member = tribe._require_member(opened_by)
+    member = rhizome._require_member(opened_by)
     t = Task(
         id=new_id("task"),
         title=title.strip(),
@@ -353,23 +353,23 @@ def open_task(
         opened_by=member.name,
         opened_ts=now_iso(),
     )
-    tribe._emit("task_opened", member.name, {"task": t.dump()})
+    rhizome._emit("task_opened", member.name, {"task": t.dump()})
     return t
 
 
-def claim_task(tribe, task_id: str, member: str) -> Task:
-    t = tribe.tasks.get(task_id)
+def claim_task(rhizome, task_id: str, member: str) -> Task:
+    t = rhizome.tasks.get(task_id)
     if t is None:
         raise GoalError(f"no task '{task_id}'")
     if t.status == TaskStatus.DONE.value:
         raise GoalError(f"task '{task_id}' is already done")
     if t.status == TaskStatus.CLAIMED.value and t.claimed_by:
-        holder = tribe.members.get(t.claimed_by)
+        holder = rhizome.members.get(t.claimed_by)
         who = holder.name if holder else t.claimed_by
         if who != member:
             raise GoalError(f"task '{task_id}' is already claimed by {who}")
-    member_m = tribe._require_member(member)
-    tribe._emit(
+    member_m = rhizome._require_member(member)
+    rhizome._emit(
         "task_claimed",
         member_m.name,
         {"task_id": task_id, "member": member_m.name, "ts": now_iso()},
@@ -377,29 +377,29 @@ def claim_task(tribe, task_id: str, member: str) -> Task:
     return t
 
 
-def release_task(tribe, task_id: str, member: str) -> Task:
-    t = tribe.tasks.get(task_id)
+def release_task(rhizome, task_id: str, member: str) -> Task:
+    t = rhizome.tasks.get(task_id)
     if t is None:
         raise GoalError(f"no task '{task_id}'")
-    m = tribe._require_member(member)
+    m = rhizome._require_member(member)
     if t.status != TaskStatus.CLAIMED.value:
         raise GoalError(f"task '{task_id}' is not claimed")
     if t.claimed_by and t.claimed_by != m.name:
-        holder = tribe.member_by_name(t.claimed_by)
+        holder = rhizome.member_by_name(t.claimed_by)
         who = holder.name if holder else t.claimed_by
         raise GoalError(f"task '{task_id}' is claimed by {who}")
-    tribe._emit("task_released", m.name, {"task_id": t.id, "member": m.name})
+    rhizome._emit("task_released", m.name, {"task_id": t.id, "member": m.name})
     return t
 
 
-def done_task(tribe, task_id: str, member: str) -> Task:
-    t = tribe.tasks.get(task_id)
+def done_task(rhizome, task_id: str, member: str) -> Task:
+    t = rhizome.tasks.get(task_id)
     if t is None:
         raise GoalError(f"no task '{task_id}'")
     if t.status == TaskStatus.DONE.value:
         raise GoalError(f"task '{task_id}' is already done")
-    member_m = tribe._require_member(member)
-    tribe._emit(
+    member_m = rhizome._require_member(member)
+    rhizome._emit(
         "task_done",
         member_m.name,
         {"task_id": task_id, "member": member_m.name, "ts": now_iso()},
@@ -407,11 +407,11 @@ def done_task(tribe, task_id: str, member: str) -> Task:
     return t
 
 
-def suggest_task_assignment(tribe, task: Task) -> list[str]:
+def suggest_task_assignment(rhizome, task: Task) -> list[str]:
     """Rank members by skill overlap with the task's skill tags (best first)."""
     wanted = {s.lower() for s in (task.skills or [])}
     scored: list[tuple[int, str]] = []
-    for m in tribe.members.values():
+    for m in rhizome.members.values():
         skills = {s.lower() for s in m.meta.get("skills", [])}
         score = len(wanted & skills)
         scored.append((-score, m.name))
@@ -420,23 +420,23 @@ def suggest_task_assignment(tribe, task: Task) -> list[str]:
 
 
 def record_profit(
-    tribe, amount: float, source: str, recorded_by: str
+    rhizome, amount: float, source: str, recorded_by: str
 ) -> dict[str, Any]:
     """Record revenue into the co-operative's shared treasury."""
     val = require_amount(amount)
-    member_m = tribe._require_member(recorded_by)
+    member_m = rhizome._require_member(recorded_by)
     payload = {
         "amount": val,
         "source": (source or "").strip(),
         "ts": now_iso(),
         "recorded_by": member_m.name,
     }
-    tribe._emit("profit_recorded", member_m.name, payload)
+    rhizome._emit("profit_recorded", member_m.name, payload)
     return payload
 
 
 def distribute_profit(
-    tribe,
+    rhizome,
     amount: float,
     recorded_by: str,
     weights: Optional[dict[str, float]] = None,
@@ -448,30 +448,30 @@ def distribute_profit(
     """Split an amount among voting members (equal by default).
 
     Weights (by member name) split proportionally. Shares land in the
-    tribe's profit ledger - the co-operative's shared record of its
+    rhizome's profit ledger - the co-operative's shared record of its
     agreement. Actual money moves outside the kernel.
     """
     val = require_amount(amount)
-    member_m = tribe._require_member(recorded_by)
+    member_m = rhizome._require_member(recorded_by)
     distribution_id = new_id("dist")
     cited_contributions = _normalize_id_list(contribution_ids)
     cited_resources = _normalize_id_list(resource_ids)
     cited_tasks = _normalize_id_list(task_ids)
     for contribution_id in cited_contributions:
-        if contribution_id not in tribe.contributions:
+        if contribution_id not in rhizome.contributions:
             raise GoalError(f"no contribution '{contribution_id}'")
     for resource_id in cited_resources:
-        _require_resource(tribe, resource_id)
+        _require_resource(rhizome, resource_id)
     for task_id in cited_tasks:
-        _require_task(tribe, task_id)
-    payees = tribe.voting_members()
+        _require_task(rhizome, task_id)
+    payees = rhizome.voting_members()
     if not payees:
         raise GoalError("no voting members to distribute to")
     distribution: dict[str, float] = {}
     if weights:
         clean: dict[str, float] = {}
         for name, w in weights.items():
-            m = tribe.member_by_name(name)
+            m = rhizome.member_by_name(name)
             if m is None or not m.voting:
                 raise GoalError(f"'{name}' is not a voting member")
             clean[m.id] = require_amount(w)
@@ -498,7 +498,7 @@ def distribute_profit(
         "ts": now_iso(),
         "recorded_by": member_m.name,
     }
-    tribe._emit("profit_distributed", member_m.name, payload)
+    rhizome._emit("profit_distributed", member_m.name, payload)
     flow = ValueFlowRecord(
         id=new_id("flow"),
         ts=payload["ts"],
@@ -512,13 +512,13 @@ def distribute_profit(
         task_ids=cited_tasks,
         notes=(notes or "").strip(),
     )
-    tribe._emit("value_flow_recorded", member_m.name, {"flow": flow.model_dump()})
+    rhizome._emit("value_flow_recorded", member_m.name, {"flow": flow.model_dump()})
     payload["ledger_flow_id"] = flow.id
     return payload
 
 
 def record_contribution(
-    tribe,
+    rhizome,
     *,
     contributed_by: str,
     title: str,
@@ -533,7 +533,7 @@ def record_contribution(
     notes: str = "",
     meta: Optional[dict[str, Any]] = None,
 ) -> ContributionRecord:
-    contributor = tribe._require_member(contributed_by)
+    contributor = rhizome._require_member(contributed_by)
     title_clean = (title or "").strip()
     if not title_clean:
         raise GoalError("contribution title cannot be empty")
@@ -554,17 +554,17 @@ def record_contribution(
         contributor_name=contributor.name,
         kind=(kind or "labor").strip() or "labor",
         title=title_clean,
-        task_id=_require_task(tribe, task_id),
-        resource_id=_require_resource(tribe, resource_id),
-        device_id=_require_device(tribe, device_id),
-        output_memory_id=_require_memory_entry(tribe, output_memory_id),
+        task_id=_require_task(rhizome, task_id),
+        resource_id=_require_resource(rhizome, resource_id),
+        device_id=_require_device(rhizome, device_id),
+        output_memory_id=_require_memory_entry(rhizome, output_memory_id),
         quantity=round(quantity_value, 2),
         unit=(unit or "unit").strip() or "unit",
         cost_amount=cost_value,
         notes=(notes or "").strip(),
         meta=dict(meta or {}),
     )
-    tribe._emit(
+    rhizome._emit(
         "contribution_recorded",
         contributor.name,
         {"contribution": contribution.model_dump()},
@@ -572,12 +572,12 @@ def record_contribution(
     return contribution
 
 
-def explain_distribution(tribe, distribution_id: str) -> dict[str, Any]:
+def explain_distribution(rhizome, distribution_id: str) -> dict[str, Any]:
     distribution_id = (distribution_id or "").strip()
     if not distribution_id:
         raise GoalError("distribution id cannot be empty")
     flow = None
-    for item in tribe.value_flows.values():
+    for item in rhizome.value_flows.values():
         if item.distribution_id == distribution_id:
             flow = item
             break
@@ -585,21 +585,21 @@ def explain_distribution(tribe, distribution_id: str) -> dict[str, Any]:
         raise GoalError(f"no distribution '{distribution_id}'")
     members = {}
     for member_id, amount in flow.distribution.items():
-        member = tribe.members.get(member_id) or tribe.former_members.get(member_id)
+        member = rhizome.members.get(member_id) or rhizome.former_members.get(member_id)
         members[member.name if member else member_id] = amount
     cited_contributions = []
     for contribution_id in flow.contribution_ids:
-        contribution = tribe.contributions.get(contribution_id)
+        contribution = rhizome.contributions.get(contribution_id)
         if contribution is not None:
             cited_contributions.append(contribution.model_dump())
     cited_resources = []
     for resource_id in flow.resource_ids:
-        resource = tribe.resources.get(resource_id)
+        resource = rhizome.resources.get(resource_id)
         if resource is not None:
             cited_resources.append(resource.model_dump())
     cited_tasks = []
     for task_id in flow.task_ids:
-        task = tribe.tasks.get(task_id)
+        task = rhizome.tasks.get(task_id)
         if task is not None:
             cited_tasks.append(task.dump())
     return {
@@ -621,7 +621,7 @@ def explain_distribution(tribe, distribution_id: str) -> dict[str, Any]:
 
 
 def record_wellbeing(
-    tribe,
+    rhizome,
     member: str,
     domain: str,
     level: int,
@@ -641,8 +641,8 @@ def record_wellbeing(
         raise GoalError("level must be an integer")
     if not 1 <= level <= 5:
         raise GoalError("level must be between 1 and 5")
-    m = tribe._require_member(member)
-    reporter = tribe._require_member(reported_by) if reported_by else m
+    m = rhizome._require_member(member)
+    reporter = rhizome._require_member(reported_by) if reported_by else m
     payload = {
         "member_id": m.id,
         "member": m.name,
@@ -652,15 +652,15 @@ def record_wellbeing(
         "ts": now_iso(),
         "recorded_by": reporter.name,
     }
-    tribe._emit("wellbeing_recorded", m.name, payload)
+    rhizome._emit("wellbeing_recorded", m.name, payload)
     return payload
 
 
-def latest_wellbeing(tribe, member: str = "") -> dict[str, Any]:
-    """Newest reading per (member, domain); tribe averages derived."""
-    target = tribe._require_member(member) if member else None
+def latest_wellbeing(rhizome, member: str = "") -> dict[str, Any]:
+    """Newest reading per (member, domain); rhizome averages derived."""
+    target = rhizome._require_member(member) if member else None
     newest: dict[tuple[str, str], dict[str, Any]] = {}
-    for rec in tribe.wellbeing_stream:
+    for rec in rhizome.wellbeing_stream:
         rec_member = rec["member_id"]
         if target is not None and rec_member != target.id:
             continue
@@ -670,7 +670,7 @@ def latest_wellbeing(tribe, member: str = "") -> dict[str, Any]:
             newest[key] = rec
     by_member: dict[str, dict[str, int]] = {}
     for (mid, dom), rec in sorted(newest.items()):
-        m = tribe.members.get(mid)
+        m = rhizome.members.get(mid)
         name = m.name if m else rec.get("member", mid)
         by_member.setdefault(name, {})[dom] = rec["level"]
     if target is not None:
@@ -687,8 +687,8 @@ def latest_wellbeing(tribe, member: str = "") -> dict[str, Any]:
     return {"by_member": by_member, "averages": avgs}
 
 
-def declare_interests(tribe, member: str, interests: list[str]) -> dict[str, Any]:
-    """Declare a member's interests (hobbies, loves, humor) to the tribe."""
+def declare_interests(rhizome, member: str, interests: list[str]) -> dict[str, Any]:
+    """Declare a member's interests (hobbies, loves, humor) to the rhizome."""
     if isinstance(interests, str):
         interests = [interests]
     items: list[str] = []
@@ -698,7 +698,7 @@ def declare_interests(tribe, member: str, interests: list[str]) -> dict[str, Any
             items.append(s)
     if not items:
         raise GoalError("no interests given")
-    m = tribe._require_member(member)
+    m = rhizome._require_member(member)
     payload = {
         "member_id": m.id,
         "member": m.name,
@@ -706,25 +706,25 @@ def declare_interests(tribe, member: str, interests: list[str]) -> dict[str, Any
         "ts": now_iso(),
         "declared_by": m.name,
     }
-    tribe._emit("interests_declared", m.name, payload)
+    rhizome._emit("interests_declared", m.name, payload)
     return payload
 
 
-def shared_interests(tribe) -> dict[str, list[str]]:
+def shared_interests(rhizome) -> dict[str, list[str]]:
     """Interests shared by 2+ members -> {interest: [names]}."""
     tally: dict[str, list[str]] = {}
-    for member_id, items in tribe.interests.items():
-        m = tribe.members.get(member_id)
+    for member_id, items in rhizome.interests.items():
+        m = rhizome.members.get(member_id)
         name = m.name if m else member_id
         for item in items:
             tally.setdefault(item.lower(), []).append(name)
     return {k: v for k, v in sorted(tally.items()) if len(set(v)) >= 2}
 
 
-def tribe_health(tribe) -> dict[str, Any]:
-    """Derived tribe health: wellbeing averages + shared interests."""
-    wb = latest_wellbeing(tribe)
+def rhizome_health(rhizome) -> dict[str, Any]:
+    """Derived rhizome health: wellbeing averages + shared interests."""
+    wb = latest_wellbeing(rhizome)
     return {
         "wellbeing": wb,
-        "shared_interests": shared_interests(tribe),
+        "shared_interests": shared_interests(rhizome),
     }

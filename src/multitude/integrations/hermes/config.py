@@ -14,9 +14,9 @@ DEFAULT_LANGUAGES = tuple(
 )
 
 
-def memory_path(tribe_dir: str, agent_name: str) -> Path:
+def memory_path(rhizome_dir: str, agent_name: str) -> Path:
     """Separate individual-memory path for one Hermes agent."""
     safe = "".join(ch.lower() if ch.isalnum() else "-" for ch in agent_name).strip("-")
-    root = Path(tribe_dir) / "agents"
+    root = Path(rhizome_dir) / "agents"
     root.mkdir(parents=True, exist_ok=True)
     return root / f"{safe or 'agent'}.memory.json"

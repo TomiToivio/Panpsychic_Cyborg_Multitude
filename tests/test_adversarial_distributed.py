@@ -26,7 +26,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 
-from multitude.tribe import Tribe, TribeError
+from multitude.rhizome import Rhizome, RhizomeError
 from multitude.models import NodeKind, Position, ProposalStatus, Outcome, Rule
 from multitude.pcm.envelope import (
     Envelope, EnvelopeError, authorize_sender, REQUIRED_CAPABILITY)
@@ -36,8 +36,8 @@ from multitude.pcm.proposals import (
     signed_proposal_envelope, signed_vote_envelope, proposal_from_envelope)
 
 
-def _tribe(name: str, root: Path) -> Tribe:
-    t = Tribe.found(str(root), name, f"Charter of {name}.", "alice")
+def _tribe(name: str, root: Path) -> Rhizome:
+    t = Rhizome.found(str(root), name, f"Charter of {name}.", "alice")
     t.join("bob", kind=NodeKind.BIOLOGICAL)
     t.join("carol", kind=NodeKind.BIOLOGICAL)
     t.join("pcm", kind=NodeKind.TECHNOLOGICAL, model="test-model", voting=False)
@@ -64,7 +64,7 @@ def test_duplicate_and_out_of_order() -> int:
     try:
         t.cast_vote(p.id, "alice", Position.AGAINST)
         failures.append("live double vote accepted")
-    except TribeError:
+    except RhizomeError:
         pass
     # close, then an out-of-order vote event arrives (partition merge)
     d = t.close_proposal(p.id, "bob")
@@ -102,7 +102,7 @@ def test_conflicting_closures_first_wins() -> int:
         "quorum_required": p.quorum, "votes_cast": 0, "closed_by": "carol",
         "dissent": [], "notes": ""}}
     # order A: first real close, then the conflicting one
-    t2 = Tribe(t.store)
+    t2 = Rhizome(t.store)
     t2._apply("proposal_closed", d2_payload)
     if t2.proposals[p.id].outcome != d1.outcome:
         failures.append(f"conflicting close changed outcome: {t2.proposals[p.id].outcome}")
@@ -113,7 +113,7 @@ def test_conflicting_closures_first_wins() -> int:
     # guarantee is per-log determinism, not cross-log magic; the merged
     # log order (whoever's log appends first) decides identically for
     # all replays of THAT log.
-    t3 = Tribe(t.store)
+    t3 = Rhizome(t.store)
     outcomes = [d.outcome for d in t3.decisions if d.proposal_id == p.id
                 and "rejected duplicate" not in (d.notes or "")]
     if outcomes != [d1.outcome]:
@@ -136,7 +136,7 @@ def test_node_disappears_during_vote() -> int:
     if d.outcome != Outcome.ADOPTED:
         failures.append(f"outcome after member leave wrong: {d.outcome}")
     # full replay from the log: same state
-    t2 = Tribe(t.store)
+    t2 = Rhizome(t.store)
     if t2.proposals[p.id].outcome != Outcome.ADOPTED:
         failures.append("replay diverged after member leave")
     print("[3] member-vanish mid-proposal: tallies + replay deterministic")
@@ -266,7 +266,7 @@ def test_deterministic_replay_under_hostile_orders() -> int:
     t.cast_vote(p.id, "carol", Position.FOR)
     expected = t.close_proposal(p.id, "bob")
     # replay the whole log twice
-    s1, s2 = Tribe(t.store), Tribe(t.store)
+    s1, s2 = Rhizome(t.store), Rhizome(t.store)
     for rebuilt in (s1, s2):
         if rebuilt.proposals[p.id].outcome != expected.outcome:
             failures.append("replayed outcome diverged")
