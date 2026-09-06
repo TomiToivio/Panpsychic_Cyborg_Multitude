@@ -149,6 +149,14 @@ def test_policy() -> int:
         failures.append("high-risk action sailed through open policy")
     except PolicyDenied:
         pass
+    # A rule for one author must not open the explicit high-risk gate to
+    # everyone else when the fallback policy is ALLOW.
+    open_policy.allow("power.set", "device:lamp", authors=("human:alice",))
+    try:
+        open_policy.authorize("agent:mallory", "power.set", "device:lamp")
+        failures.append("another author's explicit high-risk rule was reused")
+    except PolicyDenied:
+        pass
     # explicit high-risk rule works
     p.allow("drone.arm", "drone:01", authors=("human:alice",))
     p.authorize("human:alice", "drone.arm", "drone:01")
@@ -160,6 +168,15 @@ def test_policy() -> int:
         failures.append("rate limit not enforced")
     except PolicyDenied:
         pass
+    # Rate limits belonging to another author must not throttle Alice.
+    scoped_limits = Policy()
+    scoped_limits.allow("light.set", "device:*", authors=("alice",), max_per_minute=100)
+    scoped_limits.allow("light.set", "device:*", authors=("bob",), max_per_minute=1)
+    try:
+        scoped_limits.authorize("alice", "light.set", "device:lamp")
+        scoped_limits.authorize("alice", "light.set", "device:lamp")
+    except PolicyDenied as exc:
+        failures.append(f"another author's rate limit affected Alice: {exc}")
     print("[policy] allow/deny/ranges/high-risk/rate-limit OK")
     return len(failures)
 
