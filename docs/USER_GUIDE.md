@@ -282,7 +282,7 @@ but they are transports, not core features.
 ## 9. Optional BCI (experimental)
 
 The BCI integration (`src/multitude/integrations/bci.py`, research in
-[docs/research/PCM_BCI_CYBORG_INTEGRATION.md](docs/research/PCM_BCI_CYBORG_INTEGRATION.md))
+[docs/research/PCM_BCI_CYBORG_INTEGRATION.md](research/PCM_BCI_CYBORG_INTEGRATION.md))
 is an **experimental, optional** adapter between a biological member
 and the assemblage. The rules it enforces:
 

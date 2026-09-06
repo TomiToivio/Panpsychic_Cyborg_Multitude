@@ -19,7 +19,7 @@ the same rhizome with the same memory and the same rules. No platform,
 no cloud, no landlord: **the common is an event log that belongs to
 the people who live in it.**
 
-Read the manifesto: [PANPSYCHIC_CYBORG_MULTITUDE.md](PANPSYCHIC_CYBORG_MULTITUDE.md)
+Read the manifesto: [docs/PANPSYCHIC_CYBORG_MULTITUDE.md](docs/PANPSYCHIC_CYBORG_MULTITUDE.md)
 
 ## The name
 
@@ -40,7 +40,7 @@ Three words, one political ontology:
   real common, dissent preserved. *(Speculative, clearly not claimed:
   the Multitude may be conscious.)*
 
-Full definitions: [PANPSYCHIC_CYBORG_MULTITUDE.md](PANPSYCHIC_CYBORG_MULTITUDE.md) →
+Full definitions: [docs/PANPSYCHIC_CYBORG_MULTITUDE.md](docs/PANPSYCHIC_CYBORG_MULTITUDE.md) →
 "The three words, defined" + "The five concepts, composed".
 
 ## The five concepts, composed
@@ -132,11 +132,9 @@ UNKNOWN` for every node, composite or not.
 
 ## What this repository contains
 
-```
+```text
 multitude.py                      entrypoint (python multitude.py ...)
-PANPSYCHIC_CYBORG_MULTITUDE.md    manifesto + project description
-NETWORKING_STACK.md               node-to-node networking architecture
-                                  (zenoh fabric, namespace, events, policy)
+docs/                             all programme documents (see Documents below)
 requirements.txt                  dependencies
 LICENSE                           CC0 1.0 Universal
 src/multitude/
@@ -189,7 +187,7 @@ python3 -m unittest tests.test_pcm_phase2_zenoh   # two-node exchange demo
 ## Networking architecture
 
 The full node-to-node design lives in
-[NETWORKING_STACK.md](NETWORKING_STACK.md): why chat infrastructure
+[docs/NETWORKING_STACK.md](docs/NETWORKING_STACK.md): why chat infrastructure
 (homeservers, rooms, accounts) was rejected for a distributed nervous
 system, how the zenoh fabric carries signed envelopes between nodes
 (humans, agents, devices, sensors), and the fail-closed authorization
@@ -264,28 +262,28 @@ later stages; each is one new `PhysicalDevice` implementation away.
 
 ## Documents
 
-**New here? Start with the [USER_GUIDE.md](USER_GUIDE.md)** — install,
+**New here? Start with the [docs/USER_GUIDE.md](docs/USER_GUIDE.md)** — install,
 found a rhizome, add members, use memory and governance, without
 reading the source.
 
-- [PANPSYCHIC_CYBORG_MULTITUDE.md](PANPSYCHIC_CYBORG_MULTITUDE.md) — manifesto + project description
-- [NETWORKING_STACK.md](NETWORKING_STACK.md) — networking architecture (zenoh fabric)
-- [PCM_EMBODIED_AI_PLAN.md](PCM_EMBODIED_AI_PLAN.md) — embodied AI architecture
+- [docs/PANPSYCHIC_CYBORG_MULTITUDE.md](docs/PANPSYCHIC_CYBORG_MULTITUDE.md) — manifesto + project description
+- [docs/NETWORKING_STACK.md](docs/NETWORKING_STACK.md) — networking architecture (zenoh fabric)
+- [docs/PCM_EMBODIED_AI_PLAN.md](docs/PCM_EMBODIED_AI_PLAN.md) — embodied AI architecture
   (distributed physical proxies; Home Assistant/MQTT/ROS 2; world model; safety)
-- [PCM_CONSCIOUS_AI_PLAN.md](PCM_CONSCIOUS_AI_PLAN.md) — theory-neutral conscious-AI
+- [docs/PCM_CONSCIOUS_AI_PLAN.md](docs/PCM_CONSCIOUS_AI_PLAN.md) — theory-neutral conscious-AI
   research plan (indicator-based; classical default, quantum optional;
   Track D: assemblage/extended consciousness)
 - [docs/research/CONSCIOUS_HUMAN_AI_ASSEMBLAGES.md](docs/research/CONSCIOUS_HUMAN_AI_ASSEMBLAGES.md) —
   research paper: extended cognition to the possibility of a conscious
   multitude (companion to the conscious-AI plan; issue #8)
-- [VALUEFLOWS.md](VALUEFLOWS.md) — ValueFlows domain: economic
+- [docs/VALUEFLOWS.md](docs/VALUEFLOWS.md) — ValueFlows domain: economic
   coordination and the production of the Common (issue #11)
 - [docs/research/PCM_BCI_CYBORG_INTEGRATION.md](docs/research/PCM_BCI_CYBORG_INTEGRATION.md) —
   research document: BCI for PCM — toward a human–AI cognitive
   assemblage (signals, stacks, neuro-rights, roadmap; issue #13)
 - [docs/research/HUMAN_AI_COLLECTIVE_INTELLIGENCE_AND_SWARMS.md](docs/research/HUMAN_AI_COLLECTIVE_INTELLIGENCE_AND_SWARMS.md) —
   research bridge to hybrid intelligence, agent societies, and swarms
-- [TOWARDS_ARTIFICIAL_QUANTUM_CONSCIOUSNESS.md](TOWARDS_ARTIFICIAL_QUANTUM_CONSCIOUSNESS.md) —
+- [docs/TOWARDS_ARTIFICIAL_QUANTUM_CONSCIOUSNESS.md](docs/TOWARDS_ARTIFICIAL_QUANTUM_CONSCIOUSNESS.md) —
   quantum-track deep-dive reference (superseded as master plan; retained for Track C)
 - [LICENSE](LICENSE) — CC0 1.0 Universal
 
