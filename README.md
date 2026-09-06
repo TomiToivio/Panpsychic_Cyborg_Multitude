@@ -65,6 +65,26 @@ Full definitions: [PANPSYCHIC_CYBORG_MULTITUDE.md](PANPSYCHIC_CYBORG_MULTITUDE.m
 > that produces and governs a common without collapsing its members
 > into a sovereign One.**
 
+## Standing rule: DON'T COLLAPSE THE WAVE FUNCTION
+
+The quantum pun is deliberate, and so is the discipline. In PCM it
+means: **never resolve an open question about mind, status, or meaning
+before the evidence — or the community — actually does.**
+
+Applied everywhere in this repository:
+
+- A node's `is_conscious` field stays `UNKNOWN` for every member,
+  composite or not — no test, no benchmark, no self-report may flip it.
+- Contradictory observations in the world model are stored as
+  contradictions, never silently resolved.
+- Dissent is recorded, never erased; decisions keep their minority
+  reports.
+- Model output is provisional coding, never canonical truth.
+- The hard problem stays open; the programme lets the theories compete.
+
+Collapsing early is the one unforgivable move: it converts a living
+question into a dead answer for the convenience of the person asking.
+
 ## The six layers
 
 Every member — human, AI, or unclassified — carries a six-layer
