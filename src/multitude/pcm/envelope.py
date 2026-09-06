@@ -94,6 +94,17 @@ def envelope_id(canonical: bytes) -> str:
     return f"pcm_{digest}"
 
 
+def _contains_private_marker(value: Any) -> bool:
+    """Return True if a nested wire value is explicitly marked private."""
+    if isinstance(value, dict):
+        if bool(value.get("private")):
+            return True
+        return any(_contains_private_marker(item) for item in value.values())
+    if isinstance(value, list):
+        return any(_contains_private_marker(item) for item in value)
+    return False
+
+
 class Envelope(BaseModel):
     """One signed PCM message. ``sig`` signs canonical_bytes(self.model_dump(exclude={'sig'}))."""
 
@@ -128,7 +139,7 @@ class Envelope(BaseModel):
         # Privacy invariant (spec rule 4): private content must never be
         # serialized into an outbound envelope. Fail at construction time
         # instead of trusting relays to drop it later.
-        if content.get("private"):
+        if _contains_private_marker(content):
             raise EnvelopeError(
                 "refusing to build an outbound envelope with private content; "
                 "private data never leaves its originating node unless explicitly "
@@ -146,12 +157,33 @@ class Envelope(BaseModel):
 
     # -- signing / verification -------------------------------------------
 
+    def _expected_id(self) -> str:
+        return envelope_id(canonical_bytes({
+            "type": self.type, "from": self.from_did, "to": self.to_did,
+            "ts": self.ts, "content": self.content,
+        }))
+
+    def _validate_protocol(self) -> None:
+        if self.pcm != PCM_PROTOCOL_VERSION:
+            raise EnvelopeError(f"unsupported PCM protocol version {self.pcm!r}")
+        if self.type not in ENVELOPE_TYPES:
+            raise EnvelopeError(f"unknown envelope type {self.type!r}")
+        if self.actor_kind not in ACTOR_KINDS:
+            raise EnvelopeError(f"unknown actor_kind {self.actor_kind!r}")
+        if _contains_private_marker(self.content):
+            raise EnvelopeError("private content is forbidden in wire envelopes")
+        expected_id = self._expected_id()
+        if self.id != expected_id:
+            raise EnvelopeError(
+                f"envelope id mismatch: expected {expected_id!r}, got {self.id!r}")
+
     def unsigned_payload(self) -> dict[str, Any]:
         data = self.model_dump(by_alias=True, exclude={"sig"})
         return data
 
     def sign(self, private_key: Ed25519PrivateKey, expected_did: str) -> str:
         """Sign this envelope. Raises EnvelopeError if the key does not match ``from``."""
+        self._validate_protocol()
         actual = did_from_pubkey(_pub_raw(private_key))
         if actual != self.from_did:
             raise EnvelopeError(
@@ -168,6 +200,7 @@ class Envelope(BaseModel):
         Raises EnvelopeError on any mismatch. An envelope without a sig,
         with a sig from the wrong key, or with any tampered field fails.
         """
+        self._validate_protocol()
         if not self.sig.startswith("ed25519:"):
             raise EnvelopeError("missing or malformed signature")
         try:
@@ -175,7 +208,10 @@ class Envelope(BaseModel):
         except ValueError as e:
             raise EnvelopeError(f"bad from_did: {e}") from e
         digest = canonical_bytes(self.unsigned_payload())
-        sig_bytes = bytes.fromhex(self.sig[len("ed25519:"):])
+        try:
+            sig_bytes = bytes.fromhex(self.sig[len("ed25519:"):])
+        except ValueError as e:
+            raise EnvelopeError("malformed hexadecimal signature") from e
         # pubkey is raw bytes here; wrap it into a cryptography key object
         from cryptography.hazmat.primitives.asymmetric.ed25519 import (
             Ed25519PublicKey as _Key,
@@ -190,7 +226,7 @@ class Envelope(BaseModel):
 
     def relay_safe(self) -> bool:
         """False when the content is marked private (relaying nodes drop it)."""
-        return not bool(self.content.get("private"))
+        return not _contains_private_marker(self.content)
 
 
 # -- authorization (spec rule 5: authenticated != authorized) -----------------
