@@ -41,8 +41,7 @@ def main() -> int:
     # ---- 2. envelope create + sign ----
     env = Envelope.create(
         "layer_recorded", did, did,  # self-addressed node test
-        {"layer": "psychic", "field": "attention", "value": 3,
-         "private": True},
+        {"layer": "psychic", "field": "attention", "value": 3},
         actor_kind="cyborg", capabilities=["read_memory", "propose"],
     )
     if env.type not in ENVELOPE_TYPES or env.actor_kind not in ACTOR_KINDS:
@@ -51,6 +50,20 @@ def main() -> int:
     if not env.sig.startswith("ed25519:"):
         failures.append("signature not stored")
     print(f"[envelope] id={env.id} type={env.type} sig={env.sig[:20]}...")
+
+    # ---- 2b. privacy invariant: private content refused at construction ----
+    # (spec rule 4: private data never leaves its node unless published)
+    try:
+        Envelope.create(
+            "layer_recorded", did, did,
+            {"layer": "psychic", "field": "attention", "value": 3,
+             "private": True},
+            actor_kind="cyborg",
+        )
+        failures.append("private content serialized into an outbound envelope")
+    except EnvelopeError:
+        pass
+    print("[privacy] private-content envelope refused at construction")
 
     # ---- 3. round-trip: dict -> JSON -> dict -> verify ----
     wire = env.model_dump(by_alias=True)
@@ -101,14 +114,24 @@ def main() -> int:
     except EnvelopeError:
         pass
 
-    # ---- 7. relay policy (spec §3 rule 3) ----
-    if env.relay_safe():
-        failures.append("private content flagged relay-safe")
+    # ---- 7. relay policy (spec §3 rule 3 + rule 4) ----
+    # Public envelopes relay; private content never reaches an envelope
+    # (blocked at construction — asserted in 2b), and the relay guard
+    # stays correct if a tamper path ever re-injects the marker.
+    if not env.relay_safe():
+        failures.append("public envelope flagged private")
     public_env = Envelope.create("heartbeat", did, did, {"uptime": 1})
     public_env.sign(private_key_from_identity(identity), did)
     if not public_env.relay_safe():
         failures.append("public heartbeat flagged private")
-    print("[relay] private dropped, public passes")
+    smuggled = Envelope.model_validate({
+        "pcm": "1", "id": "pcm_x", "type": "memory_share",
+        "from": did, "to": did, "ts": "2026-09-06T00:00:00Z",
+        "interface": "jsonl", "actor_kind": "ai", "capabilities": [],
+        "content": {"private": True, "secret": "leak"}, "sig": ""})
+    if smuggled.relay_safe():
+        failures.append("relay_safe() true for private content")
+    print("[relay] public passes; private refused at construction + relay guard")
 
     print()
     if failures:

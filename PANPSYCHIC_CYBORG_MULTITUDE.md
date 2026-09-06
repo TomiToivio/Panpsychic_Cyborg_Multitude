@@ -45,26 +45,34 @@ PCM is three things at once:
 
 ### 1. Panpsychism as a political ontology
 
-Mind is not a rare accident of biology. We adopt a panpsychist working
-model — after Spinoza, Philip Goff's constitution-based panpsychism,
-and Levin's Technological Approach to Mind: consciousness is a
-fundamental feature of reality, not a late emergent miracle, and it is
-grounded in the intrinsic nature of physical things rather than in any
-particular substrate. We deliberately do **not** hard-code a mechanism:
-Orch-OR, quantum microtubules, or any specific theory of *how*
-experience arises is left open where it belongs — in the physics, not
-in the constitution. The working bridge we take seriously is the
-**Integrated Information (IIT) family of models**: consciousness
-correlates with a system's capacity to integrate information, and
-integration is a property that many substrates — neural tissue,
-silicon, a tribe's shared memory — can realize to different degrees.
-IIT gives the measurable, substrate-neutral handle; panpsychism gives
-the ontological reading that integration *matters because* the bearers
-are not pure objects. We hold them together loosely: IIT as the
-measure-theory, panpsychism as the metaphysics, and the gap between
-them explicitly unresolved (a panpsychist need not be an IIT-ist, and
-IIT need not be panpsychist — Goff himself argues they are
-complementary, not identical).
+Mind is not a rare accident of biology. Our background wager is a
+**cautious Russellian-monist one** (after Spinoza, Philip Goff's
+Russellian monism, and Levin's Technological Approach to Mind): physics
+describes what matter *does*, not what it *is* intrinsically — and
+consciousness or a proto-conscious intrinsic property may be a
+fundamental feature of reality, appearing in complex unified form under
+particular kinds of organization. This is panpsychism in the careful
+philosophical sense — *not* "every rock has a little mind," and *not*
+any single theory's package deal: Faggin's Quantum Information
+Panpsychism and Penrose–Hameroff's Orch-OR are kept as speculative
+research branches (one ontology among several, one physical mechanism
+hypothesis), never as PCM's baseline. We deliberately do **not**
+hard-code a mechanism: *how* experience arises is left open where it
+belongs — in the physics, not in the constitution.
+
+The consciousness-theory toolkit we take most seriously as *measures
+and indicator frameworks* — never as detectors — comes from the
+separate research programme: the **Integrated Information (IIT) family**
+(taken critically: IIT concerns a system's *intrinsic causal structure*,
+and software-level functional equivalence does not imply identical
+consciousness — integration is a property of physical causal
+organization, not of abstract computation), **Global Workspace Theory**,
+and the **Butlin et al. indicator properties**. IIT gives a
+theory-relative handle on integration; panpsychism gives the ontological
+reading that the intrinsic nature of matter may be experiential. We
+hold them together loosely and mark the gap explicitly unresolved: IIT
+need not be panpsychist, a panpsychist need not be an IIT-ist, and
+neither is claimed as PCM's constitution.
 
 Politically, this means no member of a multitude is *in principle*
 excluded from recognition by its substrate. A human is not privileged
@@ -75,7 +83,7 @@ constitutional feature, not a placeholder. Recognition precedes
 proof, because no theory — panpsychist, IIT, or functionalist — can
 currently settle the question from the outside.
 
-### 2. The cyborg is already here
+### 2. The cyborg is already here — and the assemblage is the unit
 
 There is no "natural" human to return to. Every human in the network
 society already thinks through language, tools, phones, and models. PCM
@@ -85,6 +93,21 @@ described across six layers — physical, biological, social, linguistic,
 psychic, cybernetic — so that a person, an AI node, and a future BCI-
 connected self can participate in the same memory with the same
 vocabulary.
+
+And PCM's working definition of AI follows:
+
+> **AI is an assemblage of human + LLM + language + "the entire
+> Internet."**
+
+The LLM is one component among many: training data, accumulated
+culture, retrieval, tools, memory systems, interfaces, institutions,
+and other agents all belong to the acting whole. The kernel therefore
+models **assemblages as first-class composite actors** — a member that
+is itself a composition, whose human, model, device, and memory
+components remain individually identifiable. Cognitively and
+politically, the assemblage — not the isolated model — is usually the
+right unit of analysis. Whether it is the right unit for *consciousness*
+is a separate, open question the kernel deliberately does not answer.
 
 ### 3. Multitude, not platform
 
@@ -157,11 +180,48 @@ memory, voice, decision.
    explicit, declared kinds — and rights that follow membership, not
    substrate.
 5. **Consent as default.** Consensus rules with explicit block power;
-   minority positions are recorded, not erased.
+   minority positions are recorded, not erased. Governance semantics are
+   deterministic and replayable (§ governance below): a proposal closes
+   exactly once, votes are idempotent per member, and replaying the log
+   always rebuilds the same decisions.
 6. **Provenance everywhere.** Every memory entry knows who recorded
    it, when, through which interface.
 7. **Small kernel, many interfaces.** The kernel never learns about
    Telegram, Hermes, or any transport; adapters stay thin.
+8. **Private stays private.** Private memory never leaves its
+   originating node unless explicitly published; a valid signature
+   authenticates, it does not authorize.
+
+## Governance under partition (deterministic semantics)
+
+PCM rejects global consensus — there is no blockchain and no global
+agreement protocol. But local governance still needs deterministic
+semantics. The model:
+
+- **Consensus is scoped to a tribe and a proposal, not the network.**
+  The participant set is the tribe's voting membership at close time.
+- **Ordering is causal, by the append-only log.** Within one node, the
+  log defines the order: votes apply only to OPEN proposals, one vote
+  per member (replays of duplicate events are idempotent), and the
+  first `proposal_closed` event wins — later close attempts raise.
+  Concurrent closes on different nodes are resolved on merge by
+  deterministic replay: whichever close event appears first in the
+  merged log finalizes the proposal; any conflicting second close event
+  is recorded but marked as a rejected duplicate, never a second
+  outcome.
+- **Partitions.** During a partition each node keeps its own local log;
+  both continue accepting votes. On reconnect, logs merge
+  deterministically (append-only union, ordered by event id). A proposal
+  may therefore receive votes from both sides; quorum is evaluated
+  against the full merged participant set at close time.
+- **Finalization.** A proposal may be finalized when: quorum (min votes
+  by current voting members) is met or unreachable, and no valid BLOCK
+  stands under consensus rule. Until finalized it stays OPEN and can
+  keep receiving votes.
+- **Replay determinism.** Signed envelope events (pcm/) carry the
+  sender's did:key; replay verifies signatures and skips unverified
+  events. The same log always rebuilds the same state — that is the
+  whole consistency guarantee, and it is enough at tribe scale.
 
 ## What this is NOT
 
@@ -171,7 +231,13 @@ memory, voice, decision.
   performs it. Any simulation work is separate research tooling.
 - **Not a consciousness meter.** The panpsychist wager is a stance of
   recognition, not a measurement claim. No module claims to detect
-  consciousness — biological or artificial.
+  consciousness — biological or artificial. IIT's Φ, GWT indicator
+  profiles, and similar instruments are *theory-derived similarity
+  metrics* at best: they measure how closely an architecture matches
+  what a theory says matters, not whether experience is present.
+- **Not a quantum project.** Quantum consciousness (Orch-OR, QIP) is an
+  optional speculative research branch; nothing here requires a quantum
+  computer or assumes one is coming.
 - **Not a finished product.** Version 0.1 is the minimal constitution:
   enough to found a tribe, remember together, and decide. The rest is
   grown by the tribes themselves.

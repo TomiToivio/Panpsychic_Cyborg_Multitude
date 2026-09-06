@@ -18,7 +18,6 @@ from __future__ import annotations
 
 from typing import Any, Optional
 
-from multitude.goals import GoalError, replay_goal_event
 from multitude.layers import (
     LayerError,
     default_seeds,
@@ -58,6 +57,8 @@ from multitude.models import (
     ResourceRecord,
     Rule,
     SensingEvent,
+    AssemblageRecord,
+    AssemblageComponent,
     TribeEconomyProfileRecord,
     TribeMembershipRecord,
     ValueFlowRecord,
@@ -72,25 +73,6 @@ from multitude.store import TribeStore
 
 class TribeError(Exception):
     """Domain rule violation (unknown member, double vote, etc.)."""
-
-
-# Goal/treasury/wellbeing event types, replayed by goals.replay_goal_event.
-GOAL_EVENT_TYPES = frozenset(
-    {
-        "goal_opened",
-        "goal_closed",
-        "task_opened",
-        "task_claimed",
-        "task_released",
-        "task_done",
-        "profit_recorded",
-        "profit_distributed",
-        "contribution_recorded",
-        "value_flow_recorded",
-        "wellbeing_recorded",
-        "interests_declared",
-    }
-)
 
 
 class Tribe:
@@ -133,6 +115,7 @@ class Tribe:
         self.rhythms: dict[str, RhythmRecord] = {}
         self.physical_events: list[PhysicalEvent] = []
         self.entity_links: list[EntityLink] = []
+        self.assemblages: dict[str, AssemblageRecord] = {}
         self._replay()
 
     # ------------------------------------------------------------ founding
@@ -162,6 +145,17 @@ class Tribe:
             self._apply(ev.type, ev.payload)
 
     def _apply(self, type_: str, payload: dict[str, Any]) -> None:
+        # Domain events first: registered domains own their replay logic
+        # (goals/economy today; care, biosignals etc. later). The core
+        # reducer below only grows for kernel concerns: membership,
+        # memory, governance, layers.
+        from multitude import domains as _domains
+
+        _domains.register_builtin_domains()
+        domain_reducer = _domains.dispatch(type_)
+        if domain_reducer is not None:
+            domain_reducer(self, type_, payload)
+            return
         if type_ == "member_joined":
             m = Member.model_validate(payload["member"])
             self.members[m.id] = m
@@ -194,16 +188,30 @@ class Tribe:
             self.proposals[p.id] = p
         elif type_ == "vote_cast":
             p = self.proposals.get(payload["proposal_id"])
-            if p is not None:
+            if p is not None and p.status == ProposalStatus.OPEN:
                 v = Vote.model_validate(payload["vote"])
                 v.ts = v.ts or now_iso()
-                p.votes[v.member] = v
+                # Idempotent per member: a later duplicate vote event for
+                # the same member never overwrites the earlier one
+                # (first-wins), so merged/replayed logs stay deterministic.
+                if v.member not in p.votes:
+                    p.votes[v.member] = v
         elif type_ == "proposal_closed":
             d = Decision.model_validate(payload["decision"])
+            p = self.proposals.get(d.proposal_id)
+            if p is not None and p.status != ProposalStatus.OPEN:
+                # Conflicting/duplicate closure (partition merge, replayed
+                # event): the FIRST close wins deterministically. Record
+                # the loser as a rejected duplicate — never a second
+                # outcome for the same proposal.
+                self.decisions.append(d.model_copy(update={
+                    "notes": f"rejected duplicate closure (proposal already "
+                             f"{p.status.value}; first close wins)",
+                }))
+                return
             self.decisions.append(d)
             # Replay must rebuild proposal status as well, or closed
             # proposals reopen after a reload (append-only fix 2026-09-01).
-            p = self.proposals.get(d.proposal_id)
             if p is not None:
                 p.status = (
                     ProposalStatus.ADOPTED
@@ -278,8 +286,15 @@ class Tribe:
         elif type_ == "entity_linked":
             link = EntityLink.model_validate(payload["link"])
             self.entity_links.append(link)
-        elif type_ in GOAL_EVENT_TYPES:
-            replay_goal_event(self, type_, payload)
+        elif type_ == "assemblage_defined":
+            rec = AssemblageRecord.model_validate(payload["assemblage"])
+            self.assemblages[rec.id] = rec
+        elif type_ == "assemblage_updated":
+            rec = AssemblageRecord.model_validate(payload["assemblage"])
+            self.assemblages[rec.id] = rec
+        # goal/economy events dispatch through multitude.domains
+        # (register_builtin_domains) — the core reducer never grows
+        # domain branches (see domains.py for the registry contract).
 
     # ------------------------------------------------------------ helpers
 
@@ -703,9 +718,13 @@ class Tribe:
                 if message.id == value_clean:
                     return EntityRef(kind="message", id=value_clean)
             raise TribeError(f"no message '{value_clean}'")
+        if kind_clean == "assemblage":
+            if value_clean not in self.assemblages:
+                raise TribeError(f"no assemblage '{value_clean}'")
+            return EntityRef(kind="assemblage", id=value_clean)
         raise TribeError(
             "unknown entity kind "
-            f"'{kind_clean}' - valid: member, memory, proposal, goal, task, resource, contribution, value_flow, lexicon, device, physical_event, decision, membership, work_log, governance_rule, intent, commitment, agreement, economy_profile, federation_agreement, care, rhythm, message"
+            f"'{kind_clean}' - valid: member, memory, proposal, goal, task, resource, contribution, value_flow, lexicon, device, physical_event, decision, membership, work_log, governance_rule, intent, commitment, agreement, economy_profile, federation_agreement, care, rhythm, message, assemblage"
         )
 
     def link_entities(
@@ -929,6 +948,168 @@ class Tribe:
             if m.profile.psychic.is_conscious:
                 out.append(m)
         return out
+
+    # -------------------------------------------------------- assemblages
+
+    def define_assemblage(
+        self,
+        *,
+        name: str,
+        defined_by: str,
+        components: Optional[list[dict[str, Any]]] = None,
+        member_name: Optional[str] = None,
+        description: str = "",
+        meta: Optional[dict[str, Any]] = None,
+    ) -> AssemblageRecord:
+        """Register a composite actor (assemblage) in the event log.
+
+        ``components`` items: {"kind": str, "member"/"device"/"memory"/
+        "resource"/"proposal"/... (kernel entity name): id} OR
+        {"kind": str, "label": str, "role": str} for externals (e.g.
+        kind="language", label="Finnish and English", role="coordination
+        layer"). Kernel entity components are resolved and validated at
+        definition time so the assemblage never points at nothing.
+        """
+        creator = self._require_member(defined_by)
+        name_clean = name.strip()
+        if not name_clean:
+            raise TribeError("assemblage name cannot be empty")
+        member_id: Optional[str] = None
+        if member_name:
+            acting = self._require_member(member_name)
+            member_id = acting.id
+        parsed: list[AssemblageComponent] = []
+        entity_fields = {
+            "member", "device", "resource", "memory", "proposal", "goal",
+            "task", "contribution", "value_flow", "lexicon", "decision",
+            "membership", "work_log", "governance_rule", "intent",
+            "commitment", "agreement", "economy_profile",
+            "federation_agreement", "care", "rhythm", "message",
+        }
+        for raw in components or []:
+            if not isinstance(raw, dict) or not raw.get("kind"):
+                raise TribeError("each assemblage component needs a 'kind'")
+            kind = str(raw["kind"]).strip().lower()
+            comp = AssemblageComponent(kind=kind)
+            entity_key = next((k for k in raw if k in entity_fields), None)
+            if entity_key is not None:
+                comp.ref = self._resolve_entity_ref(entity_key, str(raw[entity_key]))
+                comp.label = str(raw.get("label", "")).strip()
+            else:
+                comp.label = str(raw.get("label", "")).strip()
+                if not comp.label:
+                    raise TribeError(
+                        f"component kind '{kind}' needs a kernel entity ref or a 'label'")
+            comp.role = str(raw.get("role", "")).strip()
+            if isinstance(raw.get("meta"), dict):
+                comp.meta = dict(raw["meta"])
+            parsed.append(comp)
+        rec = AssemblageRecord(
+            id=new_id("asm"),
+            ts=now_iso(),
+            name=name_clean,
+            member_id=member_id,
+            components=parsed,
+            description=description.strip(),
+            status="active",
+            created_by=creator.name,
+            meta=dict(meta or {}),
+        )
+        self._emit("assemblage_defined", creator.name, {"assemblage": rec.model_dump()})
+        return rec
+
+    def update_assemblage(
+        self,
+        assemblage_id: str,
+        *,
+        updated_by: str,
+        description: Optional[str] = None,
+        status: Optional[str] = None,
+        add_components: Optional[list[dict[str, Any]]] = None,
+        remove_labels: Optional[list[str]] = None,
+        meta: Optional[dict[str, Any]] = None,
+    ) -> AssemblageRecord:
+        """Update one assemblage (append-only: the update is a new event)."""
+        rec = self.assemblages.get(assemblage_id)
+        if rec is None:
+            raise TribeError(f"no assemblage '{assemblage_id}'")
+        actor = self._require_member(updated_by)
+        updated = rec.model_copy(deep=True)
+        if description is not None:
+            updated.description = description.strip()
+        if status is not None:
+            status_clean = status.strip().lower()
+            if status_clean not in {"active", "dissolved"}:
+                raise TribeError("assemblage status must be active or dissolved")
+            updated.status = status_clean
+        if add_components:
+            # reuse define_assemblage's parser via a small local build
+            existing_labels = {c.label.lower() for c in updated.components if c.label}
+            for raw in add_components:
+                if not isinstance(raw, dict) or not raw.get("kind"):
+                    raise TribeError("each assemblage component needs a 'kind'")
+                kind = str(raw["kind"]).strip().lower()
+                comp = AssemblageComponent(kind=kind)
+                entity_key = next(
+                    (k for k in raw if k in {
+                        "member", "device", "resource", "memory", "proposal",
+                        "goal", "task", "contribution", "value_flow", "lexicon",
+                        "decision", "membership", "work_log", "governance_rule",
+                        "intent", "commitment", "agreement", "economy_profile",
+                        "federation_agreement", "care", "rhythm", "message",
+                    }),
+                    None,
+                )
+                if entity_key is not None:
+                    comp.ref = self._resolve_entity_ref(entity_key, str(raw[entity_key]))
+                    comp.label = str(raw.get("label", "")).strip()
+                else:
+                    comp.label = str(raw.get("label", "")).strip()
+                    if not comp.label:
+                        raise TribeError(
+                            f"component kind '{kind}' needs a kernel entity ref or a 'label'")
+                comp.role = str(raw.get("role", "")).strip()
+                if isinstance(raw.get("meta"), dict):
+                    comp.meta = dict(raw["meta"])
+                if comp.label and comp.label.lower() in existing_labels:
+                    raise TribeError(f"component label '{comp.label}' already present")
+                updated.components.append(comp)
+                if comp.label:
+                    existing_labels.add(comp.label.lower())
+        if remove_labels:
+            drop = {item.strip().lower() for item in remove_labels if item.strip()}
+            updated.components = [
+                c for c in updated.components if c.label.lower() not in drop
+            ]
+        if meta:
+            merged = dict(updated.meta)
+            merged.update(meta)
+            updated.meta = merged
+        self._emit("assemblage_updated", actor.name, {"assemblage": updated.model_dump()})
+        return self.assemblages[assemblage_id]
+
+    def assemblage_summary(self, assemblage_id: str) -> dict[str, Any]:
+        """Provenance-preserving view: the assemblage and its components."""
+        rec = self.assemblages.get(assemblage_id)
+        if rec is None:
+            raise TribeError(f"no assemblage '{assemblage_id}'")
+        return {
+            "id": rec.id,
+            "name": rec.name,
+            "member_id": rec.member_id,
+            "description": rec.description,
+            "status": rec.status,
+            "created_by": rec.created_by,
+            "components": [
+                {
+                    "kind": c.kind,
+                    "ref": c.ref.model_dump() if c.ref else None,
+                    "label": c.label,
+                    "role": c.role,
+                }
+                for c in rec.components
+            ],
+        }
 
     # -------------------------------------------------------- lexicon
 

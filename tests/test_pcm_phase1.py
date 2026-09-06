@@ -100,8 +100,24 @@ def main() -> int:
         def say(self, text, kind="say", meta=None):
             return None
 
-    from multitude.integrations.matrix.adapter import MatrixAdapter
-    adapter = MatrixAdapter(FakeTribe(), "PCM")
+    # Log-rebuild criterion: a standalone adapter replays the event log
+    # without touching the store (transport-agnostic by construction —
+    # Matrix was rejected 2026-09-06; the seam is the generic transport).
+    class _ReplayAdapter:
+        def __init__(self, tribe):
+            self.tribe = tribe
+        def latest_context(self, limit: int = 5) -> list[str]:
+            events = self.tribe.store.replay()
+            out = []
+            for ev in events[-limit:]:
+                payload = ev.payload if isinstance(ev.payload, dict) else {}
+                message = payload.get("message") or {}
+                text = message.get("text") or payload.get("summary") or ""
+                if text:
+                    out.append(f"{ev.ts} {ev.actor}: {text[:160]}")
+            return out
+
+    adapter = _ReplayAdapter(FakeTribe())
     context = adapter.latest_context()
     if len(context) != 2 or "BCI phase accepted" not in context[0]:
         failures.append(f"log rebuild wrong: {context}")

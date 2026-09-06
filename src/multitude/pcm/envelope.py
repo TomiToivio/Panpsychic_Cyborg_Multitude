@@ -2,7 +2,7 @@
 """PCM envelope protocol — minimal signed message between nodes (Phase 0).
 
 Implements NETWORKING_STACK.md §3. One versioned, self-describing,
-transport-agnostic envelope; it rides inside Matrix events, Automerge
+transport-agnostic envelope; it rides inside fabric events, Automerge
 documents, JSONL lines, or raw sockets.
 
 Envelope shape (pcm "1"):
@@ -31,6 +31,17 @@ Rules from the spec:
    before trusting ``from``.
 3. ``content.private: true`` MUST be dropped by relaying nodes unless
    explicitly authorized — privacy is enforced at the envelope level.
+4. **Private data never leaves its originating node unless explicitly
+   published.** ``create()`` therefore refuses to build a relayable
+   envelope whose content carries the private marker — the flag is a
+   construction-time guard, not an after-the-fact hope. A node that
+   really intends to publish private content must strip/transform it
+   first (see ``publishable_copy``).
+5. **authenticated != authorized.** A valid signature proves who sent
+   an envelope, never what the sender may do. Authorization is a
+   separate, local decision (capabilities/permissions checked by the
+   receiving node's service layer BEFORE merging or executing) — see
+   ``authorize_sender``.
 """
 from __future__ import annotations
 
@@ -114,6 +125,14 @@ class Envelope(BaseModel):
         if actor_kind not in ACTOR_KINDS:
             raise EnvelopeError(
                 f"unknown actor_kind {actor_kind!r}; allowed: {ACTOR_KINDS}")
+        # Privacy invariant (spec rule 4): private content must never be
+        # serialized into an outbound envelope. Fail at construction time
+        # instead of trusting relays to drop it later.
+        if content.get("private"):
+            raise EnvelopeError(
+                "refusing to build an outbound envelope with private content; "
+                "private data never leaves its originating node unless explicitly "
+                "published (strip or transform it first)")
         env = cls(
             type=type_, **{"from": from_did}, to=to_did, content=content,
             interface=interface, actor_kind=actor_kind,
@@ -172,6 +191,64 @@ class Envelope(BaseModel):
     def relay_safe(self) -> bool:
         """False when the content is marked private (relaying nodes drop it)."""
         return not bool(self.content.get("private"))
+
+
+# -- authorization (spec rule 5: authenticated != authorized) -----------------
+
+# Capability vocabulary a node may grant/check for inbound envelopes.
+# Extending this is a minor protocol change, not freeform.
+KNOWN_CAPABILITIES = (
+    "read_memory",       # may read shared memory
+    "write_memory",      # may merge shared-memory entries into the local log
+    "search_memory",     # may query the local memory index
+    "summarize",
+    "analyze",
+    "counsel",
+    "draft",
+    "propose",
+    "vote",
+)
+
+# Envelope types and the capability each requires to be ACCEPTED (merged/
+# executed) by a receiving node. Signature verification (who sent it) is
+# separate from this check (what they may do).
+REQUIRED_CAPABILITY = {
+    "say": None,                  # voice: authenticated membership suffices
+    "layer_recorded": "write_memory",
+    "proposal_open": "propose",
+    "vote_cast": "vote",
+    "counsel_request": None,
+    "counsel_reply": "counsel",
+    "memory_share": "write_memory",
+    "heartbeat": None,
+    "capability_grant": None,
+}
+
+
+def authorize_sender(envelope_dict: dict[str, Any],
+                     granted_capabilities: list[str]) -> dict[str, Any]:
+    """Check that a VERIFIED envelope's sender holds the capability this
+    envelope type requires before the receiver merges or executes it.
+
+    ``envelope_dict`` must already have passed Envelope.verify() — this
+    function does NOT verify signatures; it only decides authorization.
+    ``granted_capabilities`` is the receiver's local grant list for the
+    sender's DID (e.g. from a capability_grant envelope or local policy).
+
+    Returns the verified envelope dict on success; raises EnvelopeError
+    when the envelope type requires a capability the sender lacks.
+    """
+    env = Envelope.model_validate(envelope_dict)
+    required = REQUIRED_CAPABILITY.get(env.type, "write_memory")
+    if required is None:
+        return env.model_dump(by_alias=True)
+    granted = {c for c in granted_capabilities if c in KNOWN_CAPABILITIES}
+    if required not in granted:
+        raise EnvelopeError(
+            f"authorization failed: {env.type!r} requires capability "
+            f"{required!r}; sender {env.from_did} holds "
+            f"{sorted(granted) or 'none'} — authenticated is not authorized")
+    return env.model_dump(by_alias=True)
 
 
 def _pub_raw(private_key: Ed25519PrivateKey) -> bytes:

@@ -53,6 +53,30 @@ same vocabulary covers everyone, so the tribe's memory can reason
 about all of them together — and the layer model is where BCI and
 sensor context will land in later phases.
 
+## Assemblages: the composite actor
+
+PCM's central definition of AI is not "an isolated model":
+
+> **AI is an assemblage of human + LLM + language + "the entire
+> Internet"** — a sociotechnical composition of foundation models,
+> training data, accumulated culture, retrieval, tools, memory,
+> interfaces, institutions, and other agents.
+
+The kernel takes this seriously as a data model: an **Assemblage** is a
+first-class *composite actor*. It is a member in its own right — it can
+speak, propose, and be referenced — while every component (the human,
+the model, the device, the memory store, the fabric link) stays
+individually identifiable in the same event log. A cyborg node with its
+sensors and an agent stack with its toolbelt are both assemblages; the
+assemblage, not the bare LLM, is usually the right unit of analysis for
+agency and cognition.
+
+This models composition, not consciousness: recording that an
+assemblage acts as one actor says nothing about whether it is one
+unified subject of experience — that question belongs to the separate
+consciousness research programme, and the kernel keeps `is_conscious:
+UNKNOWN` for every node, composite or not.
+
 ## What this repository contains
 
 ```
@@ -70,6 +94,7 @@ src/multitude/
   models.py     — typed models (pydantic)
   layers.py     — six-layer agent profiles (physical..cybernetic)
   goals.py      — goals, contributions, value flows
+  domains.py    — domain reducer registry (keeps the core reducer small)
   llm.py        — technological nodes (LLM agents as members)
   http_json.py  — small HTTP helper
   config.py     — runtime config
@@ -80,7 +105,6 @@ src/multitude/
   integrations/zenoh/          — Zenoh fabric transport
   integrations/hermes/         — AI-agent integration (thin adapter)
   integrations/telegram/       — messaging transport (thin adapter)
-```
 ```
 
 No simulation. No scrapers. No experimental sensors. Just the
@@ -123,7 +147,8 @@ Phases:
 
 ```text
 Phase 0-3  DONE  identity → envelopes → fabric → VCs
-Phase 4    NEXT  BCI/biosignal nodes over the same subjects
+Phase 3b   GATE  confidentiality & key lifecycle before real biosignal data
+Phase 4    GATED BCI/biosignal nodes over the same subjects (after 3b)
 ```
 
 **No third party. No central mind. No master database.**
@@ -136,9 +161,21 @@ Phase 4    NEXT  BCI/biosignal nodes over the same subjects
   (distributed physical proxies; Home Assistant/MQTT/ROS 2; world model; safety)
 - [PCM_CONSCIOUS_AI_PLAN.md](PCM_CONSCIOUS_AI_PLAN.md) — theory-neutral conscious-AI
   research plan (indicator-based; classical default, quantum optional)
+- [docs/research/HUMAN_AI_COLLECTIVE_INTELLIGENCE_AND_SWARMS.md](docs/research/HUMAN_AI_COLLECTIVE_INTELLIGENCE_AND_SWARMS.md) —
+  research bridge to hybrid intelligence, agent societies, and swarms
 - [TOWARDS_ARTIFICIAL_QUANTUM_CONSCIOUSNESS.md](TOWARDS_ARTIFICIAL_QUANTUM_CONSCIOUSNESS.md) —
   quantum-track deep-dive reference (superseded as master plan; retained for Track C)
 - [LICENSE](LICENSE) — CC0 1.0 Universal
+
+## Principles
+
+- Event-sourced and replayable — history belongs to the members.
+- Local-first — the tribe's data lives with the tribe.
+- Kind-aware membership — biological and technological nodes, same log.
+- Consent-first governance with explicit block power.
+- Thin adapters, small kernel — transports never touch the core.
+- **Assemblage-aware** — an AI member is not a model in isolation but a
+  composite actor: human + LLM + language + tools + memory + network.
 
 ## Scope
 
@@ -146,3 +183,7 @@ This repository is self-contained: the tribe kernel and the node
 fabric, nothing else. Research tooling, discourse-analysis pipelines,
 and game/simulation work live in separate projects with their own
 repositories — they are not part of PCM's public distribution.
+
+## License
+
+CC0 1.0 Universal — the common is common.

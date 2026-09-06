@@ -523,6 +523,47 @@ class EntityRef(BaseModel):
     id: str
 
 
+class AssemblageComponent(BaseModel):
+    """One identifiable part of a composite actor (assemblage).
+
+    ``kind`` names the component type (member, device, resource,
+    memory, lexicon, tool, network, language, external...); ``ref``
+    points at it when it is a kernel entity, ``label`` when it is an
+    external part (the Internet, a language, a corporation). Provenance
+    stays: components are never dissolved into the assemblage.
+    """
+
+    kind: str
+    ref: Optional[EntityRef] = None
+    label: str = ""
+    role: str = ""  # e.g. "human partner", "reasoning core", "sensor"
+    meta: dict[str, Any] = Field(default_factory=dict)
+
+
+class AssemblageRecord(BaseModel):
+    """A composite actor: AI = human + LLM + language + the Internet.
+
+    PCM's central claim is that an AI is never an isolated model but a
+    sociotechnical assemblage. This record makes that claim part of the
+    data model: an assemblage is a *member in its own right* (it can
+    speak, propose, vote where permitted) while its components stay
+    individually identifiable kernel entities or labelled externals.
+
+    Composition is a governance/ontology statement, NOT a consciousness
+    claim: constituting one actor does not assert one unified subject.
+    """
+
+    id: str
+    ts: str
+    name: str
+    member_id: Optional[str] = None  # the member slot acting as this assemblage
+    components: list[AssemblageComponent] = Field(default_factory=list)
+    description: str = ""
+    status: str = "active"  # active | dissolved
+    created_by: str = ""
+    meta: dict[str, Any] = Field(default_factory=dict)
+
+
 class EntityLink(BaseModel):
     id: str
     ts: str
