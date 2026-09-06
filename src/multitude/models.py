@@ -413,6 +413,68 @@ class ValueFlowRecord(BaseModel):
     meta: dict[str, Any] = Field(default_factory=dict)
 
 
+# --- ValueFlows domain records (issue #11) ---------------------------------
+# Minimal ValueFlows-compatible model: PCM keeps its simple Pydantic /
+# event-sourced internals; the VF JSON-LD projection lives in
+# multitude.domains.valueflows. Terminology follows the VF ontology:
+# planning (Intent, Commitment) is distinct from observation (EconomicEvent).
+
+class EconomicEventVFRecord(BaseModel):
+    """What actually happened — never what was promised."""
+
+    id: str
+    ts: str
+    action: str  # produce | transfer | consume | use | work | cite | ...
+    title: str = ""
+    description: str = ""
+    recorded_by: str  # the actor observing/recording the event
+    provider: str = ""  # VF agent giving the flow
+    receiver: str = ""  # VF agent receiving the flow
+    process_id: Optional[str] = None
+    agreement_id: Optional[str] = None  # realizationOf (the promise)
+    commitment_id: Optional[str] = None  # settled promise, if any
+    input_resource_ids: list[str] = Field(default_factory=list)
+    output_resource_ids: list[str] = Field(default_factory=list)
+    quantity: Optional[float] = None
+    unit: str = ""
+    notes: str = ""
+    meta: dict[str, Any] = Field(default_factory=dict)
+
+
+class EconomicResourceVFRecord(BaseModel):
+    """A shared resource of the Common — material or immaterial."""
+
+    id: str
+    ts: str
+    name: str
+    description: str = ""
+    created_by: str
+    spec_id: Optional[str] = None  # ResourceSpecification conformance
+    quantity: Optional[float] = None
+    unit: str = ""
+    custodian: str = ""  # VF agent currently responsible
+    status: str = "available"  # available | committed | consumed | depleted
+    notes: str = ""
+    meta: dict[str, Any] = Field(default_factory=dict)
+
+
+class ProcessVFRecord(BaseModel):
+    """A collective activity that transforms inputs into outputs."""
+
+    id: str
+    ts: str
+    name: str
+    description: str = ""
+    created_by: str
+    status: str = "planned"  # planned | started | finished | cancelled
+    input_resource_ids: list[str] = Field(default_factory=list)
+    output_resource_ids: list[str] = Field(default_factory=list)
+    commitment_ids: list[str] = Field(default_factory=list)
+    agreement_id: Optional[str] = None
+    notes: str = ""
+    meta: dict[str, Any] = Field(default_factory=dict)
+
+
 class PhysicalEvent(BaseModel):
     id: str
     ts: str

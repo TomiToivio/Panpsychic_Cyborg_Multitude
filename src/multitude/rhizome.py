@@ -35,6 +35,9 @@ from multitude.models import (
     EconomicAgentRecord,
     EconomicAgreementRecord,
     EconomicCommitmentRecord,
+    EconomicEventVFRecord,
+    EconomicResourceVFRecord,
+    ProcessVFRecord,
     EconomicIntentRecord,
     EntityLink,
     EntityRef,
@@ -134,6 +137,12 @@ class Rhizome:
         self.physical_events: list[PhysicalEvent] = []
         self.entity_links: list[EntityLink] = []
         self.assemblages: dict[str, AssemblageRecord] = {}
+        # ValueFlows domain store (issue #11) — owned by the vf domain
+        # reducer; the core kernel never branches on vf_* types.
+        self.vf_store: dict[str, dict] = {
+            "intents": {}, "agreements": {}, "commitments": {},
+            "economic_events": {}, "resources": {}, "processes": {},
+        }
         self._replay()
 
     # ------------------------------------------------------------ founding
@@ -1755,6 +1764,290 @@ class Rhizome:
         if not record.title:
             raise RhizomeError("agreement title cannot be empty")
         self._emit("agreement_recorded", actor.name, {"agreement": record.model_dump()})
+        return record
+
+    # ------------------------------------------------- ValueFlows (issue #11)
+    # The vf domain owns the semantics (multitude.domains.valueflows); these
+    # methods validate references, then emit vf_* kernel events. Governance
+    # stays upstream: nothing here decides what should happen — only what
+    # flows, with provenance.
+
+    def _vf_validate_refs(
+        self,
+        *,
+        agreement_id: Optional[str] = None,
+        commitment_id: Optional[str] = None,
+        process_id: Optional[str] = None,
+        resource_ids: Optional[list[str]] = None,
+    ) -> tuple[Optional[str], Optional[str], Optional[str], list[str]]:
+        if agreement_id and agreement_id not in self.vf_store["agreements"]:
+            raise RhizomeError(f"no ValueFlows agreement '{agreement_id}'")
+        if commitment_id and commitment_id not in self.vf_store["commitments"]:
+            raise RhizomeError(f"no ValueFlows commitment '{commitment_id}'")
+        if process_id and process_id not in self.vf_store["processes"]:
+            raise RhizomeError(f"no ValueFlows process '{process_id}'")
+        resolved = []
+        for rid in resource_ids or []:
+            if rid not in self.vf_store["resources"] and rid not in self.resources:
+                raise RhizomeError(f"no ValueFlows resource '{rid}'")
+            resolved.append(rid)
+        return agreement_id, commitment_id, process_id, resolved
+
+    def vf_create_intent(
+        self,
+        *,
+        title: str,
+        created_by: str,
+        description: str = "",
+        kind: str = "need",
+        target_agents: Optional[list[str]] = None,
+        status: str = "open",
+        notes: str = "",
+        meta: Optional[dict[str, Any]] = None,
+    ) -> EconomicIntentRecord:
+        """Create a VF Intent — a need or offer looking for coordination."""
+        actor = self._require_member(created_by)
+        targets = []
+        for agent in target_agents or []:
+            targets.append(self._require_member(agent).name)
+        record = EconomicIntentRecord(
+            id=new_id("vfintent"),
+            ts=now_iso(),
+            title=title.strip(),
+            description=description.strip(),
+            created_by=actor.name,
+            kind=(kind or "need").strip() or "need",
+            target_members=targets,
+            status=(status or "open").strip() or "open",
+            notes=notes.strip(),
+            meta=dict(meta or {}),
+        )
+        if not record.title:
+            raise RhizomeError("ValueFlows intent needs a title")
+        self._emit("vf_intent_created", actor.name, {"intent": record.model_dump()})
+        return record
+
+    def vf_create_agreement(
+        self,
+        *,
+        title: str,
+        created_by: str,
+        parties: list[str],
+        description: str = "",
+        commitment_ids: Optional[list[str]] = None,
+        status: str = "active",
+        notes: str = "",
+        meta: Optional[dict[str, Any]] = None,
+    ) -> EconomicAgreementRecord:
+        """Create a VF Agreement — coordination between identifiable agents."""
+        actor = self._require_member(created_by)
+        resolved_parties = [self._require_member(name).name for name in parties]
+        if len(resolved_parties) < 2:
+            raise RhizomeError("ValueFlows agreement requires at least two parties")
+        commitment_list = []
+        for cid in commitment_ids or []:
+            if cid not in self.vf_store["commitments"] and cid not in self.commitments:
+                raise RhizomeError(f"no ValueFlows commitment '{cid}'")
+            commitment_list.append(cid)
+        record = EconomicAgreementRecord(
+            id=new_id("vfagreement"),
+            ts=now_iso(),
+            title=title.strip(),
+            description=description.strip(),
+            created_by=actor.name,
+            parties=resolved_parties,
+            commitment_ids=commitment_list,
+            status=(status or "active").strip() or "active",
+            notes=notes.strip(),
+            meta=dict(meta or {}),
+        )
+        if not record.title:
+            raise RhizomeError("ValueFlows agreement needs a title")
+        self._emit("vf_agreement_created", actor.name, {"agreement": record.model_dump()})
+        return record
+
+    def vf_create_commitment(
+        self,
+        *,
+        title: str,
+        committed_by: str,
+        owed_by: str,
+        owed_to: str = "",
+        description: str = "",
+        agreement_id: Optional[str] = None,
+        due_ts: Optional[str] = None,
+        status: str = "open",
+        notes: str = "",
+        meta: Optional[dict[str, Any]] = None,
+    ) -> EconomicCommitmentRecord:
+        """Create a VF Commitment — what was PROMISED (not yet done)."""
+        actor = self._require_member(committed_by)
+        owed_by_member = self._require_member(owed_by)
+        owed_to_name = self._require_member(owed_to).name if owed_to else ""
+        agreement_id, _, _, _ = self._vf_validate_refs(agreement_id=agreement_id)
+        record = EconomicCommitmentRecord(
+            id=new_id("vfcommitment"),
+            ts=now_iso(),
+            title=title.strip(),
+            description=description.strip(),
+            committed_by=actor.name,
+            owed_by=owed_by_member.name,
+            owed_to=owed_to_name,
+            task_id=agreement_id,  # kernel slot; VF agreement linkage kept in meta
+            due_ts=due_ts,
+            status=(status or "open").strip() or "open",
+            notes=notes.strip(),
+            meta={**(meta or {}), ("vf_agreement_id" if agreement_id else "no_agreement"): agreement_id or ""},
+        )
+        if not record.title:
+            raise RhizomeError("ValueFlows commitment needs a title")
+        self._emit("vf_commitment_created", actor.name, {"commitment": record.model_dump()})
+        return record
+
+    def vf_record_economic_event(
+        self,
+        *,
+        action: str,
+        recorded_by: str,
+        title: str = "",
+        description: str = "",
+        provider: str = "",
+        receiver: str = "",
+        agreement_id: Optional[str] = None,
+        commitment_id: Optional[str] = None,
+        process_id: Optional[str] = None,
+        input_resource_ids: Optional[list[str]] = None,
+        output_resource_ids: Optional[list[str]] = None,
+        quantity: Optional[float] = None,
+        unit: str = "",
+        notes: str = "",
+        meta: Optional[dict[str, Any]] = None,
+    ) -> EconomicEventVFRecord:
+        """Record a VF EconomicEvent — what ACTUALLY happened.
+
+        The commitment/event distinction is constitutional: a commitment
+        may exist for years without an event; an event may occur without
+        any commitment. Neither implies the other.
+        """
+        actor = self._require_member(recorded_by)
+        if not (action or "").strip():
+            raise RhizomeError("ValueFlows economic event needs an action (produce, work, transfer, ...)")
+        provider_name = self._require_member(provider).name if provider else ""
+        receiver_name = self._require_member(receiver).name if receiver else ""
+        agreement_id, commitment_id, process_id, resources = self._vf_validate_refs(
+            agreement_id=agreement_id,
+            commitment_id=commitment_id,
+            process_id=process_id,
+            resource_ids=list(input_resource_ids or []) + list(output_resource_ids or []),
+        )
+        if process_id and not input_resource_ids and not output_resource_ids:
+            pass  # event may reference a process without resource flows
+        in_ids = [r for r in (input_resource_ids or []) if r in resources]
+        out_ids = [r for r in (output_resource_ids or []) if r in resources]
+        if not in_ids and input_resource_ids:
+            in_ids = input_resource_ids
+        if not out_ids and output_resource_ids:
+            out_ids = output_resource_ids
+        record = EconomicEventVFRecord(
+            id=new_id("vfevent"),
+            ts=now_iso(),
+            action=(action or "").strip().lower(),
+            title=title.strip(),
+            description=description.strip(),
+            recorded_by=actor.name,
+            provider=provider_name,
+            receiver=receiver_name,
+            process_id=process_id,
+            agreement_id=agreement_id,
+            commitment_id=commitment_id,
+            input_resource_ids=in_ids,
+            output_resource_ids=out_ids,
+            quantity=quantity,
+            unit=unit.strip(),
+            notes=notes.strip(),
+            meta=dict(meta or {}),
+        )
+        self._emit("vf_economic_event_recorded", actor.name,
+                   {"economic_event": record.model_dump()})
+        return record
+
+    def vf_create_resource(
+        self,
+        *,
+        name: str,
+        created_by: str,
+        description: str = "",
+        quantity: Optional[float] = None,
+        unit: str = "",
+        custodian: str = "",
+        status: str = "available",
+        notes: str = "",
+        meta: Optional[dict[str, Any]] = None,
+    ) -> EconomicResourceVFRecord:
+        """Create a VF EconomicResource — a share of the Common."""
+        actor = self._require_member(created_by)
+        custodian_name = self._require_member(custodian).name if custodian else actor.name
+        record = EconomicResourceVFRecord(
+            id=new_id("vfresource"),
+            ts=now_iso(),
+            name=name.strip(),
+            description=description.strip(),
+            created_by=actor.name,
+            quantity=quantity,
+            unit=unit.strip(),
+            custodian=custodian_name,
+            status=(status or "available").strip() or "available",
+            notes=notes.strip(),
+            meta=dict(meta or {}),
+        )
+        if not record.name:
+            raise RhizomeError("ValueFlows resource needs a name")
+        self._emit("vf_resource_created", actor.name,
+                   {"economic_resource": record.model_dump()})
+        return record
+
+    def vf_create_process(
+        self,
+        *,
+        name: str,
+        created_by: str,
+        description: str = "",
+        input_resource_ids: Optional[list[str]] = None,
+        output_resource_ids: Optional[list[str]] = None,
+        commitment_ids: Optional[list[str]] = None,
+        agreement_id: Optional[str] = None,
+        status: str = "planned",
+        notes: str = "",
+        meta: Optional[dict[str, Any]] = None,
+    ) -> ProcessVFRecord:
+        """Create a VF Process — a collective activity transforming inputs to outputs."""
+        actor = self._require_member(created_by)
+        agreement_id, _, _, resources = self._vf_validate_refs(
+            agreement_id=agreement_id,
+            resource_ids=list(input_resource_ids or []) + list(output_resource_ids or []),
+        )
+        commitment_list = []
+        for cid in commitment_ids or []:
+            if cid not in self.vf_store["commitments"] and cid not in self.commitments:
+                raise RhizomeError(f"no ValueFlows commitment '{cid}'")
+            commitment_list.append(cid)
+        record = ProcessVFRecord(
+            id=new_id("vfprocess"),
+            ts=now_iso(),
+            name=name.strip(),
+            description=description.strip(),
+            created_by=actor.name,
+            status=(status or "planned").strip() or "planned",
+            input_resource_ids=[r for r in (input_resource_ids or []) if r in resources] or (input_resource_ids or []),
+            output_resource_ids=[r for r in (output_resource_ids or []) if r in resources] or (output_resource_ids or []),
+            commitment_ids=commitment_list,
+            agreement_id=agreement_id,
+            notes=notes.strip(),
+            meta=dict(meta or {}),
+        )
+        if not record.name:
+            raise RhizomeError("ValueFlows process needs a name")
+        self._emit("vf_process_created", actor.name, {"process": record.model_dump()})
         return record
 
     def define_economy_profile(

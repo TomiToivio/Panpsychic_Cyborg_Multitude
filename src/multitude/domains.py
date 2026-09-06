@@ -98,6 +98,7 @@ def registered_domains() -> dict[str, list[str]]:
 def register_builtin_domains() -> None:
     """Bind the domains that ship with the kernel (idempotent)."""
     from multitude import goals
+    from multitude import economy_vf as vf
 
     if "goals" not in _REGISTRY:
         register_domain(
@@ -111,6 +112,8 @@ def register_builtin_domains() -> None:
             }),
             goals.replay_goal_event,
         )
+    if "valueflows" not in _REGISTRY:
+        register_domain("valueflows", vf.VF_EVENT_TYPES, vf.replay)
 
 
 __all__ = [

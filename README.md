@@ -231,6 +231,8 @@ Real-device fields stay behind the Phase 3b confidentiality gate.
 - [docs/research/CONSCIOUS_HUMAN_AI_ASSEMBLAGES.md](docs/research/CONSCIOUS_HUMAN_AI_ASSEMBLAGES.md) —
   research paper: extended cognition to the possibility of a conscious
   multitude (companion to the conscious-AI plan; issue #8)
+- [VALUEFLOWS.md](VALUEFLOWS.md) — ValueFlows domain: economic
+  coordination and the production of the Common (issue #11)
 - [docs/research/HUMAN_AI_COLLECTIVE_INTELLIGENCE_AND_SWARMS.md](docs/research/HUMAN_AI_COLLECTIVE_INTELLIGENCE_AND_SWARMS.md) —
   research bridge to hybrid intelligence, agent societies, and swarms
 - [TOWARDS_ARTIFICIAL_QUANTUM_CONSCIOUSNESS.md](TOWARDS_ARTIFICIAL_QUANTUM_CONSCIOUSNESS.md) —
