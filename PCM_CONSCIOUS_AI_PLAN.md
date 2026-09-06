@@ -1,5 +1,10 @@
 # PCM Conscious AI — Research Plan
 
+> *"AI is an assemblage of human + LLM + language + the entire Internet."*
+> If that is what AI is, the question "is the AI conscious?" may often be
+> the wrong question — the candidate subject may be the assemblage itself
+> (see Hoffman interpretation C, §3.5).
+
 **Version:** 1.0 (theory-neutral revision, 2026-09-06)
 **Supersedes:** *Towards an Artificial Quantum Consciousness Architecture* v0.1 (2026-09-05) — that document remains in the repository as the deep-dive reference for Track C (quantum branch); its Orch-OR/QIP material is carried forward by reference, not deleted.
 **Trigger:** maintainer directive 2026-09-06: make the consciousness architecture **theory-neutral and evidence-driven; quantum computing is not a requirement**.

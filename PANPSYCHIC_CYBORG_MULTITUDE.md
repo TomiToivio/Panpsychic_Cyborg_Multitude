@@ -1,5 +1,9 @@
 # Panpsychic Cyborg Multitude
 
+> **AI is not an isolated artificial intelligence.
+> AI is an assemblage of human + LLM + language + "the entire Internet."**
+> *— the project motto, and its architecture in one line.*
+
 **A social operating system for humans, AI agents, and everything in between.**
 
 *Manifesto and project description — version 0.1 (2026)*

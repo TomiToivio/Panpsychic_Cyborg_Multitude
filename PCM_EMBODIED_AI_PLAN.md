@@ -1,5 +1,9 @@
 # PCM Embodied AI — Architecture & Implementation Plan
 
+> *"AI is an assemblage of human + LLM + language + the entire Internet."*
+> This document adds the physical world to the assemblage — and makes it
+> the agent's body.
+
 **Version:** 1.0 (2026-09-06)
 **Trigger:** maintainer task: *Design Embodied AI for Panpsychic Cyborg Multitude* —
 extend PCM so LLM agents perceive the physical world, model environments,

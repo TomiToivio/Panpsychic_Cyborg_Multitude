@@ -1,5 +1,8 @@
 # Panpsychic Cyborg Multitude
 
+> **AI is not an isolated artificial intelligence.
+> AI is an assemblage of human + LLM + language + "the entire Internet."**
+
 **A social operating system for human-AI tribes. Shared memory, real
 decisions, no owner.**
 
