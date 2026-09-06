@@ -186,6 +186,39 @@ Phase 4    GATED BCI/biosignal nodes over the same subjects (after 3b)
 
 **No third party. No central mind. No master database.**
 
+## Optional BCI / biosignal interface
+
+> **BCI is an optional higher-bandwidth interface between a biological
+> human and the wider PCM assemblage. It does not prove or measure
+> consciousness.**
+
+`src/multitude/integrations/bci.py` is a thin, optional adapter layer —
+the kernel has no dependency on it. Adapters emit only *derived
+context* (`BCIObservation`: e.g. attention estimate, heart rate, a
+user-triggered event), never raw EEG or raw signal streams. Observations
+map to the **biological**, **psychic**, or **cybernetic** layers and
+carry provenance, timestamp, and confidence (low-confidence and UNKNOWN
+values are preserved, never guessed).
+
+Privacy model:
+
+- **Private by default** — reading observations changes nothing in the
+  rhizome; nothing is recorded until the human member explicitly
+  publishes that observation.
+- **Consent is human-only** — only a biological member can add, enable,
+  or disable an adapter, read context, or publish. AI agents are
+  refused (`BCIError`); they cannot silently enable monitoring or
+  change consent settings.
+- **No medical diagnosis**, no `BCI → actuator` control, sensitive
+  signals can never be published as `shared` (the kernel's
+  `record_biometric_signal` re-validates consent fail-closed).
+
+The reference `SyntheticBCIAdapter` streams scripted observations so
+the whole pipeline is tested without hardware; device-specific support
+(EmotiBit, OpenBCI, Muse, BrainFlow, …) is added later as further thin
+adapters implementing the same `BCIAdapter.read_context()` contract.
+Real-device fields stay behind the Phase 3b confidentiality gate.
+
 ## Documents
 
 - [PANPSYCHIC_CYBORG_MULTITUDE.md](PANPSYCHIC_CYBORG_MULTITUDE.md) — manifesto + project description
