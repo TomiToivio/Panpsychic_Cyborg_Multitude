@@ -21,7 +21,7 @@ from multitude.integrations.embodiment import (  # noqa: E402
 
 
 def run(coro):
-    return asyncio.get_event_loop().run_until_complete(coro)
+    return asyncio.run(coro)
 
 
 def always_allow(author, action, target, parameters):

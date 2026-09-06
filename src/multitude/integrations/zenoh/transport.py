@@ -272,6 +272,10 @@ def start_transport(rhizome: Any, member_name: str,
     sign envelopes with the identity key before publishing; the private
     key is only checked once here so a miswired node fails fast.
     """
+    if on_envelope is None:
+        raise ZenohConfigError(
+            "on_envelope is required so the receiver can map and authorize "
+            "the verified sender before mutating rhizome state")
     from multitude.pcm.identity import did_from_pubkey, private_key_from_identity
     did = identity["did"]
     actual = did_from_pubkey(_pub_raw(private_key))

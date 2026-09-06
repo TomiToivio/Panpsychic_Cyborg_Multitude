@@ -246,6 +246,7 @@ class MemorySync:
         authorize_sender(
             env.model_dump(by_alias=True),
             list(self._capabilities_for_sender(env.from_did)),
+        )
         content = env.content or {}
         remote = content.get("mirror") or {}
         if remote.get("did") != env.from_did:

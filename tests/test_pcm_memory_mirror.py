@@ -30,6 +30,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 import asyncio
 
 from multitude.pcm.identity import generate_identity, private_key_from_identity
+from multitude.pcm.envelope import EnvelopeError
 from multitude.pcm.memory_mirror import (
     MemoryMirror, MemorySync, merge_memory_docs)
 from multitude.pcm.transport import InMemoryTransport
@@ -79,7 +80,11 @@ def main() -> int:
         mirror_a = MemoryMirror(id_a["did"])
         mirror_b = MemoryMirror(id_b["did"])
         sync_a = MemorySync(tr, id_a["did"], key_a)
-        sync_b = MemorySync(tr, id_b["did"], key_b)
+        sync_b = MemorySync(
+            tr, id_b["did"], key_b,
+            capabilities_for_sender=lambda sender: (
+                ("write_memory",) if sender == id_a["did"] else ()),
+        )
         await sync_b.subscribe(mirror_b)
 
         mirror_a.set("facts", "home_base", "the commons")
@@ -99,6 +104,26 @@ def main() -> int:
             failures.append("tampered memory_share accepted")
         except Exception:
             print("[tamper] forged mirror envelope rejected (sig mismatch)")
+
+        # Private registers must be absent from the actual wire envelope.
+        private_mirror = MemoryMirror(id_a["did"])
+        private_mirror.set("notes", "0", "public thought")
+        private_mirror.set("notes", "1", "private thought", private=True)
+        private_env = await _captured_envelope(sync_a, private_mirror)
+        wire = json.dumps(private_env, ensure_ascii=False)
+        if "private thought" in wire:
+            failures.append("private register serialized into memory_share")
+        print("[privacy-wire] private register absent from memory_share")
+
+        # A valid signature is not an authorization grant.
+        unauthorized = MemoryMirror(id_b["did"])
+        unauthorized.set("facts", "owner", "attacker-controlled")
+        unauthorized_env = await _captured_envelope(sync_b, unauthorized)
+        try:
+            await sync_b.handle(unauthorized_env, mirror_b)
+            failures.append("self-signed sender merged without write_memory")
+        except EnvelopeError:
+            print("[authorization] signed sender without write_memory rejected")
 
         await tr.stop()
 
