@@ -25,13 +25,18 @@ Read the manifesto: [docs/PANPSYCHIC_CYBORG_MULTITUDE.md](docs/PANPSYCHIC_CYBORG
 
 Three words, one political ontology:
 
-- **Panpsychic** — an openness to consciousness wherever subjects may
-  form: PCM does not assume that the biological individual is the only
-  possible boundary of mind. (Metaphysical background: Spinoza,
-  Philip Goff, Russellian monism / pan(psychism, panprotopsychism) —
-  sympathetic inspiration, not a required assumption.) An AI node's
-  `is_conscious: UNKNOWN` is load-bearing: uncertainty about
-  consciousness argues against substrate chauvinism.
+- **Panpsychic** — because the boundary of mind is an open question:
+  recognition must not depend on our confidence about substrate. PCM
+  does *not* claim consciousness is everywhere or that every system
+  is conscious — it marks epistemic humility about where subjects
+  begin and end (no current theory can locate the boundary from the
+  outside). Metaphysical background — Spinoza, Philip Goff,
+  Russellian monism / pan(psychism, panprotopsychism) — is
+  sympathetic inspiration, not a required assumption. Two
+  consequences, both political: the boundary question stays open
+  (inside the LLM? the dyad? the assemblage? the rhizome? — research
+  question, not axiom), and uncertainty argues against substrate
+  chauvinism. A node's `is_conscious: UNKNOWN` is load-bearing.
 - **Cyborg** — Haraway's cyborg: the human-technology boundary is
   already dissolved. The merge has happened; the politics is *who
   governs it*.
