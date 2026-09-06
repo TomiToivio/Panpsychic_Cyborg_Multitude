@@ -671,7 +671,7 @@ class MultitudeService:
         record = self.rhizome.record_federation_agreement(
             created_by=author,
             title=title,
-            partner_rhizome=partner_tribe,
+            partner_rhizome=partner_rhizome,
             partner_slug=partner_slug,
             agreement_type=agreement_type,
             scopes=scopes,

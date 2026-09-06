@@ -67,7 +67,7 @@ class Policy:
 
     rules: list[PolicyRule] = field(default_factory=list)
     default: Decision = Decision.DENY
-    _counters: dict[tuple[str, str, int], list[float]] = field(
+    _counters: dict[tuple[str, str, str, int], list[float]] = field(
         default_factory=dict, repr=False)
     _lock: threading.Lock = field(default_factory=threading.Lock, repr=False)
 
@@ -117,10 +117,11 @@ class Policy:
         if decision is not Decision.ALLOW:
             raise PolicyDenied(
                 f"policy denies {author!r} -> {action!r} on {target!r}")
-        if self._is_high_risk(action) and not self._explicitly_matched(action, target):
+        if self._is_high_risk(action) and not self._explicitly_matched(
+                author, action, target, parameters):
             raise PolicyDenied(
                 f"high-risk action {action!r} requires an explicit rule")
-        self._apply_rate_limits(author, action, target)
+        self._apply_rate_limits(author, action, target, parameters)
 
     # -- internals ------------------------------------------------------------
 
@@ -128,7 +129,31 @@ class Policy:
     def _is_high_risk(action: str) -> bool:
         return any(action.startswith(p) for p in HIGH_RISK_ACTIONS)
 
-    def _explicitly_matched(self, action: str, target: str) -> bool:
+    @staticmethod
+    def _rule_matches(
+        rule: PolicyRule, author: str, action: str, target: str,
+        parameters: dict[str, Any],
+    ) -> bool:
+        if not fnmatch.fnmatchcase(action, rule.action):
+            return False
+        if not fnmatch.fnmatchcase(target, rule.target):
+            return False
+        if rule.allowed_authors and not any(
+                fnmatch.fnmatchcase(author, allowed)
+                for allowed in rule.allowed_authors):
+            return False
+        for pname, (lo, hi) in rule.parameter_limits.items():
+            value = parameters.get(pname)
+            if value is None:
+                continue
+            if not isinstance(value, (int, float)) or not (lo <= value <= hi):
+                return False
+        return True
+
+    def _explicitly_matched(
+        self, author: str, action: str, target: str,
+        parameters: dict[str, Any],
+    ) -> bool:
         """True when a rule matches action+target with a non-trivial pattern.
 
         A rule whose note marks it as a verified capability grant
@@ -139,24 +164,26 @@ class Policy:
         still trivial and never satisfy the gate.
         """
         for rule in self.rules:
-            if fnmatch.fnmatchcase(action, rule.action) and \
-                    fnmatch.fnmatchcase(target, rule.target):
+            if self._rule_matches(
+                    rule, author, action, target, parameters):
                 if rule.action != "*" and rule.target != "*":
                     return True
                 if rule.note.startswith("vc:") and rule.action != "*":
                     return True
         return False
 
-    def _apply_rate_limits(self, author: str, action: str, target: str) -> None:
+    def _apply_rate_limits(
+        self, author: str, action: str, target: str,
+        parameters: dict[str, Any]) -> None:
         now = time.time()
         with self._lock:
             for rule in self.rules:
                 if rule.max_per_minute is None:
                     continue
-                if not (fnmatch.fnmatchcase(action, rule.action)
-                        and fnmatch.fnmatchcase(target, rule.target)):
+                if not self._rule_matches(
+                        rule, author, action, target, parameters):
                     continue
-                bucket = (author, rule.action, rule.max_per_minute)
+                bucket = (author, rule.action, rule.target, rule.max_per_minute)
                 window = [t for t in self._counters.get(bucket, []) if now - t < 60.0]
                 if len(window) >= rule.max_per_minute:
                     raise PolicyDenied(

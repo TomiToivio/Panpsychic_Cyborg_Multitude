@@ -437,7 +437,7 @@ def cmd_federation_add(args: argparse.Namespace) -> int:
     record = MultitudeService(rhizome).record_federation_agreement(
         created_by=args.by,
         title=args.title,
-        partner_rhizome=args.partner_tribe,
+        partner_rhizome=args.partner_rhizome,
         partner_slug=args.partner_slug,
         agreement_type=args.agreement_type,
         scopes=args.scope,

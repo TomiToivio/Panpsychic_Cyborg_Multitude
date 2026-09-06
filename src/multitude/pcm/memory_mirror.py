@@ -41,10 +41,11 @@ Public surface:
 from __future__ import annotations
 
 import json
+from collections.abc import Callable, Collection
 from datetime import datetime, timezone
 from typing import Any
 
-from multitude.pcm.envelope import Envelope
+from multitude.pcm.envelope import Envelope, EnvelopeError, authorize_sender
 from multitude.pcm.identity import Ed25519PrivateKey
 
 MIRROR_SCHEMA = "pcm.memory-mirror/1"
@@ -136,12 +137,26 @@ class MemoryMirror:
             "value": value,
         }
 
-    def to_document(self) -> dict[str, Any]:
+    def to_document(self, *, include_private: bool = True) -> dict[str, Any]:
+        """Return the merge document, optionally omitting private registers.
+
+        include_private=False is mandatory at transport boundaries: the
+        marker is local metadata, not permission to serialize the value and
+        hope that a later relay drops it.
+        """
+        fields = {
+            field: {
+                key: register
+                for key, register in entries.items()
+                if include_private or not register.get("private")
+            }
+            for field, entries in self.fields.items()
+        }
         return {
             "schema": MIRROR_SCHEMA,
             "did": self.did,
             "lamport": self.lamport,
-            "fields": json.loads(json.dumps(self.fields, ensure_ascii=False)),
+            "fields": json.loads(json.dumps(fields, ensure_ascii=False)),
         }
 
     def apply_document(self, doc: dict[str, Any]) -> bool:
@@ -184,8 +199,14 @@ class MemorySync:
     ``memory_share`` envelopes for the same did on ``handle()``.
     """
 
-    def __init__(self, transport, did: str, private_key: Ed25519PrivateKey,
-                 topic: str = DEFAULT_RHIZOME_SQUARE) -> None:
+    def __init__(
+        self,
+        transport,
+        did: str,
+        private_key: Ed25519PrivateKey,
+        topic: str = DEFAULT_RHIZOME_SQUARE,
+        capabilities_for_sender: Callable[[str], Collection[str]] | None = None,
+    ) -> None:
         from multitude.pcm.transport import Transport  # noqa: F401  type check
         if not isinstance(transport, Transport):
             raise TypeError("transport must implement pcm.transport.Transport")
@@ -193,13 +214,18 @@ class MemorySync:
         self.did = did
         self.private_key = private_key
         self.topic = topic
+        # Signature verification authenticates a sender; the receiver's local
+        # grant resolver authorizes it. No resolver means no inbound rights.
+        self._capabilities_for_sender = (
+            capabilities_for_sender or (lambda _did: ())
+        )
         self._remote_lamport = 0
 
     async def push(self, mirror: MemoryMirror) -> str:
         """Sign and publish the current mirror document."""
         env = Envelope.create(
             "memory_share", self.did, self.did,  # to: rhizome square broadcast
-            {"mirror": mirror.to_document()},
+            {"mirror": mirror.to_document(include_private=False)},
             interface="pcm.transport",
         )
         env.sign(self.private_key, self.did)
@@ -213,6 +239,13 @@ class MemorySync:
         from multitude.pcm.envelope import Envelope as _E
         env = _E.model_validate(envelope_dict)
         env.verify()
+        if env.type != "memory_share":
+            raise EnvelopeError(
+                f"expected memory_share envelope, got {env.type!r}"
+            )
+        authorize_sender(
+            env.model_dump(by_alias=True),
+            list(self._capabilities_for_sender(env.from_did)),
         content = env.content or {}
         remote = content.get("mirror") or {}
         if remote.get("did") != env.from_did:
