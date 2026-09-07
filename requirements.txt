@@ -1,14 +1,13 @@
-# Panpsychic Cyborg Multitude — minimal public distribution
+# Panpsychic Cyborg Multitude — minimal/core installation
 #
-# Core kernel: Python 3.11+, everything else is stdlib.
+# Python 3.11+. Optional integrations are declared as extras in pyproject.toml.
 pydantic>=2.0
 
 # Required for real nodes: did:key identity + signed envelopes.
 cryptography>=42.0
 base58>=2.1.1
 
-# Optional: node-to-node networking fabric (Phase 2+).
-# Without it, the kernel runs standalone (CLI + local HTTP API).
-eclipse-zenoh>=1.10
-
-# Optional extras (not required): pytest (test suite).
+# Optional installs:
+#   pip install -e '.[zenoh]'   # node-to-node networking fabric
+#   pip install -e '.[dev]'     # test/development dependencies
+#   pip install -e '.[all]'     # all currently packaged optional extras
