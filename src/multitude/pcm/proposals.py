@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""PCM proposal envelopes — Phase 1 component (NETWORKING_STACK.md §7).
+"""PCM proposal envelopes — Phase 1 component (docs/NETWORKING_STACK.md §7).
 
 Phase 1 wires the Phase 0 primitives into the rhizome kernel's proposal
 flow:
