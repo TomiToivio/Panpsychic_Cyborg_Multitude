@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """PCM protocol package — Phase 0 of the PCM networking stack.
 
-Per NETWORKING_STACK.md: node identity (did:key), the minimal signed
+Per docs/NETWORKING_STACK.md: node identity (did:key), the minimal signed
 envelope, the Zenoh key-expression namespace, the semantic event model,
 and the generic transport abstraction. The kernel never learns the
 transport; the transport never learns about brains.
