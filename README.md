@@ -138,9 +138,10 @@ UNKNOWN` for every node, composite or not.
 ## What this repository contains
 
 ```text
-multitude.py                      entrypoint (python multitude.py ...)
+multitude.py                      repository entrypoint (python multitude.py ...)
+pyproject.toml                    package metadata + optional dependency extras
+requirements.txt                  minimal/core dependencies only
 docs/                             all programme documents (see Documents below)
-requirements.txt                  dependencies
 LICENSE                           CC0 1.0 Universal
 src/multitude/
   rhizome.py      — rhizome model: members, events, memory, proposals
@@ -173,6 +174,8 @@ Optional integrations (BCI, embodiment, ValueFlows, zenoh, Telegram,
 Hermes) ship disabled or opt-in and never run unless asked for.
 
 ## Quick start
+
+Core/local installation:
 
 ```bash
 python -m pip install -r requirements-core.txt

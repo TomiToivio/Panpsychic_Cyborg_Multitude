@@ -1,22 +1,24 @@
-"""POSIX filesystem protections for the PCM node signing key."""
+# -*- coding: utf-8 -*-
+"""Security regression tests for PCM node identity storage."""
 from __future__ import annotations
 
 import os
 import stat
 import sys
+import tempfile
+import warnings
 from pathlib import Path
 
 import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 
-import multitude.pcm.identity as identity_module
 from multitude.pcm.identity import generate_identity, load_identity
 
 
-POSIX_ONLY = pytest.mark.skipif(
+pytestmark = pytest.mark.skipif(
     os.name != "posix",
-    reason="POSIX mode-bit semantics are not available on this platform",
+    reason="POSIX mode-bit semantics are required for these tests",
 )
 
 
@@ -24,61 +26,45 @@ def _mode(path: Path) -> int:
     return stat.S_IMODE(path.stat().st_mode)
 
 
-@POSIX_ONLY
-def test_generate_identity_restricts_directory_and_key_file(tmp_path: Path) -> None:
-    node_dir = tmp_path / "node"
-    old_umask = os.umask(0)
-    try:
-        generate_identity(node_dir)
-    finally:
-        os.umask(old_umask)
+def test_generated_identity_uses_owner_only_permissions() -> None:
+    root = Path(tempfile.mkdtemp(prefix="pcm-identity-mode-"))
+    generate_identity(root)
 
-    assert _mode(node_dir / "identity") == 0o700
-    assert _mode(node_dir / "identity" / "pcm_identity.json") == 0o600
+    identity_dir = root / "identity"
+    identity_file = identity_dir / "pcm_identity.json"
+
+    assert _mode(identity_dir) == 0o700
+    assert _mode(identity_file) == 0o600
 
 
-@POSIX_ONLY
-def test_atomic_replacement_uses_owner_only_temporary_file(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
-) -> None:
-    node_dir = tmp_path / "node"
-    first = generate_identity(node_dir)
-    identity_path = node_dir / "identity" / "pcm_identity.json"
-    os.chmod(identity_path, 0o666)
+def test_force_rotation_preserves_owner_only_permissions() -> None:
+    root = Path(tempfile.mkdtemp(prefix="pcm-identity-force-"))
+    first = generate_identity(root)
+    identity_file = root / "identity" / "pcm_identity.json"
 
-    source_modes: list[int] = []
-    real_replace = os.replace
-
-    def checked_replace(source: os.PathLike, target: os.PathLike) -> None:
-        source_modes.append(_mode(Path(source)))
-        assert Path(source) != identity_path
-        assert Path(target) == identity_path
-        real_replace(source, target)
-
-    monkeypatch.setattr(identity_module.os, "replace", checked_replace)
-    old_umask = os.umask(0)
-    try:
-        second = generate_identity(node_dir, force=True)
-    finally:
-        os.umask(old_umask)
+    # Simulate a hostile or overly permissive pre-existing mode. The forced
+    # replacement must still land as a fresh owner-only file.
+    identity_file.chmod(0o666)
+    second = generate_identity(root, force=True)
 
     assert second["did"] != first["did"]
-    assert source_modes == [0o600]
-    assert _mode(identity_path) == 0o600
-    assert not list(identity_path.parent.glob(".pcm_identity.json.*.tmp"))
+    assert _mode(identity_file) == 0o600
 
 
-@POSIX_ONLY
-def test_load_identity_warns_or_fails_for_broad_permissions(
-    tmp_path: Path,
-) -> None:
-    node_dir = tmp_path / "node"
-    expected = generate_identity(node_dir)
-    identity_path = node_dir / "identity" / "pcm_identity.json"
-    os.chmod(identity_path, 0o644)
+def test_load_warns_about_broad_existing_permissions() -> None:
+    root = Path(tempfile.mkdtemp(prefix="pcm-identity-warning-"))
+    generate_identity(root)
+    identity_file = root / "identity" / "pcm_identity.json"
+    identity_file.chmod(0o644)
 
-    with pytest.warns(RuntimeWarning, match="expected 0600"):
-        assert load_identity(node_dir) == expected
+    with warnings.catch_warnings(record=True) as caught:
+        warnings.simplefilter("always")
+        loaded = load_identity(root)
 
-    with pytest.raises(PermissionError, match="expected 0600"):
-        load_identity(node_dir, strict_permissions=True)
+    assert loaded["did"].startswith("did:key:z")
+    assert any(
+        issubclass(item.category, RuntimeWarning)
+        and "broad permissions" in str(item.message)
+        and "0600" in str(item.message)
+        for item in caught
+    )

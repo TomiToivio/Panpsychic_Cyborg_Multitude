@@ -21,8 +21,10 @@ Every command below has been executed against the real CLI. Nothing is
 invented. For full options always run:
 
 ```bash
-python multitude.py COMMAND --help
+multitude COMMAND --help
 ```
+
+The repository launcher `python multitude.py COMMAND` remains supported.
 
 ---
 
@@ -35,20 +37,30 @@ cd Panpsychic_Cyborg_Multitude
 python3 -m venv .venv
 source .venv/bin/activate        # Windows: .venv\Scripts\activate
 
-pip install -r requirements.txt
+pip install -e .
 ```
 
-Python 3.12+ is what the repository is developed against. The **core
-kernel requires only the standard library plus Pydantic** — Ollama,
-zenoh, Telegram, BCI and embodiment support are all *optional at
-runtime*: PCM works without any of them (see §6, §9, §10, §11).
+This installs the **core** package only: Pydantic, cryptography, and
+base58. Zenoh networking and test tooling are optional extras:
+
+```bash
+pip install -e '.[zenoh]'   # node-to-node fabric
+pip install -e '.[dev]'     # pytest/development dependencies
+pip install -e '.[all]'     # all currently packaged optional extras
+```
+
+`pip install -r requirements.txt` remains available when you want only
+the core runtime dependencies without installing PCM as a package.
+Python 3.11+ is supported. Ollama, Zenoh, Telegram, BCI and embodiment
+support are optional at runtime; PCM works without them unless the
+corresponding feature is explicitly used.
 
 ---
 
 ## 2. Your first Rhizome
 
 ```bash
-python multitude.py found --name "My Rhizome" --founder alice
+multitude found --name "My Rhizome" --founder alice
 ```
 
 Output tells you where the rhizome lives on disk:
@@ -66,17 +78,17 @@ append-only event log — the authoritative state, §12).
 Check the state and add members:
 
 ```bash
-python multitude.py status
-python multitude.py members
-python multitude.py join --as bob --kind biological
-python multitude.py say --as alice --text "Hello Rhizome."
+multitude status
+multitude members
+multitude join --as bob --kind biological
+multitude say --as alice --text "Hello Rhizome."
 ```
 
 **Which rhizome am I operating on?** By default PCM picks the most
 recently used rhizome under the data root. To target one explicitly:
 
 ```bash
-python multitude.py status --rhizome data/tribes/my-rhizome
+multitude status --rhizome data/tribes/my-rhizome
 ```
 
 (`--tribe` still works as a legacy alias; `--rhizome` is primary.)
@@ -88,16 +100,16 @@ python multitude.py status --rhizome data/tribes/my-rhizome
 **Shared memory** is visible to every member of the rhizome:
 
 ```bash
-python multitude.py remember --as alice --title "Guide memory" --text "PCM works."
-python multitude.py search --query "works"
+multitude remember --as alice --title "Guide memory" --text "PCM works."
+multitude search --query "works"
 ```
 
 **Private notes** are per-member, stored locally
 (`private_notes.jsonl`), and never appear in shared memory:
 
 ```bash
-python multitude.py private-note-add --as bob --title "Private" --text "my private thought"
-python multitude.py private-notes --as bob
+multitude private-note-add --as bob --title "Private" --text "my private thought"
+multitude private-notes --as bob
 ```
 
 > **Private memory stays local until explicitly published.**
@@ -105,7 +117,7 @@ python multitude.py private-notes --as bob
 Publishing is an explicit, member-owned act:
 
 ```bash
-python multitude.py private-note-publish --as bob \
+multitude private-note-publish --as bob \
     --note pnote-2026... --by bob
 ```
 
@@ -118,17 +130,17 @@ link back to its source note.
 
 ```bash
 # 1. open a proposal (rule: consensus | majority | unanimity ...)
-python multitude.py propose --by alice --title "Adopt weekly sync" \
+multitude propose --by alice --title "Adopt weekly sync" \
     --text "We meet every Monday."
 
 # 2. list open proposals
-python multitude.py proposals --open
+multitude proposals --open
 
 # 3. vote (positions: for | against | abstain | block)
-python multitude.py vote --proposal prop-2026... --as bob --position for
+multitude vote --proposal prop-2026... --as bob --position for
 
 # 4. close and record the decision
-python multitude.py close --proposal prop-2026... --by alice
+multitude close --proposal prop-2026... --by alice
 ```
 
 Closing records a decision event (`decision dec-...`) with the tally.
@@ -144,9 +156,9 @@ Notes:
 Governance rules themselves can be recorded:
 
 ```bash
-python multitude.py rule-define --by alice --title "Be kind" \
+multitude rule-define --by alice --title "Be kind" \
     --description "kindness rule"
-python multitude.py rules
+multitude rules
 ```
 
 ---
@@ -154,8 +166,8 @@ python multitude.py rules
 ## 5. Human and AI members
 
 ```bash
-python multitude.py join --as bob --kind biological
-python multitude.py join --as "PCM node" --kind technological \
+multitude join --as bob --kind biological
+multitude join --as "PCM node" --kind technological \
     --model "gemma4:e4b" --persona "helpful rhizome steward"
 ```
 
@@ -168,7 +180,7 @@ Technological nodes speak through **Ollama** (local, no cloud):
 Ask a technological node to speak:
 
 ```bash
-python multitude.py counsel --as "PCM node" --topic "how should we split work?"
+multitude counsel --as "PCM node" --topic "how should we split work?"
 ```
 
 > **PCM works without an LLM.** Every feature in this guide functions
@@ -185,44 +197,44 @@ integration layer, not a requirement.
 The economy/care surface — a few common workflows:
 
 ```bash
-python multitude.py goal-open --by alice --title "Ship guide" \
+multitude goal-open --by alice --title "Ship guide" \
     --text "finish user guide" --category social
-python multitude.py task-open --by alice --title "Write docs"
-python multitude.py task-claim --task task-2026... --as bob
-python multitude.py task-done --task task-2026... --as bob
+multitude task-open --by alice --title "Write docs"
+multitude task-claim --task task-2026... --as bob
+multitude task-done --task task-2026... --as bob
 
-python multitude.py work-log --as alice --description "wrote guide" --hours 2
-python multitude.py work-summary
+multitude work-log --as alice --description "wrote guide" --hours 2
+multitude work-summary
 
-python multitude.py resource-register --by alice --name "meeting room"
-python multitude.py resource-allocate --resource res-2026... --to bob --purpose "workshop"
+multitude resource-register --by alice --name "meeting room"
+multitude resource-allocate --resource res-2026... --to bob --purpose "workshop"
 ```
 
 Commitments, agreements, care and rhythms:
 
 ```bash
-python multitude.py commitment-record --by bob --title "review docs" \
+multitude commitment-record --by bob --title "review docs" \
     --owed-by bob --owed-to alice
-python multitude.py agreement-record --by alice --title "doc pact" \
+multitude agreement-record --by alice --title "doc pact" \
     --party alice --party bob
-python multitude.py care-record --by alice --member bob \
+multitude care-record --by alice --member bob \
     --summary "morning check-in" --type check_in
-python multitude.py rhythm-define --by alice --name "weekly sync" \
+multitude rhythm-define --by alice --name "weekly sync" \
     --cadence weekly --purpose "stay in sync"
 ```
 
 A shared lexicon keeps terminology explicit:
 
 ```bash
-python multitude.py lexicon-add --term "Rhizome" \
+multitude lexicon-add --term "Rhizome" \
     --definition "local self-governing collective"
-python multitude.py lexicon
+multitude lexicon
 ```
 
 Do not memorize every flag — `--help` is complete:
 
 ```bash
-python multitude.py COMMAND --help
+multitude COMMAND --help
 ```
 
 ---
@@ -238,8 +250,8 @@ entities: **Agent, Intent, Commitment, EconomicEvent, EconomicResource,
 Process, Agreement**.
 
 ```bash
-python multitude.py intent-record --by alice --title "need: help testing" --kind need
-python multitude.py intents
+multitude intent-record --by alice --title "need: help testing" --kind need
+multitude intents
 ```
 
 What ValueFlows in PCM does **not** do:
@@ -261,21 +273,21 @@ Three modes:
 **Local-only (default).** Everything lives under `data/`; no network
 activity. This is the simplest and private-by-default mode.
 
-**Zenoh (optional node fabric).** For rhizome-to-rhizome and
-device-to-rhizome exchange:
+**Zenoh (optional node fabric).** Install the networking extra first:
 
 ```bash
+pip install -e '.[zenoh]'
 export PCM_ZENOH_ENABLED=true
 python3 -m unittest tests.test_pcm_phase2_zenoh   # two-node demo
 ```
 
 Architecture and security model: [NETWORKING_STACK.md](NETWORKING_STACK.md).
 
-**Other interfaces.** `python multitude.py serve-api` runs a minimal
-local JSON API; `python multitude.py telegram` runs the Telegram
-gateway (requires a repo `.env` with the bot token). The Hermes
-integration runs agents as members. These adapters are thin and real —
-but they are transports, not core features.
+**Other interfaces.** `multitude serve-api` runs a minimal local JSON
+API; `multitude telegram` runs the Telegram gateway (requires a repo
+`.env` with the bot token). The Hermes integration runs agents as
+members. These adapters are thin and real — but they are transports,
+not core features.
 
 ---
 
@@ -392,9 +404,9 @@ Practical rules, no stronger than the implementation:
 | `no rhizomes found under ...` | No rhizome exists yet — run `found` first, or pass the right directory with `--rhizome DIR`. |
 | Wrong rhizome selected | PCM picks the most recently used rhizome; target explicitly with `--rhizome DIR`. |
 | `counsel` fails / model unavailable | Ollama not running or model missing: check `PCM_OLLAMA_HOST`, run `ollama pull <model>`. PCM works without it. |
-| Zenoh unavailable | Fabric is opt-in: `PCM_ZENOH_ENABLED=true` and a zenohd-compatible runtime are required; otherwise everything stays local. |
+| Zenoh unavailable | Install `.[zenoh]`, then set `PCM_ZENOH_ENABLED=true`; otherwise everything stays local. |
 | `embodiment is disabled` | Set `PCM_EMBODIMENT_ENABLED=true` — it is off by default. |
-| Where do I inspect history? | `python multitude.py log` prints the raw event log; the file is `<rhizome-dir>/events.jsonl`. |
+| Where do I inspect history? | `multitude log` prints the raw event log; the file is `<rhizome-dir>/events.jsonl`. |
 | A technological node won't vote | Check `members`: voting can be revoked (`demote`) or omitted at join (`--no-vote`); `promote` restores it. |
 
 ---
@@ -402,8 +414,8 @@ Practical rules, no stronger than the implementation:
 ## 14. Command discovery
 
 ```bash
-python multitude.py --help
-python multitude.py COMMAND --help
+multitude --help
+multitude COMMAND --help
 ```
 
 The CLI is the complete surface: found/join/say, memory, governance,

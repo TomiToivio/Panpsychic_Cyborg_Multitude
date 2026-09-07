@@ -19,9 +19,12 @@ never over the network), at:
 
     <node_dir>/identity/pcm_identity.json
 
-containing the DID, the raw secret seed (32 bytes, base64) and a
-created timestamp. Losing this file means losing the node's identity —
-back it up. Rotation = new DID + a signed successor credential (Phase 3).
+The file contains the DID, the raw secret seed (32 bytes, base64), and a
+created timestamp. It is sensitive long-term signing-key material. On POSIX,
+PCM creates the identity directory as ``0700`` and the key file as ``0600``.
+Losing this file means losing the node's identity; leaking it means another
+process can impersonate the node. Back it up only to storage with equivalent
+access controls. See ``docs/IDENTITY_SECURITY.md``.
 
 Dependencies: cryptography and base58 are required PCM dependencies.
 Canonical base58btc encoding is mandatory because a ``did:key:z...`` value
@@ -32,6 +35,9 @@ from __future__ import annotations
 import base64
 import json
 import os
+import stat
+import tempfile
+import warnings
 import stat
 import tempfile
 import warnings

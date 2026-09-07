@@ -1,0 +1,43 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "panpsychic-cyborg-multitude"
+version = "0.1.0"
+description = "A local-first social operating system for human-AI rhizomes"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { file = "LICENSE" }
+authors = [
+  { name = "Tomi Toivio" }
+]
+dependencies = [
+  "pydantic>=2.0",
+  "cryptography>=42.0",
+  "base58>=2.1.1",
+]
+
+[project.optional-dependencies]
+zenoh = [
+  "eclipse-zenoh>=1.10",
+]
+dev = [
+  "pytest>=8.0",
+]
+all = [
+  "eclipse-zenoh>=1.10",
+  "pytest>=8.0",
+]
+
+[project.scripts]
+multitude = "multitude.cli:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
