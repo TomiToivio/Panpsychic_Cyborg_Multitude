@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """GET → POST bridge client — optional transport for constrained nodes.
 
-Complements NETWORKING_STACK.md §3 (PCM protocol) and §26 (Unix streams):
+Complements docs/NETWORKING_STACK.md §3 (PCM protocol) and §26 (Unix streams):
 the envelope is transport-agnostic, and this module adds one more transport
 for the constrained-node case. A node that can only make GET requests —
 locked-down egress, link-scanner-shaped clients, no inbound ports (WSL,
@@ -114,13 +114,10 @@ class Get2PostBridge:
         self.config = config
         self._transport = transport or self._requests_transport
 
-    # -- public API --------------------------------------------------------
-
     def send(self, url: str, data: str = "", headers: dict[str, str] | None = None,
              *, response_format: ResponseFormat | None = None,
              timeout_ms: int | None = None,
              idempotency_key: str | None = None) -> BridgeResult:
-        """Trigger a POST at ``url`` via the converter, carrying ``data``."""
         if not self.config.enabled:
             raise RuntimeError(
                 "GET→POST bridge is dormant; set PCM_G2P_ENABLED=true to enable it.")
@@ -142,11 +139,6 @@ class Get2PostBridge:
 
     def send_envelope(self, envelope: Envelope, *, timeout_ms: int | None = None,
                       idempotency_key: str | None = None) -> BridgeResult:
-        """Deliver a signed PCM envelope as JSON to its ``to`` destination.
-
-        The recipient URL is taken from annotation source_url when present
-        (web:: documents), else content['url'].
-        """
         target = self._target_of(envelope)
         body = json.dumps(envelope.model_dump(by_alias=True), ensure_ascii=False)
         return self.send(target, body,
@@ -154,11 +146,8 @@ class Get2PostBridge:
                          response_format="json", timeout_ms=timeout_ms,
                          idempotency_key=idempotency_key or envelope.id or None)
 
-    # -- request shaping (pure; safe to unit-test offline) ------------------
-
     @staticmethod
     def _clean_headers(headers: dict[str, str]) -> dict[str, str]:
-        """Refuse secret-bearing headers; URLs and logs are not private."""
         out: dict[str, str] = {}
         for key, value in headers.items():
             if key.lower() in _REFUSED_HEADERS:
@@ -173,13 +162,6 @@ class Get2PostBridge:
                       response_format: ResponseFormat = "raw",
                       timeout_ms: int = DEFAULT_TIMEOUT_MS,
                       idempotency_key: str | None = None) -> str:
-        """Encode a POST request into the converter's GET query string.
-
-        Idempotency: unless the caller supplies an Idempotency-Key header
-        or key, a deterministic fingerprint of the body is stamped, so
-        accidental re-GETs (link scanners, retries, reopened links) stay
-        distinguishable upstream where the endpoint honours the header.
-        """
         self._validate_destination(url)
         headers = self._clean_headers(dict(headers or {}))
         if not any(k.lower() == "idempotency-key" for k in headers):
@@ -214,8 +196,6 @@ class Get2PostBridge:
         if len(raw) > MAX_RESPONSE_BYTES:
             raise EnvelopeError("upstream response exceeds 1 MiB limit")
         return status, raw
-
-    # -- helpers -------------------------------------------------------------
 
     @staticmethod
     def _validate_destination(url: str) -> None:
