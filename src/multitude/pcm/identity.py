@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """PCM node identity — did:key generation and storage (Phase 0).
 
-Implements NETWORKING_STACK.md §4.2 Move 1: every PCM node (human,
+Implements docs/NETWORKING_STACK.md §4.2 Move 1: every PCM node (human,
 personal agent, device, collective) gets one persistent, vendor-independent
 identity as a W3C ``did:key`` over Ed25519.
 
