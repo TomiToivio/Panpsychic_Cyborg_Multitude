@@ -32,6 +32,9 @@ from __future__ import annotations
 import base64
 import json
 import os
+import stat
+import tempfile
+import warnings
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -44,6 +47,8 @@ from cryptography.hazmat.primitives.asymmetric.ed25519 import (
 
 _ED25519_MULTICODEC = b"\xed\x01"
 _MULTIBASE_B58 = "z"
+_PRIVATE_DIRECTORY_MODE = 0o700
+_PRIVATE_FILE_MODE = 0o600
 
 
 def _b58(data: bytes) -> str:
@@ -77,6 +82,67 @@ def pubkey_from_did(did: str) -> bytes:
     return pubkey
 
 
+def _prepare_identity_directory(directory: Path) -> None:
+    """Create the private-key directory and harden it on POSIX."""
+    directory.mkdir(parents=True, exist_ok=True, mode=_PRIVATE_DIRECTORY_MODE)
+    if os.name == "posix":
+        os.chmod(directory, _PRIVATE_DIRECTORY_MODE)
+
+
+def _write_identity_atomic(path: Path, identity: dict) -> None:
+    """Write identity JSON through an owner-only temporary file."""
+    fd = -1
+    tmp_path: Path | None = None
+    try:
+        # mkstemp creates the file atomically with mode 0600 on POSIX.  The
+        # explicit fchmod happens before any secret key bytes are written.
+        fd, tmp_name = tempfile.mkstemp(
+            dir=path.parent,
+            prefix=f".{path.name}.",
+            suffix=".tmp",
+        )
+        tmp_path = Path(tmp_name)
+        if os.name == "posix":
+            os.fchmod(fd, _PRIVATE_FILE_MODE)
+
+        stream = os.fdopen(fd, "w", encoding="utf-8", newline="\n")
+        fd = -1  # ownership transferred to stream
+        with stream:
+            json.dump(identity, stream, indent=2)
+            stream.write("\n")
+            stream.flush()
+            os.fsync(stream.fileno())
+
+        os.replace(tmp_path, path)
+    except Exception:
+        if fd >= 0:
+            os.close(fd)
+        if tmp_path is not None:
+            try:
+                tmp_path.unlink()
+            except FileNotFoundError:
+                pass
+        raise
+
+
+def _check_identity_permissions(path: Path, *, strict: bool) -> None:
+    """Warn, or fail closed, when a POSIX private-key file is too broad."""
+    if os.name != "posix":
+        return
+
+    mode = stat.S_IMODE(path.stat().st_mode)
+    if mode & (stat.S_IRWXG | stat.S_IRWXO) == 0:
+        return
+
+    message = (
+        f"PCM identity file {path} has mode {mode:04o}; expected 0600 because "
+        "it contains the node's private signing key. Run chmod 600 on it."
+    )
+    if strict:
+        raise PermissionError(message)
+    warnings.warn(message, RuntimeWarning, stacklevel=2)
+
+
 def generate_identity(node_dir: str | os.PathLike,
                       force: bool = False) -> dict:
     """Generate a fresh Ed25519 node identity and store it.
@@ -89,7 +155,7 @@ def generate_identity(node_dir: str | os.PathLike,
     path = d / "pcm_identity.json"
     if path.exists() and not force:
         return load_identity(node_dir)
-    d.mkdir(parents=True, exist_ok=True)
+    _prepare_identity_directory(d)
     key = Ed25519PrivateKey.generate()
     seed = key.private_bytes(
         serialization.Encoding.Raw,
@@ -105,17 +171,22 @@ def generate_identity(node_dir: str | os.PathLike,
         "created_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "algorithm": "ed25519",
     }
-    tmp = path.with_suffix(".tmp")
-    tmp.write_text(json.dumps(identity, indent=2), encoding="utf-8")
-    os.replace(tmp, path)
+    _write_identity_atomic(path, identity)
     return identity
 
 
-def load_identity(node_dir: str | os.PathLike) -> dict:
+def load_identity(node_dir: str | os.PathLike, *,
+                  strict_permissions: bool = False) -> dict:
+    """Load an identity, checking private-key permissions on POSIX.
+
+    Broad group/other permissions emit a warning by default. Pass
+    ``strict_permissions=True`` to reject such a file instead.
+    """
     path = Path(node_dir) / "identity" / "pcm_identity.json"
     if not path.exists():
         raise FileNotFoundError(
             f"no PCM identity at {path} — run generate_identity() first")
+    _check_identity_permissions(path, strict=strict_permissions)
     return json.loads(path.read_text(encoding="utf-8"))
 
 

@@ -335,14 +335,23 @@ $PCM_DATA_DIR (default: <repo>/data/)
     └── <rhizome-slug>/
         ├── events.jsonl          ← THE authoritative state (append-only log)
         ├── tribe.json            ← discovery metadata (name, charter, slug)
-        └── private_notes.jsonl  ← per-member private notes (stays local)
+        ├── private_notes.jsonl    ← per-member private notes (stays local)
+        └── identity/
+            └── pcm_identity.json ← SENSITIVE long-term signing key
 ```
 
 - The **event log is the state**: every fact PCM knows is an appended,
   provenance-stamped event. Deleting or editing the log corrupts
   history — back it up, don't rewrite it.
 - **Backup = copy the rhizome directory** (`events.jsonl` +
-  `tribe.json`). Replay rebuilds all state from the log alone.
+  `tribe.json`). Replay rebuilds shared state from the log alone, but it
+  cannot recover the node's cryptographic identity.
+- `identity/pcm_identity.json` contains `secret_seed_b64`, the raw seed
+  for the node's long-term Ed25519 signing key. Treat it like a private
+  key or password: never commit or share it, keep backups encrypted and
+  owner-accessible only, and restore it only onto a trusted machine.
+  Losing it means losing the DID; anyone who obtains it can impersonate
+  the node. New files use mode `0600` inside a `0700` directory on POSIX.
 - Private notes are a separate file per rhizome — include them in
   backups only if you are their owner.
 

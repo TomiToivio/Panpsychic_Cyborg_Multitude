@@ -213,6 +213,12 @@ Phase 3b   GATE  confidentiality & key lifecycle before real biosignal data
 Phase 4    GATED BCI/biosignal nodes over the same subjects (after 3b)
 ```
 
+> **Private-key warning:** `identity/pcm_identity.json` contains the raw
+> seed for the node's long-term Ed25519 signing key. Never commit or
+> share it; store backups encrypted and owner-accessible only. On POSIX,
+> PCM creates it as `0600` inside a `0700` directory. See
+> [Data and backup](docs/USER_GUIDE.md#11-data-and-backup).
+
 **No third party. No central mind. No master database.**
 
 ## Optional BCI / biosignal interface
