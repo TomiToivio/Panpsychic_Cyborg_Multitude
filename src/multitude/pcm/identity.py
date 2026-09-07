@@ -19,9 +19,12 @@ never over the network), at:
 
     <node_dir>/identity/pcm_identity.json
 
-containing the DID, the raw secret seed (32 bytes, base64) and a
-created timestamp. Losing this file means losing the node's identity —
-back it up. Rotation = new DID + a signed successor credential (Phase 3).
+The file contains the DID, the raw secret seed (32 bytes, base64), and a
+created timestamp. It is sensitive long-term signing-key material. On POSIX,
+PCM creates the identity directory as ``0700`` and the key file as ``0600``.
+Losing this file means losing the node's identity; leaking it means another
+process can impersonate the node. Back it up only to storage with equivalent
+access controls. See ``docs/IDENTITY_SECURITY.md``.
 
 Dependencies: cryptography and base58 are required PCM dependencies.
 Canonical base58btc encoding is mandatory because a ``did:key:z...`` value
@@ -32,6 +35,9 @@ from __future__ import annotations
 import base64
 import json
 import os
+import stat
+import tempfile
+import warnings
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -44,6 +50,8 @@ from cryptography.hazmat.primitives.asymmetric.ed25519 import (
 
 _ED25519_MULTICODEC = b"\xed\x01"
 _MULTIBASE_B58 = "z"
+_IDENTITY_DIR_MODE = 0o700
+_IDENTITY_FILE_MODE = 0o600
 
 
 def _b58(data: bytes) -> str:
@@ -77,6 +85,52 @@ def pubkey_from_did(did: str) -> bytes:
     return pubkey
 
 
+def _secure_identity_dir(path: Path) -> None:
+    """Create and, on POSIX, restrict the identity directory to its owner."""
+    path.mkdir(parents=True, exist_ok=True, mode=_IDENTITY_DIR_MODE)
+    if os.name == "posix":
+        path.chmod(_IDENTITY_DIR_MODE)
+
+
+def _write_private_json_atomic(path: Path, payload: dict) -> None:
+    """Atomically write private JSON without ever creating a broad-permission file."""
+    fd, tmp_name = tempfile.mkstemp(prefix=".pcm_identity.", suffix=".tmp", dir=path.parent)
+    tmp = Path(tmp_name)
+    try:
+        if os.name == "posix":
+            os.fchmod(fd, _IDENTITY_FILE_MODE)
+        with os.fdopen(fd, "w", encoding="utf-8") as handle:
+            fd = -1  # ownership transferred to the file object
+            json.dump(payload, handle, indent=2)
+            handle.write("\n")
+            handle.flush()
+            os.fsync(handle.fileno())
+        os.replace(tmp, path)
+        if os.name == "posix":
+            path.chmod(_IDENTITY_FILE_MODE)
+    finally:
+        if fd != -1:
+            os.close(fd)
+        try:
+            tmp.unlink()
+        except FileNotFoundError:
+            pass
+
+
+def _warn_if_identity_permissions_are_broad(path: Path) -> None:
+    """Warn when an existing POSIX key file is readable/writable by others."""
+    if os.name != "posix":
+        return
+    mode = stat.S_IMODE(path.stat().st_mode)
+    if mode & 0o077:
+        warnings.warn(
+            f"PCM identity key {path} has broad permissions {mode:04o}; "
+            "restrict it to 0600 because it contains the node's Ed25519 secret seed",
+            RuntimeWarning,
+            stacklevel=2,
+        )
+
+
 def generate_identity(node_dir: str | os.PathLike,
                       force: bool = False) -> dict:
     """Generate a fresh Ed25519 node identity and store it.
@@ -89,7 +143,7 @@ def generate_identity(node_dir: str | os.PathLike,
     path = d / "pcm_identity.json"
     if path.exists() and not force:
         return load_identity(node_dir)
-    d.mkdir(parents=True, exist_ok=True)
+    _secure_identity_dir(d)
     key = Ed25519PrivateKey.generate()
     seed = key.private_bytes(
         serialization.Encoding.Raw,
@@ -105,9 +159,7 @@ def generate_identity(node_dir: str | os.PathLike,
         "created_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "algorithm": "ed25519",
     }
-    tmp = path.with_suffix(".tmp")
-    tmp.write_text(json.dumps(identity, indent=2), encoding="utf-8")
-    os.replace(tmp, path)
+    _write_private_json_atomic(path, identity)
     return identity
 
 
@@ -116,6 +168,7 @@ def load_identity(node_dir: str | os.PathLike) -> dict:
     if not path.exists():
         raise FileNotFoundError(
             f"no PCM identity at {path} — run generate_identity() first")
+    _warn_if_identity_permissions_are_broad(path)
     return json.loads(path.read_text(encoding="utf-8"))
 
 
