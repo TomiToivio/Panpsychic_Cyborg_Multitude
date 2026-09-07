@@ -141,8 +141,9 @@ def _check_identity_permissions(path: Path, *, strict: bool) -> None:
         return
 
     message = (
-        f"PCM identity file {path} has mode {mode:04o}; expected 0600 because "
-        "it contains the node's private signing key. Run chmod 600 on it."
+        f"PCM identity file {path} has broad permissions {mode:04o}; "
+        "expected 0600 because it contains the node's private signing key. "
+        "Run chmod 600 on it."
     )
     if strict:
         raise PermissionError(message)
