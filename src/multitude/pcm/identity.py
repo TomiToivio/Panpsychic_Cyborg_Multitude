@@ -23,8 +23,9 @@ containing the DID, the raw secret seed (32 bytes, base64) and a
 created timestamp. Losing this file means losing the node's identity —
 back it up. Rotation = new DID + a signed successor credential (Phase 3).
 
-Dependencies: cryptography (already a PCM dependency chain member),
-base58 (optional extra; falls back to base64url if absent).
+Dependencies: cryptography and base58 are required PCM dependencies.
+Canonical base58btc encoding is mandatory because a ``did:key:z...`` value
+uses the multibase ``z`` prefix and therefore MUST contain base58btc data.
 """
 from __future__ import annotations
 
@@ -34,47 +35,40 @@ import os
 from datetime import datetime, timezone
 from pathlib import Path
 
+import base58
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric.ed25519 import (
     Ed25519PrivateKey,
     Ed25519PublicKey,
 )
 
-try:  # optional extra; base58btc is the standard did:key encoding
-    import base58 as _base58
-except ImportError:  # pragma: no cover - fallback path
-    _base58 = None
-
 _ED25519_MULTICODEC = b"\xed\x01"
 _MULTIBASE_B58 = "z"
 
 
 def _b58(data: bytes) -> str:
-    if _base58 is not None:
-        return _base58.b58encode(data).decode("ascii")
-    # fallback: base64url without padding (NOT canonical did:key, but stable)
-    return base64.urlsafe_b64encode(data).decode().rstrip("=")
+    """Encode bytes as canonical base58btc for multibase ``z`` values."""
+    return base58.b58encode(data).decode("ascii")
 
 
 def _b58d(text: str) -> bytes:
-    if _base58 is not None:
-        return _base58.b58decode(text)
-    pad = "=" * (-len(text) % 4)
-    return base64.urlsafe_b64decode(text + pad)
+    """Decode canonical base58btc used by multibase ``z`` values."""
+    return base58.b58decode(text)
 
 
 def did_from_pubkey(pubkey: bytes) -> str:
-    """Raw Ed25519 public key -> did:key string."""
+    """Raw Ed25519 public key -> canonical base58btc did:key string."""
     if len(pubkey) != 32:
         raise ValueError("Ed25519 public keys are 32 bytes")
-    return "did:key:z" + _b58(_ED25519_MULTICODEC + pubkey)
+    return "did:key:" + _MULTIBASE_B58 + _b58(_ED25519_MULTICODEC + pubkey)
 
 
 def pubkey_from_did(did: str) -> bytes:
-    """did:key string -> raw Ed25519 public key (32 bytes)."""
-    if not did.startswith("did:key:z"):
-        raise ValueError(f"not an ed25519 did:key: {did!r}")
-    body = _b58d(did[len("did:key:z"):])
+    """Canonical base58btc Ed25519 did:key string -> raw public key bytes."""
+    prefix = "did:key:" + _MULTIBASE_B58
+    if not did.startswith(prefix):
+        raise ValueError(f"not an ed25519 base58btc did:key: {did!r}")
+    body = _b58d(did[len(prefix):])
     if body[:2] != _ED25519_MULTICODEC:
         raise ValueError("did:key body does not start with the ed25519 multicodec")
     pubkey = body[2:]

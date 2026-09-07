@@ -5,10 +5,10 @@ pydantic>=2.0
 
 # Required for real nodes: did:key identity + signed envelopes.
 cryptography>=42.0
+base58>=2.1.1
 
 # Optional: node-to-node networking fabric (Phase 2+).
 # Without it, the kernel runs standalone (CLI + local HTTP API).
 eclipse-zenoh>=1.10
 
-# Optional extras (not required): base58 (canonical did:key encoding —
-# falls back to base64url otherwise), pytest (test suite).
+# Optional extras (not required): pytest (test suite).
