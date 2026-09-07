@@ -123,6 +123,8 @@ class Envelope(BaseModel):
 
     model_config = {"populate_by_name": True}
 
+    # -- construction ------------------------------------------------------
+
     @classmethod
     def create(cls, type_: str, from_did: str, to_did: str,
                content: dict[str, Any], *, interface: str = "jsonl",
@@ -134,6 +136,9 @@ class Envelope(BaseModel):
         if actor_kind not in ACTOR_KINDS:
             raise EnvelopeError(
                 f"unknown actor_kind {actor_kind!r}; allowed: {ACTOR_KINDS}")
+        # Privacy invariant (spec rule 4): private content must never be
+        # serialized into an outbound envelope. Fail at construction time
+        # instead of trusting relays to drop it later.
         if _contains_private_marker(content):
             raise EnvelopeError(
                 "refusing to build an outbound envelope with private content; "
@@ -149,6 +154,8 @@ class Envelope(BaseModel):
             "ts": env.ts, "content": env.content,
         }))
         return env
+
+    # -- signing / verification -------------------------------------------
 
     def _expected_id(self) -> str:
         return envelope_id(canonical_bytes({
@@ -205,6 +212,7 @@ class Envelope(BaseModel):
             sig_bytes = bytes.fromhex(self.sig[len("ed25519:"):])
         except ValueError as e:
             raise EnvelopeError("malformed hexadecimal signature") from e
+        # pubkey is raw bytes here; wrap it into a cryptography key object
         from cryptography.hazmat.primitives.asymmetric.ed25519 import (
             Ed25519PublicKey as _Key,
         )
@@ -214,15 +222,21 @@ class Envelope(BaseModel):
         except Exception as e:
             raise EnvelopeError(f"signature verification failed: {e}") from e
 
+    # -- relay policy (spec §3 rule 3) -------------------------------------
+
     def relay_safe(self) -> bool:
         """False when the content is marked private (relaying nodes drop it)."""
         return not _contains_private_marker(self.content)
 
 
+# -- authorization (spec rule 5: authenticated != authorized) -----------------
+
+# Capability vocabulary a node may grant/check for inbound envelopes.
+# Extending this is a minor protocol change, not freeform.
 KNOWN_CAPABILITIES = (
-    "read_memory",
-    "write_memory",
-    "search_memory",
+    "read_memory",       # may read shared memory
+    "write_memory",      # may merge shared-memory entries into the local log
+    "search_memory",     # may query the local memory index
     "summarize",
     "analyze",
     "counsel",
@@ -231,8 +245,11 @@ KNOWN_CAPABILITIES = (
     "vote",
 )
 
+# Envelope types and the capability each requires to be ACCEPTED (merged/
+# executed) by a receiving node. Signature verification (who sent it) is
+# separate from this check (what they may do).
 REQUIRED_CAPABILITY = {
-    "say": None,
+    "say": None,                  # voice: authenticated membership suffices
     "layer_recorded": "write_memory",
     "proposal_open": "propose",
     "vote_cast": "vote",
@@ -246,7 +263,17 @@ REQUIRED_CAPABILITY = {
 
 def authorize_sender(envelope_dict: dict[str, Any],
                      granted_capabilities: list[str]) -> dict[str, Any]:
-    """Check that a VERIFIED envelope's sender holds the required capability."""
+    """Check that a VERIFIED envelope's sender holds the capability this
+    envelope type requires before the receiver merges or executes it.
+
+    ``envelope_dict`` must already have passed Envelope.verify() — this
+    function does NOT verify signatures; it only decides authorization.
+    ``granted_capabilities`` is the receiver's local grant list for the
+    sender's DID (e.g. from a capability_grant envelope or local policy).
+
+    Returns the verified envelope dict on success; raises EnvelopeError
+    when the envelope type requires a capability the sender lacks.
+    """
     env = Envelope.model_validate(envelope_dict)
     required = REQUIRED_CAPABILITY.get(env.type, "write_memory")
     if required is None:
