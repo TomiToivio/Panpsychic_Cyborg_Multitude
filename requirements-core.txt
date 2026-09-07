@@ -1,0 +1,4 @@
+# Core runtime (Python 3.11+). Optional transports are kept separate.
+pydantic>=2.0
+cryptography>=42.0
+base58>=2.1.1

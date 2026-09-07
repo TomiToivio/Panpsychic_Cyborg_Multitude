@@ -175,7 +175,7 @@ Hermes) ship disabled or opt-in and never run unless asked for.
 ## Quick start
 
 ```bash
-pip install -r requirements.txt
+python -m pip install -r requirements-core.txt
 
 python multitude.py found --name "My Multitude" --founder alice
 python multitude.py say --as alice --text "The rhizome is alive."
@@ -185,8 +185,28 @@ python multitude.py status
 Optional node-to-node networking (Phase 2+ fabric):
 
 ```bash
+python -m pip install -r requirements.txt
 export PCM_ZENOH_ENABLED=true
 python3 -m unittest tests.test_pcm_phase2_zenoh   # two-node exchange demo
+```
+
+## Tests and CI
+
+GitHub Actions runs the core suite on Python 3.11, 3.12, 3.13 and 3.14
+for every push and pull request. Zenoh tests run in a separate Python
+3.12 job, so an optional-integration failure is distinct from a core
+regression and neither job needs external secrets or services.
+
+Run the same groups locally:
+
+```bash
+# Fast/core suite without optional integrations
+python -m pip install -r requirements-test.txt
+python -m pytest -q -m "not zenoh"
+
+# Optional Zenoh integration suite
+python -m pip install -r requirements.txt -r requirements-test.txt
+python -m pytest -q -m zenoh
 ```
 
 ## Networking architecture

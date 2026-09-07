@@ -277,6 +277,7 @@ if __name__ == "__main__":
 # pytest wrappers (canonical suite collects these; skipped without the dep)
 import pytest  # noqa: E402
 
+pytestmark = pytest.mark.zenoh
 _zenoh = pytest.mark.skipif(not _zenoh_available(), reason="eclipse-zenoh not installed")
 
 @_zenoh

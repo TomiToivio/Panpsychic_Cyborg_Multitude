@@ -23,6 +23,7 @@ Run: python3 tests/test_pcm_phase2_zenoh.py
 """
 from __future__ import annotations
 
+import importlib.util
 import json
 import sys
 import tempfile
@@ -169,5 +170,14 @@ if __name__ == "__main__":
 
 
 # pytest wrapper (canonical suite collects this)
+import pytest  # noqa: E402
+
+pytestmark = pytest.mark.zenoh
+
+
+@pytest.mark.skipif(
+    importlib.util.find_spec("zenoh") is None,
+    reason="eclipse-zenoh not installed",
+)
 def test_pcm_phase2_zenoh():
     assert main() == 0
