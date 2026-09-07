@@ -41,3 +41,6 @@ where = ["src"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+markers = [
+  "zenoh: tests that require the optional eclipse-zenoh runtime",
+]

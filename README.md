@@ -178,17 +178,22 @@ Hermes) ship disabled or opt-in and never run unless asked for.
 Core/local installation:
 
 ```bash
-python -m pip install -r requirements-core.txt
+pip install -e .
 
-python multitude.py found --name "My Multitude" --founder alice
-python multitude.py say --as alice --text "The rhizome is alive."
-python multitude.py status
+multitude found --name "My Multitude" --founder alice
+multitude say --as alice --text "The rhizome is alive."
+multitude status
 ```
+
+The repository launcher remains supported, so the same commands can
+also be run as `python multitude.py ...`. `pip install -r
+requirements.txt` installs the same core dependencies without
+installing the package.
 
 Optional node-to-node networking (Phase 2+ fabric):
 
 ```bash
-python -m pip install -r requirements.txt
+pip install -e '.[zenoh]'
 export PCM_ZENOH_ENABLED=true
 python3 -m unittest tests.test_pcm_phase2_zenoh   # two-node exchange demo
 ```
@@ -204,11 +209,11 @@ Run the same groups locally:
 
 ```bash
 # Fast/core suite without optional integrations
-python -m pip install -r requirements-test.txt
+python -m pip install -e '.[dev]'
 python -m pytest -q -m "not zenoh"
 
 # Optional Zenoh integration suite
-python -m pip install -r requirements.txt -r requirements-test.txt
+python -m pip install -e '.[dev,zenoh]'
 python -m pytest -q -m zenoh
 ```
 
