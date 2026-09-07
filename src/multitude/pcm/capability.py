@@ -87,18 +87,20 @@ class CapabilityGrant:
     same rule as the PCM envelope, so verification code is shared.
     """
 
-    issuer: str
-    subject: str
-    action: str
-    target: str = "*"
+    issuer: str                     # did:key of the grantor
+    subject: str                    # did:key of the grantee
+    action: str                     # fnmatch pattern, e.g. "light.*"
+    target: str = "*"               # fnmatch pattern over pcm id
     granted_at: str = ""
-    not_before: str = ""
-    expires: str = ""
+    not_before: str = ""            # empty = immediately
+    expires: str = ""               # empty = no expiry (discouraged)
     max_per_minute: int | None = None
     parameter_limits: dict[str, tuple[float, float]] = field(default_factory=dict)
     note: str = ""
     revoked: bool = False
     sig: str = ""
+
+    # -- construction -------------------------------------------------------
 
     @classmethod
     def issue(cls, issuer_did: str, subject_did: str, action: str,
@@ -114,6 +116,8 @@ class CapabilityGrant:
             max_per_minute=max_per_minute,
             parameter_limits=dict(parameter_limits or {}), note=note,
         )
+
+    # -- signing / verification -------------------------------------------
 
     def unsigned_payload(self) -> dict[str, Any]:
         return {k: v for k, v in self.__dict__.items() if k != "sig"}
@@ -153,6 +157,7 @@ class CapabilityGrant:
             key_obj.verify(sig_bytes, digest)
         except InvalidSignature:
             raise GrantDenied("signature does not verify against issuer did")
+        # validity window (all comparisons in UTC; empty = open bound)
         now = _now()
         if self.not_before:
             if now < datetime.strptime(self.not_before, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc):
@@ -160,6 +165,8 @@ class CapabilityGrant:
         if self.expires:
             if now > datetime.strptime(self.expires, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc):
                 raise GrantDenied("grant expired")
+
+    # -- serialization -----------------------------------------------------
 
     def to_dict(self) -> dict[str, Any]:
         return dict(self.__dict__)
@@ -177,6 +184,8 @@ class CapabilityGrant:
             parameter_limits=fixed, note=data.get("note", ""),
             revoked=bool(data.get("revoked", False)), sig=data.get("sig", ""),
         )
+
+    # -- envelope ----------------------------------------------------------
 
     def to_envelope(self, private_key: Ed25519PrivateKey) -> dict[str, Any]:
         """Wrap into a signed capability_grant envelope for the fabric."""
@@ -203,17 +212,26 @@ class CapabilityGrant:
         grant = cls.from_dict((env.content or {}).get("grant") or {})
         if grant.issuer != env.from_did:
             raise GrantDenied("grant issuer does not match envelope author")
-        grant.verify()
+        grant.verify()          # credential-level signature + validity
         return grant
 
 
 class VcPolicyBridge:
-    """Wire VERIFIED grants into a local Policy as explicit rules."""
+    """Wire VERIFIED grants into a local Policy as explicit rules.
+
+    The bridge never weakens fail-closed: admitting a grant appends one
+    explicit PolicyRule scoped to the grant's action/target/subject,
+    with the grant's own limits carried over. High-risk actions still
+    demand the explicit-rule match this rule provides — a wildcard
+    grant to a high-risk action pattern is admitted but its rule keeps
+    the explicit scope, so the high-risk gate stays satisfied honestly.
+    """
 
     def __init__(self) -> None:
-        self.grants: dict[str, CapabilityGrant] = {}
+        self.grants: dict[str, CapabilityGrant] = {}  # key: sig hash prefix
 
     def admit(self, grant: CapabilityGrant) -> str:
+        """Verify then register. Returns the registration key."""
         grant.verify()
         key = grant.sig[:24]
         self.grants[key] = grant
@@ -225,13 +243,14 @@ class VcPolicyBridge:
             grant.revoked = True
 
     def rules(self) -> list:
+        """PolicyRule list derived from currently-valid grants."""
         from multitude.pcm.policy import PolicyRule
         out = []
         for grant in self.grants.values():
             try:
                 grant.verify()
             except GrantDenied:
-                continue
+                continue  # expired or revoked: rule disappears
             out.append(PolicyRule(
                 action=grant.action, target=grant.target,
                 allowed_authors=(grant.subject,),
