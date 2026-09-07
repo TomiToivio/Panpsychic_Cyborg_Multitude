@@ -138,9 +138,10 @@ UNKNOWN` for every node, composite or not.
 ## What this repository contains
 
 ```text
-multitude.py                      entrypoint (python multitude.py ...)
+multitude.py                      repository entrypoint (python multitude.py ...)
+pyproject.toml                    package metadata + optional dependency extras
+requirements.txt                  minimal/core dependencies only
 docs/                             all programme documents (see Documents below)
-requirements.txt                  dependencies
 LICENSE                           CC0 1.0 Universal
 src/multitude/
   rhizome.py      — rhizome model: members, events, memory, proposals
@@ -174,20 +175,36 @@ Hermes) ship disabled or opt-in and never run unless asked for.
 
 ## Quick start
 
-```bash
-pip install -r requirements.txt
+Core/local installation:
 
-python multitude.py found --name "My Multitude" --founder alice
-python multitude.py say --as alice --text "The rhizome is alive."
-python multitude.py status
+```bash
+pip install -e .
+
+multitude found --name "My Multitude" --founder alice
+multitude say --as alice --text "The rhizome is alive."
+multitude status
 ```
+
+The repository launcher remains supported, so the same commands can also
+be run as `python multitude.py ...`. `pip install -r requirements.txt`
+installs the same core runtime dependencies without installing the package.
 
 Optional node-to-node networking (Phase 2+ fabric):
 
 ```bash
+pip install -e '.[zenoh]'
 export PCM_ZENOH_ENABLED=true
 python3 -m unittest tests.test_pcm_phase2_zenoh   # two-node exchange demo
 ```
+
+Development/test dependencies are separate:
+
+```bash
+pip install -e '.[dev]'
+pytest
+```
+
+Install all currently packaged extras with `pip install -e '.[all]'`.
 
 ## Networking architecture
 
