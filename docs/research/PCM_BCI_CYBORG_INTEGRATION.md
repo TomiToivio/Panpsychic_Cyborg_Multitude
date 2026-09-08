@@ -2,7 +2,7 @@
 
 **Status:** research document (v0.1, 2026-09-06) — issue #13
 **Series:** PCM research notes — companions: `PCM_CONSCIOUS_AI_PLAN.md` (Track D boundary question), `PCM_EMBODIED_AI_PLAN.md` (physical embodiment), `docs/research/CONSCIOUS_HUMAN_AI_ASSEMBLAGES.md` (assemblage cognition vs consciousness)
-**Existing substrate this document builds on:** `BCIAdapter`/`BCIHub` (`src/multitude/integrations/bci.py`, issue #10), optional embodiment module (issue #12), six-layer profile (`multitude.layers`), Phase 3b confidentiality gate + Phase 4 gated BCI nodes (`NETWORKING_STACK.md`).
+**Existing substrate this document builds on:** `BCIAdapter`/`BCIHub` (`src/multitude/integrations/bci.py`, issue #10), optional embodiment module (issue #12), six-layer profile (`multitude.layers`), Phase 3b confidentiality gate + Phase 4 gated BCI nodes (`docs/NETWORKING_STACK.md`).
 
 **Epistemic markers:** **[ESTABLISHED]** validated science or working engineering · **[PROMISING]** active research, credible path, not yet routine · **[EXPERIMENTAL]** demonstrated in labs/preprints, not dependable · **[SPECULATIVE]** requires contested theory or undiscovered technology.
 
@@ -293,7 +293,7 @@ biological state → local BCI processing → PCM context → AI adaptation
 
 **Ecosystems (maintenance verified 2026-09):** BrainFlow (github.com/brainflow-dev/brainflow, MIT, PyPI 5.22.2), LSL/pylsl (github.com/sccn/labstreaminglayer, MIT), muselsl 2.5.1 (github.com/alexandrebarachant/muse-lsl, BSD), MNE-Python 1.12.1 (BSD), OpenBCI (shop.openbci.com), EmotiBit (shop.emotibit.com; github.com/EmotiBit), braindecode 1.8.1 / MOABB 1.7.1 / NeuroKit2 0.2.13 / yasa 0.7.0.
 
-**PCM internal:** `PCM_CONSCIOUS_AI_PLAN.md` (Track D); `PCM_EMBODIED_AI_PLAN.md`; `src/multitude/integrations/bci.py`; `NETWORKING_STACK.md` (Phase 3b/4 gates).
+**PCM internal:** `PCM_CONSCIOUS_AI_PLAN.md` (Track D); `PCM_EMBODIED_AI_PLAN.md`; `src/multitude/integrations/bci.py`; `docs/NETWORKING_STACK.md` (Phase 3b/4 gates).
 
 ---
 

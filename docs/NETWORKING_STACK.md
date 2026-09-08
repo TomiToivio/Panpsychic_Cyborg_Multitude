@@ -361,14 +361,35 @@ Phase 3  CODE  two+ nodes end-to-end: signed envelopes over the fabric,
                memory mirror (LWW merge document), VC capability grants —
                implemented and unit-tested in-process; awaiting real
                two-node field testing (real DID peers, not loopback)
-Phase 4  NEXT  BCI/biosignal nodes over the same subjects
+Phase 3b  REQUIRED GATE — confidentiality & key lifecycle, BEFORE any
+               real biosignal/BCI data crosses the fabric:
+               - encrypted transport where appropriate (Zenoh TLS
+                 locators; no plaintext fabric for sensitive payloads);
+               - encryption at rest / payload encryption for sensitive
+                 records (signatures give integrity + authentication,
+                 NOT confidentiality — a signed plaintext is still
+                 plaintext to every relaying peer);
+               - key rotation for node identities (successor-DID
+                 credential, re-sign delegation);
+               - revocation (capability grants must be retractable; a
+                 revoked DID/capability stops granting new access);
+               - capability checks enforced at merge time (already in
+                 pcm.envelope.authorize_sender — extend to memory mirror);
+               - private-memory guarantee audited end-to-end: private
+                 data never serialized outbound (enforced in
+                 Envelope.create), never merged without write_memory
+                 authorization, raw biosignals stay local by default.
+               No BCI hardware, no real biometric payloads, no EmotiBit/
+               Ganglion deployment until this gate passes review.
+Phase 4  GATED  BCI/biosignal nodes over the same subjects — only after
+               Phase 3b.
 ```
 
 Scope note: ecosystem interop with external research tools belongs to
 those projects' repositories, not to the public PCM distribution. The
 public repo carries the kernel and the fabric only.
 
-**Explicitly NOT adopted:** Matrix (rejected), Holochain (no Python path), IPFS (v1), blockchain/global consensus, ssbc code, EMOTIV, Nostr relay infra (concepts borrowed only), Solid-as-requirement.
+**Explicitly NOT adopted:** Matrix (rejected), Holochain (no Python path), IPFS (v1), blockchain/global consensus, ssbc code, EMOTIV, Nostr relay infra (concepts borrowed only), Solid-as-requirement. **Agent orchestration frameworks** (LangGraph, AutoGen, CrewAI; LlamaIndex for the kernel) — rejected per the dependency policy in IMPLEMENTATION_BACKLOG.md Priority 7: orchestration already lives in the fabric + policy; a second authority breaks the one-rule-per-layer design.
 
 ---
 

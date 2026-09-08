@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """PCM envelope protocol — minimal signed message between nodes (Phase 0).
 
-Implements NETWORKING_STACK.md §3. One versioned, self-describing,
+Implements docs/NETWORKING_STACK.md §3. One versioned, self-describing,
 transport-agnostic envelope; it rides inside fabric events, Automerge
 documents, JSONL lines, or raw sockets.
 

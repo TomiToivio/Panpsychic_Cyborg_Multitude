@@ -362,7 +362,7 @@ Target files:
 - [requirements.txt](requirements.txt) — stays minimal; no framework entries
 - [src/multitude/pcm/transport.py](src/multitude/pcm/transport.py) — the only
   place an interop adapter may appear
-- [NETWORKING_STACK.md](NETWORKING_STACK.md) §"Explicitly NOT adopted" —
+- [docs/NETWORKING_STACK.md](docs/NETWORKING_STACK.md) §"Explicitly NOT adopted" —
   add orchestration platforms alongside Matrix/Holochain/IPFS
 
 Acceptance criteria:

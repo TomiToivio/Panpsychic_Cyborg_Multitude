@@ -281,7 +281,7 @@ export PCM_ZENOH_ENABLED=true
 python3 -m unittest tests.test_pcm_phase2_zenoh   # two-node demo
 ```
 
-Architecture and security model: [NETWORKING_STACK.md](NETWORKING_STACK.md).
+Architecture and security model: [docs/NETWORKING_STACK.md](NETWORKING_STACK.md).
 
 **Other interfaces.** `multitude serve-api` runs a minimal local JSON
 API; `multitude telegram` runs the Telegram gateway (requires a repo

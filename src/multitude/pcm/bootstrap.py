@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""PCM node bootstrap — Phase 0 activation (NETWORKING_STACK.md §4.2).
+"""PCM node bootstrap — Phase 0 activation (docs/NETWORKING_STACK.md §4.2).
 
 Ties the identity, envelope and bridge modules into one call surface for
 the Hermes node. Called from agent.py's command dispatch:

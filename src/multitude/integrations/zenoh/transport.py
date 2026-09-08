@@ -2,7 +2,7 @@
 """Zenoh transport — Phase 2 PCM node-to-node envelope exchange.
 
 Replaces the Matrix room as the primary peer transport for Phase 2
-(maintainer decision 2026-09-05: zenoh replaces Matrix). NETWORKING_STACK.md
+(maintainer decision 2026-09-05: zenoh replaces Matrix). docs/NETWORKING_STACK.md
 §7 Phase 2 changes transport; the MVP criterion is unchanged:
 
     Two PCM nodes exchange signed envelopes, and both can rebuild

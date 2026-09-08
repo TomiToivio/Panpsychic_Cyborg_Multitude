@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Memory mirror — Phase 3 first slice (NETWORKING_STACK.md §12).
+"""Memory mirror — Phase 3 first slice (docs/NETWORKING_STACK.md §12).
 
 Mirrors a node's personal memory (``IndividualMemoryStore``-shaped JSON)
 into a CRDT-friendly, mergeable document and syncs it over the PCM

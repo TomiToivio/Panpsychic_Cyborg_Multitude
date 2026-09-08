@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """GET → POST bridge client — optional transport for constrained nodes.
 
-Complements NETWORKING_STACK.md §3 (PCM protocol) and §26 (Unix streams):
+Complements docs/NETWORKING_STACK.md §3 (PCM protocol) and §26 (Unix streams):
 the envelope is transport-agnostic, and this module adds one more transport
 for the constrained-node case. A node that can only make GET requests —
 locked-down egress, link-scanner-shaped clients, no inbound ports (WSL,
