@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Tests for the dormant GET→POST bridge (NETWORKING_STACK.md §3, §26).
+"""Tests for the dormant GET→POST bridge (docs/NETWORKING_STACK.md §3, §26).
 
 Phase 0 rules under test:
 - The bridge is DORMANT by default: send() raises without explicit enable.

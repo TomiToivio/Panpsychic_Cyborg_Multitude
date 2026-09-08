@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Phase 1 tests — single PCM node (NETWORKING_STACK.md §7).
+"""Phase 1 tests — single PCM node (docs/NETWORKING_STACK.md §7).
 
 Roadmap criteria under test:
 1. Hermes posts a proposal via envelope — a signed proposal_open envelope

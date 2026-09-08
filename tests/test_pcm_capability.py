@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Phase 3 tests — VC capability grants ('trusted' layer).
 
-NETWORKING_STACK.md §7 four-state model, closing the roadmap line:
+docs/NETWORKING_STACK.md §7 four-state model, closing the roadmap line:
 Phase 3 — VC capability grants.
 
 Test criteria:

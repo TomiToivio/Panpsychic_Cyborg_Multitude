@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Phase 3 tests — memory mirror over the PCM Transport ABC.
 
-NETWORKING_STACK.md §12 Phase 3 line: "automerge memory mirror".
+docs/NETWORKING_STACK.md §12 Phase 3 line: "automerge memory mirror".
 Implementation: pcm/memory_mirror.py — per-field LWW merge document
 (Automerge-compatible semantics, stdlib codec) synced as signed
 memory_share envelopes over the Transport ABC.

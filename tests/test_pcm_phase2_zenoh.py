@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Phase 2 tests — two PCM nodes over zenoh (NETWORKING_STACK.md §7, MVP).
+"""Phase 2 tests — two PCM nodes over zenoh (docs/NETWORKING_STACK.md §7, MVP).
 
 The MVP success criterion, transported by zenoh instead of Matrix
 (maintainer decision 2026-09-05):

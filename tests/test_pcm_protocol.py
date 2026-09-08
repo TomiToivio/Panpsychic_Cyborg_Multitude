@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Phase 0 protocol tests — NETWORKING_STACK.md §7 Phase 0 test criteria:
+"""Phase 0 protocol tests — docs/NETWORKING_STACK.md §7 Phase 0 test criteria:
 
 1. A signed envelope round-trips dict → JSON → dict with signature
    verification.
