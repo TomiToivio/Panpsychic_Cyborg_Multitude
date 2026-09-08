@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""VC capability grants — Phase 3 'trusted' layer (NETWORKING_STACK.md §7).
+"""VC capability grants — Phase 3 'trusted' layer (docs/NETWORKING_STACK.md §7).
 
 Closes the roadmap line: Phase 3 — VC capability grants.
 
