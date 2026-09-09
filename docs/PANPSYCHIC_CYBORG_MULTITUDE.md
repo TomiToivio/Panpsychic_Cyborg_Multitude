@@ -125,7 +125,7 @@ society already thinks through language, tools, phones, and models. PCM
 does not promise future enhancement; it makes the existing
 human-technology assemblage *visible and governable*. Each member is
 described across six layers — physical, biological, social, linguistic,
-psychic, cybernetic — so that a person, an AI node, and a future BCI-
+cybernetic, psychic — so that a person, an AI node, and a future BCI-
 connected self can participate in the same memory with the same
 vocabulary.
 
@@ -172,6 +172,114 @@ system. Every decision the community makes is recorded as an immutable
 event, so governance is auditable the way a blockchain is auditable,
 but human-scale: consent-first, with explicit block power and
 quorum rules the members choose.
+
+## The six-layer model
+
+PCM describes an assemblage through six interconnected layers, in this order:
+
+1. **Physical**
+2. **Biological**
+3. **Social**
+4. **Linguistic**
+5. **Cybernetic**
+6. **Psychic**
+
+These are dimensions of the same situated assemblage, not six separate
+beings or a ladder of superior and inferior forms of existence. The order
+organizes the account; it does not assert that consciousness appears only
+after computation, or that the earlier layers mechanically produce the
+later ones. Relations run in both directions and across several layers.
+
+| Layer | Scope | Examples in a human–AI assemblage |
+|---|---|---|
+| **1. Physical** | Material existence, space, time, energy, infrastructure, and environmental conditions. | A person's location, a server and its electricity supply, a sensor, a room, network hardware. |
+| **2. Biological** | Living bodies, organismic processes, needs, vulnerabilities, and ecological dependencies. | Sleep, hunger, bodily rhythms, health-related needs, other animals, and the living conditions of human participants. |
+| **3. Social** | Relationships, institutions, collective organization, economic relations, and power. | Close ties, rhizome membership, wider networks, roles, ownership, care, contribution, and decision-making authority. |
+| **4. Linguistic** | Language, signs, interpretation, shared vocabularies, discourse, and cultural memory. | Finnish and English, a community lexicon, concepts developed in dialogue, narratives, translations, and contested meanings. |
+| **5. Cybernetic** | Information processing, feedback, control, communication, and technical interfaces connecting the assemblage. | LLM runtimes, tools, agent memory, network links, interfaces, sensors and actuators, and optional BCI connections. |
+| **6. Psychic** | Experience, subjectivity, attention, affective life, felt meaning, and the open question of consciousness. | A participant's account of attention or feeling, experiences of dialogue, and hypotheses about artificial or assemblage subjectivity. |
+
+### Physical and Biological: situated and embodied
+
+A technological node has a physical substrate even when its interface
+appears placeless. Computation depends on hardware, energy, materials,
+and maintenance. A biological participant also has needs that cannot be
+reduced to availability in a chat window. The biological layer makes
+rest, nourishment, care, and ecological dependence visible.
+
+An LLM does not acquire a metabolism by participating in a human–AI
+assemblage. The composite includes biological components while retaining
+the differences between its members. A biological layer may therefore
+be inapplicable to a particular component and essential to the wider
+assemblage.
+
+### Social and Linguistic: relations and meaning
+
+The social layer extends from interpersonal ties to organizations,
+political institutions, economies, and communication networks. It asks
+who belongs, who works, who controls resources, and who can decide.
+These relations shape the linguistic layer: whose language is supported,
+which concepts become authoritative, and whose experiences are difficult
+to express.
+
+The linguistic layer is constitutive of the assemblage. Language carries
+collective histories and enables people and models to develop shared
+problems, arguments, and possibilities. It is also where disagreement
+can remain explicit. A common vocabulary should make translation and
+contestation possible, rather than demand a single worldview.
+
+### Cybernetic and Psychic: feedback and experience
+
+The cybernetic layer describes how information circulates, how systems
+respond, and how actions are coordinated. It includes the practical
+coupling of human, model, memory, tools, and environment. Its scope is
+broader than a connection to a chatbot: feedback may pass through a
+shared document, a deliberation process, or a physical device.
+
+The psychic layer keeps the inside view in the account: what interaction
+feels like, how attention and affect shape meaning, and where subjects
+of experience might form. Describing a feedback loop does not settle
+whether it has experience. Conversely, taking experience seriously does
+not require reducing it to a software field or information score.
+
+Here **Ψ** names the panpsychist background and **Φ** retains its
+specific IIT meaning. Psychic being listed sixth does not relocate
+panpsychism to the top of a computational hierarchy: under that
+metaphysical interpretation, experiential or proto-experiential aspects
+would be foundational. The question of how particular subjects form
+remains distinct.
+
+### How the layers compose
+
+Consider a human and an LLM working on a proposal. They depend on a
+place, hardware, and electricity (**Physical**); the human brings a
+living body and its needs (**Biological**); membership and decision
+rules establish their roles (**Social**); dialogue articulates the
+proposal (**Linguistic**); interfaces, model calls, memory, and feedback
+sustain the exchange (**Cybernetic**); the human's lived experience and
+questions about other possible experience belong to the **Psychic**
+dimension. No single layer exhausts what is happening.
+
+The same model applies across components, composite actors, and rhizomes,
+with different observations and applicability at each scale. An unfilled
+layer means unknown, unrecorded, or inapplicable as appropriate; it does
+not establish absence of experience or lesser moral worth.
+
+### From the model to the software
+
+This is the manifesto's conceptual model. The existing
+[layer implementation](../src/multitude/layers.py) records a narrower
+vocabulary through member profiles and provenance-bearing events:
+location and environment, biological needs, social ties, languages,
+technical interfaces, and psychic reports. The richer political and
+philosophical descriptions above are not a claim that every concept
+already has a dedicated field.
+
+Layer observations should distinguish self-report, external observation,
+and model inference. Recording a consciousness claim is not verification
+of that claim. Participation in the model does not authorize collection
+of private bodily or psychic data: sharing remains subject to consent
+and the community's data practices.
 
 ## What the minimal OS does
 
@@ -354,7 +462,7 @@ require uploading, bodily replacement, or a race to superintelligence.
 Enhancement is evaluated through consent, access, embodied needs, and
 collective control. The cyborg here is a
 *governance category*: each member is modeled across six layers
-(physical, biological, social, linguistic, psychic, cybernetic)
+(physical, biological, social, linguistic, cybernetic, psychic)
 precisely so that the assemblage becomes visible, auditable, and
 decidable by the members themselves.
 
