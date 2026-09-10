@@ -6,7 +6,7 @@
 
 **A social operating system for humans, AI agents, and everything in between.**
 
-*Manifesto and project description — revised 9 September 2026. Software version: 0.1.*
+*Manifesto and project description — revised 10 September 2026. Software version: 0.1.*
 
 ---
 
@@ -190,14 +190,52 @@ organizes the account; it does not assert that consciousness appears only
 after computation, or that the earlier layers mechanically produce the
 later ones. Relations run in both directions and across several layers.
 
-| Layer | Scope | Examples in a human–AI assemblage |
-|---|---|---|
-| **1. Physical** | Material existence, space, time, energy, infrastructure, and environmental conditions. | A person's location, a server and its electricity supply, a sensor, a room, network hardware. |
-| **2. Biological** | Living bodies, organismic processes, needs, vulnerabilities, and ecological dependencies. | Sleep, hunger, bodily rhythms, health-related needs, other animals, and the living conditions of human participants. |
-| **3. Social** | Relationships, institutions, collective organization, economic relations, and power. | Close ties, rhizome membership, wider networks, roles, ownership, care, contribution, and decision-making authority. |
-| **4. Linguistic** | Language, signs, interpretation, shared vocabularies, discourse, and cultural memory. | Finnish and English, a community lexicon, concepts developed in dialogue, narratives, translations, and contested meanings. |
-| **5. Cybernetic** | Information processing, feedback, control, communication, and technical interfaces connecting the assemblage. | LLM runtimes, tools, agent memory, network links, interfaces, sensors and actuators, and optional BCI connections. |
-| **6. Psychic** | Experience, subjectivity, attention, affective life, felt meaning, and the open question of consciousness. | A participant's account of attention or feeling, experiences of dialogue, and hypotheses about artificial or assemblage subjectivity. |
+The layers also do not pretend to descend from one grand unified social
+theory. PCM deliberately composes several theoretical lenses. **Niklas
+Luhmann** provides a distinction among living, psychic, and social
+systems; **Manuel Castells** describes the network morphology of social
+power; **Ernesto Laclau** provides a theory and method for analysing the
+political articulation of linguistic systems; and **Slavoj Žižek's
+*Hegel in a Wired Brain*** provides a critical lens on the point where
+subjectivity, language, and cybernetic interfaces collide. Michael
+Levin's work on diverse intelligence and "ingressing minds" adds a more
+speculative possibility: embodiments may function as interfaces to forms
+of agency that are not exhausted by the material description of the
+embodiment itself.
+
+| Layer | Scope | Theoretical lens | Examples in a human–AI assemblage |
+|---|---|---|---|
+| **1. Physical** | Material existence, space, time, energy, infrastructure, and environmental conditions. | Material substrate and situated infrastructure; Levin's embodiment/interface hypothesis is a speculative bridge outward from this layer. | A person's location, a server and its electricity supply, a sensor, a room, network hardware. |
+| **2. Biological** | Living bodies, organismic processes, needs, vulnerabilities, and ecological dependencies. | **Luhmann:** living systems reproduce the operations of life and remain distinct from psychic and social systems while structurally coupled to them. | Sleep, hunger, bodily rhythms, health-related needs, other animals, and the living conditions of human participants. |
+| **3. Social** | Relationships, institutions, collective organization, economic relations, communication, and power. | **Luhmann:** social systems reproduce communication. **Castells:** social organization increasingly takes network form, with power shaped by network position, inclusion, exclusion, programming, and connection. | Close ties, rhizome membership, wider networks, roles, ownership, care, contribution, and decision-making authority. |
+| **4. Linguistic** | Language, signs, interpretation, shared vocabularies, discourse, and cultural memory. | **Laclau:** meaning is politically articulated through discourse, nodal points, empty and floating signifiers, chains of equivalence and difference, antagonism, and hegemony. | Finnish and English, a community lexicon, concepts developed in dialogue, narratives, translations, contested meanings, and LaclauGPT discourse graphs. |
+| **5. Cybernetic** | Information processing, feedback, control, communication, and technical interfaces connecting the assemblage. | Cybernetics supplies feedback and control; **Žižek's *Hegel in a Wired Brain*** interrogates the fantasy that direct neural or digital coupling can simply bypass mediation and the symbolic order. | LLM runtimes, tools, agent memory, network links, interfaces, sensors and actuators, and optional BCI connections. |
+| **6. Psychic** | Experience, subjectivity, attention, affective life, felt meaning, and the open question of consciousness. | **Luhmann:** psychic systems reproduce consciousness rather than communication. Žižek links this subject to language and technological mediation; Ψ and Φ belong to PCM's separate consciousness research programme. | A participant's account of attention or feeling, experiences of dialogue, and hypotheses about artificial or assemblage subjectivity. |
+
+### Luhmann: living, psychic, and social systems
+
+PCM borrows a particularly useful distinction from **Niklas Luhmann's
+systems theory** without adopting his theory wholesale. Luhmann treats
+living, psychic, and social systems as different kinds of autopoietic
+systems. Living systems reproduce life; psychic systems reproduce
+consciousness; social systems reproduce communication. Each operates in
+its own domain and cannot simply be reduced to another, even though they
+are deeply **structurally coupled**.
+
+That distinction maps usefully onto three PCM layers. **Biological**
+corresponds to the domain of living systems, **Psychic** to the domain of
+consciousness and thought, and **Social** to the domain of communication.
+The mapping is intentionally approximate: PCM is an assemblage model,
+not a software implementation of Luhmann. Its Physical, Linguistic, and
+Cybernetic layers make additional distinctions that PCM needs in order
+to describe material infrastructure, discourse, and technical mediation.
+
+This Luhmannian distinction is important because it prevents the
+assemblage from becoming theoretical soup. A biological organism is not
+identical with a consciousness; a consciousness is not identical with a
+conversation; and a social network is not automatically a collective
+mind. Their boundaries differ even when their operations continuously
+condition one another.
 
 ### Physical and Biological: situated and embodied
 
@@ -211,36 +249,81 @@ An LLM does not acquire a metabolism by participating in a human–AI
 assemblage. The composite includes biological components while retaining
 the differences between its members. A biological layer may therefore
 be inapplicable to a particular component and essential to the wider
-assemblage.
+assemblage. In Luhmannian terms, the living system and the psychic or
+social systems coupled to it remain analytically distinct.
 
-### Social and Linguistic: relations and meaning
+Michael Levin's research on basal cognition and diverse intelligence
+makes the boundary between embodiment and agency a further research
+problem. His speculative "ingressing minds" proposal suggests that
+physical and biological embodiments might act as interfaces through
+which richer patterns of agency become expressed. PCM treats that as a
+provocative hypothesis rather than a settled mechanism: unexpected
+competence is something to investigate, not proof of a non-physical mind.
+
+### Social and Linguistic: networks, communication, discourse, and meaning
 
 The social layer extends from interpersonal ties to organizations,
-political institutions, economies, and communication networks. It asks
-who belongs, who works, who controls resources, and who can decide.
-These relations shape the linguistic layer: whose language is supported,
+political institutions, economies, and communication networks. In
+**Luhmann's** vocabulary, the elementary operation of the social system
+is communication rather than an aggregation of individual minds. PCM
+does not therefore treat a social graph as a literal group brain.
+
+**Manuel Castells** adds the topology and political economy of the
+network society. Social power is exercised through communication
+networks and through the capacity to shape, connect, exclude, route, or
+reprogram flows. PCM therefore asks not only *who belongs?* but also:
+Who occupies central or bridging positions? Who controls infrastructure?
+Who can connect networks that would otherwise remain separate? Who can
+change the rules by which information and resources move? Castells turns
+the Social layer from a list of relationships into a map of **networked
+power**.
+
+Those relations shape the Linguistic layer: whose language is supported,
 which concepts become authoritative, and whose experiences are difficult
-to express.
+to express. The linguistic layer is constitutive of the assemblage.
+Language carries collective histories and enables people and models to
+develop shared problems, arguments, and possibilities. It is also where
+disagreement can remain explicit.
 
-The linguistic layer is constitutive of the assemblage. Language carries
-collective histories and enables people and models to develop shared
-problems, arguments, and possibilities. It is also where disagreement
-can remain explicit. A common vocabulary should make translation and
-contestation possible, rather than demand a single worldview.
+For political discourse, PCM adopts **Ernesto Laclau** as the primary
+analytical lens. Meanings are not fixed atoms stored in a dictionary;
+they are partially fixed through **articulation**. Discourse can be
+mapped through **nodal points, empty and floating signifiers, chains of
+equivalence and difference, antagonisms, political frontiers, and
+hegemonic projects**. This is the role of **LaclauGPT** within the wider
+PCM architecture: computational methods and LLMs can assist in tracing
+how a linguistic system organizes political identities and contestation,
+while human interpretation remains responsible for the theoretical
+claims. A common vocabulary should therefore make translation and
+contestation possible rather than demand a single worldview.
 
-### Cybernetic and Psychic: feedback and experience
+### Cybernetic and Psychic: feedback, mediation, and experience
 
 The cybernetic layer describes how information circulates, how systems
 respond, and how actions are coordinated. It includes the practical
 coupling of human, model, memory, tools, and environment. Its scope is
 broader than a connection to a chatbot: feedback may pass through a
-shared document, a deliberation process, or a physical device.
+shared document, a deliberation process, a sensor, a BCI, or a physical
+device.
+
+**Slavoj Žižek's *Hegel in a Wired Brain* (2020)** is useful here
+precisely because it refuses the simple fantasy that a sufficiently
+high-bandwidth brain interface makes mediation disappear. A wired brain
+raises questions about subjectivity, the symbolic order, privacy,
+otherness, desire, and what remains of the subject when thought itself
+becomes technologically addressable. For PCM, Žižek therefore belongs
+across the **Cybernetic, Linguistic, and Psychic** layers. A BCI is never
+only bandwidth: it changes the conditions under which subjects encounter
+one another and themselves.
 
 The psychic layer keeps the inside view in the account: what interaction
 feels like, how attention and affect shape meaning, and where subjects
-of experience might form. Describing a feedback loop does not settle
-whether it has experience. Conversely, taking experience seriously does
-not require reducing it to a software field or information score.
+of experience might form. In Luhmann's terms, psychic systems operate in
+consciousness and remain distinct from social systems operating in
+communication. Describing a feedback loop or a communication system does
+not settle whether it has experience. Conversely, taking experience
+seriously does not require reducing it to a software field or information
+score.
 
 Here **Ψ** names the panpsychist background and **Φ** retains its
 specific IIT meaning. Psychic being listed sixth does not relocate
@@ -477,7 +560,6 @@ their singularity to a unified sovereign subject. The multitude does
 not vote itself into a Leviathan; it cooperates through networks,
 produces the common (knowledge, code, care, trust), and refuses both
 the platform and the party.
-
 The concept is rooted in **Spinoza** — the *multitudo* of the
 *Tractatus Theologico-Politicus*: the multitude is the ontological
 fact of human sociality, power as *potentia* (collective capacity)
@@ -587,6 +669,58 @@ And the project description that follows from it:
 PCM belongs to a wider conversation about minds, machines, and the common.
 These traditions offer different resources. Their proximity does not make
 them one theory, and citing a project does not establish its empirical claims.
+
+### Luhmann: systems remain different even when coupled
+
+Niklas Luhmann's *Social Systems* offers PCM a disciplined way to resist
+turning "the assemblage" into an undifferentiated super-organism. Living,
+psychic, and social systems reproduce different operations: life,
+consciousness, and communication. Their operational closure does not make
+them isolated; structural coupling lets one system repeatedly perturb and
+condition another. PCM uses this distinction to sharpen its Biological,
+Psychic, and Social layers while retaining a broader assemblage ontology.
+
+### Castells: the social has a network topology
+
+Manuel Castells' *The Rise of the Network Society* and later work on
+communication power explain why the Social layer must be modelled as
+more than membership and institutions. Network position, connection,
+exclusion, switching, infrastructure, and the ability to program flows
+are political variables. PCM's rhizomes are therefore not politically
+neutral graphs: their topology distributes capacities and power.
+
+### Laclau: the linguistic is a field of political articulation
+
+Ernesto Laclau's discourse theory supplies the political analytics of
+the Linguistic layer. Nodal points partially stabilize meaning; empty
+and floating signifiers become sites of struggle; chains of equivalence
+and difference construct collective identities; antagonisms draw
+political frontiers; hegemonic articulations temporarily organize a
+field that can always be contested. **LaclauGPT** is PCM's computational
+instrument for investigating these processes without pretending that
+embedding geometry or model output is itself a theory of politics.
+
+### Žižek: Hegel in the wired brain
+
+Slavoj Žižek's *Hegel in a Wired Brain* is a deliberately awkward but
+productive companion to the Cybernetic and Psychic layers. Brain-computer
+interfaces and direct digital coupling do not automatically abolish
+alienation or give transparent access to another mind. They may instead
+make the constitutive role of mediation, language, otherness, and the
+split subject more visible. PCM uses Žižek as a warning against treating
+more bandwidth as equivalent to more mutual understanding or a merged
+collective consciousness.
+
+### Levin: embodiment as a possible interface to agency
+
+Michael Levin's work on basal cognition, diverse intelligence, and his
+"ingressing minds" hypothesis pushes PCM's boundary question in another
+direction. Novel biological, synthetic, and hybrid embodiments can show
+competencies that make the relation between mechanism, form, and agency
+worth investigating. Levin's stronger metaphysical proposal, that
+embodiments may provide interfaces for causally efficacious patterns of
+agency, remains speculative. PCM treats it as a research provocation,
+not as proof of Platonic minds or a replacement for mechanistic biology.
 
 ### Cyborgism: cultivate the joint capacity to think
 
