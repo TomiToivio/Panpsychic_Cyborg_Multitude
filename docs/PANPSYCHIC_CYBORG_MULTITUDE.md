@@ -194,10 +194,15 @@ The layers also do not pretend to descend from one grand unified social
 theory. PCM deliberately composes several theoretical lenses. **Niklas
 Luhmann** provides a distinction among living, psychic, and social
 systems; **Manuel Castells** describes the network morphology of social
-power; **Ernesto Laclau** provides a theory and method for analysing the
-political articulation of linguistic systems; and **Slavoj Žižek's
-*Hegel in a Wired Brain*** provides a critical lens on the point where
-subjectivity, language, and cybernetic interfaces collide. Michael
+power; **Saussurean structuralism and PCM's working idea of LLM
+Structuralism** describe meaning as relational structure rather than an
+inventory of intrinsic sign essences; **Huh et al.'s Platonic
+Representation Hypothesis** raises the empirical possibility that learned
+representations can converge across models and modalities; **Ernesto
+Laclau** provides a theory and method for analysing the political
+articulation and contingent fixation of linguistic systems; and **Slavoj
+Žižek's *Hegel in a Wired Brain*** provides a critical lens on the point
+where subjectivity, language, and cybernetic interfaces collide. Michael
 Levin's work on diverse intelligence and "ingressing minds" adds a more
 speculative possibility: embodiments may function as interfaces to forms
 of agency that are not exhausted by the material description of the
@@ -208,7 +213,7 @@ embodiment itself.
 | **1. Physical** | Material existence, space, time, energy, infrastructure, and environmental conditions. | Material substrate and situated infrastructure; Levin's embodiment/interface hypothesis is a speculative bridge outward from this layer. | A person's location, a server and its electricity supply, a sensor, a room, network hardware. |
 | **2. Biological** | Living bodies, organismic processes, needs, vulnerabilities, and ecological dependencies. | **Luhmann:** living systems reproduce the operations of life and remain distinct from psychic and social systems while structurally coupled to them. | Sleep, hunger, bodily rhythms, health-related needs, other animals, and the living conditions of human participants. |
 | **3. Social** | Relationships, institutions, collective organization, economic relations, communication, and power. | **Luhmann:** social systems reproduce communication. **Castells:** social organization increasingly takes network form, with power shaped by network position, inclusion, exclusion, programming, and connection. | Close ties, rhizome membership, wider networks, roles, ownership, care, contribution, and decision-making authority. |
-| **4. Linguistic** | Language, signs, interpretation, shared vocabularies, discourse, and cultural memory. | **Laclau:** meaning is politically articulated through discourse, nodal points, empty and floating signifiers, chains of equivalence and difference, antagonism, and hegemony. | Finnish and English, a community lexicon, concepts developed in dialogue, narratives, translations, contested meanings, and LaclauGPT discourse graphs. |
+| **4. Linguistic** | Language, signs, interpretation, shared vocabularies, discourse, representation, and cultural memory. | **Saussure / LLM Structuralism:** meaning emerges from relations and differences among signs, which language models can operationalize statistically in learned representation spaces. **Platonic Representation Hypothesis:** representations may partially converge across models and modalities toward shared statistical structure, without requiring literal Platonism. **Laclau:** political meaning remains contingently articulated through discourse, nodal points, empty and floating signifiers, chains of equivalence and difference, antagonism, and hegemony. | Finnish and English, embedding and representation spaces, a community lexicon, concepts developed in dialogue, narratives, translations, contested meanings, and LaclauGPT discourse graphs. |
 | **5. Cybernetic** | Information processing, feedback, control, communication, and technical interfaces connecting the assemblage. | Cybernetics supplies feedback and control; **Žižek's *Hegel in a Wired Brain*** interrogates the fantasy that direct neural or digital coupling can simply bypass mediation and the symbolic order. | LLM runtimes, tools, agent memory, network links, interfaces, sensors and actuators, and optional BCI connections. |
 | **6. Psychic** | Experience, subjectivity, attention, affective life, felt meaning, and the open question of consciousness. | **Luhmann:** psychic systems reproduce consciousness rather than communication. Žižek links this subject to language and technological mediation; Ψ and Φ belong to PCM's separate consciousness research programme. | A participant's account of attention or feeling, experiences of dialogue, and hypotheses about artificial or assemblage subjectivity. |
 
@@ -285,6 +290,47 @@ Language carries collective histories and enables people and models to
 develop shared problems, arguments, and possibilities. It is also where
 disagreement can remain explicit.
 
+PCM uses **LLM Structuralism** as a working name for a simple but
+important observation: modern language models make a strongly relational
+conception of language computationally tangible. In a Saussurean register,
+a sign does not carry meaning as an isolated essence; its value emerges
+through differences and relations within a system of signs. Embeddings,
+contextual representations, attention, and next-token prediction are not
+identical to Saussure's theory, but they operationalize language through
+high-dimensional patterns of relation rather than through a dictionary of
+self-contained meanings. Elad Vromen's [*Language Models as Semiotic
+Machines*](https://arxiv.org/abs/2410.13065) is a useful contemporary
+interlocutor for this interpretation.
+
+This does not mean that an LLM has rediscovered a timeless structure of
+Language with a capital L. The learned system is historical and situated:
+its relational geometry depends on corpora, languages, tokenization,
+training objectives, architectures, institutions, filtering, and the
+unequal cultural archive available to computation. **LLM Structuralism**
+therefore names a methodological analogy and research programme, not a
+claim that transformers vindicate classical structuralism wholesale.
+
+The [**Platonic Representation Hypothesis**](https://proceedings.mlr.press/v235/huh24a.html)
+of Huh, Cheung, Wang, and Isola adds a productive tension. Their 2024
+position paper argues that representations in different neural networks
+show signs of convergence, including across modalities, and hypothesizes
+that larger and more capable models may be moving toward a shared
+statistical model of reality. PCM treats this as a **technical cousin of
+Plato, not literal Platonism**. Representational convergence is an
+empirical hypothesis about learned geometries; by itself it does not
+establish eternal Forms, a metaphysical realm of representations, or a
+universal semantic truth.
+
+Placed beside LLM Structuralism, PRH asks a fascinating question: if
+meaning is relational within a system, why should independently trained
+systems ever develop increasingly similar relations? One possibility is
+that different modalities and models are constrained by recurring
+structure in a shared world. But convergence can also be produced or
+amplified by shared datasets, architectures, objectives, benchmark
+cultures, dominant languages, platform infrastructures, and other common
+historical conditions. PCM therefore treats apparent representational
+universals as phenomena to explain, not as politically innocent truths.
+
 For political discourse, PCM adopts **Ernesto Laclau** as the primary
 analytical lens. Meanings are not fixed atoms stored in a dictionary;
 they are partially fixed through **articulation**. Discourse can be
@@ -294,8 +340,18 @@ hegemonic projects**. This is the role of **LaclauGPT** within the wider
 PCM architecture: computational methods and LLMs can assist in tracing
 how a linguistic system organizes political identities and contestation,
 while human interpretation remains responsible for the theoretical
-claims. A common vocabulary should therefore make translation and
-contestation possible rather than demand a single worldview.
+claims.
+
+LLM Structuralism and LaclauGPT therefore form a deliberate theoretical
+loop. The model provides a computational example of meaning generated
+through relations among signs; LaclauGPT investigates why political
+meaning nevertheless cannot be permanently fixed. Even if the Platonic
+Representation Hypothesis turns out to capture real cross-model
+convergence, Laclau's question remains: **which articulations, exclusions,
+institutions, and hegemonic relations stabilize the representation that
+appears to us as common reality?** A common vocabulary should therefore
+make translation and contestation possible rather than demand a single
+worldview.
 
 ### Cybernetic and Psychic: feedback, mediation, and experience
 
@@ -394,7 +450,7 @@ also contains optional interfaces for networking, agents, derived BCI
 context, simulated physical devices, and ValueFlows. They are opt-in
 extensions, not prerequisites for membership or evidence of consciousness.
 Real-device readiness and permissions are described in the
-[README](../README.md), [user guide](USER_GUIDE.md), and linked research
+[README](../README.md#quick-start), [user guide](USER_GUIDE.md), and linked research
 plans. A manifesto's ambition is not an implementation guarantee.
 
 ## Design principles
@@ -689,6 +745,53 @@ exclusion, switching, infrastructure, and the ability to program flows
 are political variables. PCM's rhizomes are therefore not politically
 neutral graphs: their topology distributes capacities and power.
 
+### LLM Structuralism: the model learns relations, not essences
+
+**LLM Structuralism** is PCM's working label for reading language models
+through the relational insight of structural linguistics. Saussure's
+basic move was to treat linguistic value as produced by differences and
+relations inside a sign system. Contemporary language models make an
+unexpected computational analogue visible: tokens and contexts acquire
+usable representations through patterns of relation across vast textual
+corpora rather than from intrinsic semantic atoms. Vromen's
+[*Language Models as Semiotic Machines*](https://arxiv.org/abs/2410.13065)
+provides a nearby structuralist and post-structuralist formulation.
+
+PCM does not claim that transformers simply implement Saussure, that
+vector spaces are the structure of language itself, or that statistical
+prediction exhausts meaning. The point is methodological: LLMs make it
+possible to experimentally inspect large relational structures of signs,
+while their failures and variations expose how dependent those structures
+are on history, data, architecture, language, and context.
+
+### Platonic Representation Hypothesis: convergence without naive Platonism
+
+Huh, Cheung, Wang, and Isola's
+[**Platonic Representation Hypothesis**](https://proceedings.mlr.press/v235/huh24a.html)
+argues that representations learned by different neural networks are
+showing signs of convergence and asks whether models trained across
+different modalities are moving toward a shared statistical model of
+reality. For PCM this is a technical cousin of Plato rather than a
+commitment to literal Platonic Forms.
+
+PRH is especially interesting beside LLM Structuralism. Structuralism
+starts from relations internal to a sign system; PRH asks whether
+independently learned relational systems can nevertheless become more
+isomorphic because they are constrained by a common world. That is an
+empirical possibility worth taking seriously. But shared representational
+geometry can also reflect shared corpora, architectures, objectives,
+benchmarks, dominant languages, institutional infrastructures, and other
+historical regularities. Convergence is therefore evidence to explain,
+not a shortcut from embeddings to ontology.
+
+This tension matters politically. A representation can become widely
+shared because it tracks something stable in the world, because many
+systems inherit the same cultural archive, because a few platforms and
+languages dominate model development, or through some mixture of all
+three. PCM therefore asks not only whether representations converge, but
+**what makes them converge, whose world is represented, and which
+alternatives disappear from the learned space**.
+
 ### Laclau: the linguistic is a field of political articulation
 
 Ernesto Laclau's discourse theory supplies the political analytics of
@@ -699,6 +802,14 @@ political frontiers; hegemonic articulations temporarily organize a
 field that can always be contested. **LaclauGPT** is PCM's computational
 instrument for investigating these processes without pretending that
 embedding geometry or model output is itself a theory of politics.
+
+Read together, LLM Structuralism, PRH, and Laclau produce a useful
+three-part problem. **LLM Structuralism asks how relational meaning can
+be computationally represented. PRH asks why different representations
+may converge. Laclau asks how apparently stable meaning remains
+contingent, contested, and hegemonically articulated.** PCM keeps all
+three questions open rather than allowing one to silently answer the
+others.
 
 ### Žižek: Hegel in the wired brain
 
