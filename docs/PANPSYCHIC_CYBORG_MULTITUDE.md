@@ -191,8 +191,10 @@ after computation, or that the earlier layers mechanically produce the
 later ones. Relations run in both directions and across several layers.
 
 The layers also do not pretend to descend from one grand unified social
-theory. PCM deliberately composes several theoretical lenses. **Niklas
-Luhmann** provides a distinction among living, psychic, and social
+theory. PCM deliberately composes several theoretical lenses. **Seth
+Lloyd's quantum-computational view of physical reality** supplies one way
+to understand the Physical layer as information-processing dynamics;
+**Niklas Luhmann** provides a distinction among living, psychic, and social
 systems; **Manuel Castells** describes the network morphology of social
 power; **Saussurean structuralism and PCM's working idea of LLM
 Structuralism** describe meaning as relational structure rather than an
@@ -206,16 +208,19 @@ where subjectivity, language, and cybernetic interfaces collide. Michael
 Levin's work on diverse intelligence and "ingressing minds" adds a more
 speculative possibility: embodiments may function as interfaces to forms
 of agency that are not exhausted by the material description of the
-embodiment itself.
+embodiment itself. Most speculatively, **D'Ariano and Federico Faggin's
+Quantum Information Panpsychism (QIP)** allows the apparent layer sequence
+to curve back on itself by treating consciousness as ontologically prior
+to quantum information rather than as its late product.
 
 | Layer | Scope | Theoretical lens | Examples in a human–AI assemblage |
 |---|---|---|---|
-| **1. Physical** | Material existence, space, time, energy, infrastructure, and environmental conditions. | Material substrate and situated infrastructure; Levin's embodiment/interface hypothesis is a speculative bridge outward from this layer. | A person's location, a server and its electricity supply, a sensor, a room, network hardware. |
+| **1. Physical** | Material existence, space, time, energy, infrastructure, quantum dynamics, and environmental conditions. | **Seth Lloyd:** physical systems can be described as registering and processing information, and the universe can be modelled as a vast quantum computation. This is an information-theoretic interpretation of physical dynamics, not proof that the cosmos is literally a programmed computer. **QIP, speculative:** D'Ariano and Faggin reverse the usual explanatory direction by making quantum information dependent on consciousness, creating a possible conceptual bridge directly from Physical back to Psychic. **Levin:** embodiment/interface hypotheses provide another speculative bridge from physical organization to agency. | A person's location, a server and its electricity supply, a sensor, a room, network hardware, quantum fields, and physical information-processing dynamics. |
 | **2. Biological** | Living bodies, organismic processes, needs, vulnerabilities, and ecological dependencies. | **Luhmann:** living systems reproduce the operations of life and remain distinct from psychic and social systems while structurally coupled to them. | Sleep, hunger, bodily rhythms, health-related needs, other animals, and the living conditions of human participants. |
 | **3. Social** | Relationships, institutions, collective organization, economic relations, communication, and power. | **Luhmann:** social systems reproduce communication. **Castells:** social organization increasingly takes network form, with power shaped by network position, inclusion, exclusion, programming, and connection. | Close ties, rhizome membership, wider networks, roles, ownership, care, contribution, and decision-making authority. |
 | **4. Linguistic** | Language, signs, interpretation, shared vocabularies, discourse, representation, and cultural memory. | **Saussure / LLM Structuralism:** meaning emerges from relations and differences among signs, which language models can operationalize statistically in learned representation spaces. **Platonic Representation Hypothesis:** representations may partially converge across models and modalities toward shared statistical structure, without requiring literal Platonism. **Laclau:** political meaning remains contingently articulated through discourse, nodal points, empty and floating signifiers, chains of equivalence and difference, antagonism, and hegemony. | Finnish and English, embedding and representation spaces, a community lexicon, concepts developed in dialogue, narratives, translations, contested meanings, and LaclauGPT discourse graphs. |
 | **5. Cybernetic** | Information processing, feedback, control, communication, and technical interfaces connecting the assemblage. | Cybernetics supplies feedback and control; **Žižek's *Hegel in a Wired Brain*** interrogates the fantasy that direct neural or digital coupling can simply bypass mediation and the symbolic order. | LLM runtimes, tools, agent memory, network links, interfaces, sensors and actuators, and optional BCI connections. |
-| **6. Psychic** | Experience, subjectivity, attention, affective life, felt meaning, and the open question of consciousness. | **Luhmann:** psychic systems reproduce consciousness rather than communication. Žižek links this subject to language and technological mediation; Ψ and Φ belong to PCM's separate consciousness research programme. | A participant's account of attention or feeling, experiences of dialogue, and hypotheses about artificial or assemblage subjectivity. |
+| **6. Psychic** | Experience, subjectivity, attention, affective life, felt meaning, and the open question of consciousness. | **Luhmann:** psychic systems reproduce consciousness rather than communication. Žižek links this subject to language and technological mediation. **QIP, speculative:** consciousness is fundamental and quantum information supervenes on it, so Psychic can be read not only as layer six but as a possible ontological ground beneath layer one. Ψ and Φ otherwise belong to PCM's separate consciousness research programme. | A participant's account of attention or feeling, experiences of dialogue, and hypotheses about artificial or assemblage subjectivity. |
 
 ### Luhmann: living, psychic, and social systems
 
@@ -242,13 +247,32 @@ conversation; and a social network is not automatically a collective
 mind. Their boundaries differ even when their operations continuously
 condition one another.
 
-### Physical and Biological: situated and embodied
+### Physical and Biological: computation, embodiment, and life
 
 A technological node has a physical substrate even when its interface
 appears placeless. Computation depends on hardware, energy, materials,
 and maintenance. A biological participant also has needs that cannot be
 reduced to availability in a chat window. The biological layer makes
 rest, nourishment, care, and ecological dependence visible.
+
+**Seth Lloyd's physics of information** gives PCM a useful strong version
+of the Physical layer that does not require any theory of consciousness.
+In [*Computational Capacity of the Universe*](https://doi.org/10.1103/PhysRevLett.88.237901),
+Lloyd treats physical systems as registering information by existing and
+processing information through their dynamical evolution. In
+[*The Universe as Quantum Computer*](https://arxiv.org/abs/1312.4455), he
+develops the stronger interpretive proposal that the universe can be
+regarded as a giant quantum computer. His work on universal quantum
+simulation also shows that local quantum dynamics can in principle be
+simulated efficiently by universal quantum computers.
+
+PCM uses this as a **physical and informational lens, not a consciousness
+claim**. A universe that can be described computationally is not thereby a
+conscious universe. Lloyd gives us a way to say that computation is not
+something mysteriously added by laptops to otherwise inert matter:
+physical systems already have lawful information-bearing and
+information-transforming dynamics. Whether computation is merely a useful
+description or something ontologically fundamental remains open.
 
 An LLM does not acquire a metabolism by participating in a human–AI
 assemblage. The composite includes biological components while retaining
@@ -264,6 +288,31 @@ physical and biological embodiments might act as interfaces through
 which richer patterns of agency become expressed. PCM treats that as a
 provocative hypothesis rather than a settled mechanism: unexpected
 competence is something to investigate, not proof of a non-physical mind.
+
+**D'Ariano and Faggin's Quantum Information Panpsychism** then offers a
+much more speculative inversion. In [*Hard Problem and Free Will: An
+Information-Theoretical Approach*](https://doi.org/10.1007/978-3-030-85480-5_5),
+they propose an ordering in which classical physics supervenes on quantum
+physics, quantum physics on quantum information, and quantum information
+on consciousness. If entertained as an ontology, QIP therefore does not
+place Psychic at the end of a staircase built from matter. It bends the
+staircase into a loop:
+
+> **Physical → Biological → Social → Linguistic → Cybernetic → Psychic
+> ↘︎                                                   ↙︎
+>       quantum information ← consciousness (QIP, speculative)**
+
+An even simpler PCM shorthand is **Physical ↔ Psychic**. Lloyd motivates
+the left-to-right idea that physical reality can be understood in terms
+of quantum information processing; QIP speculatively proposes the reverse
+ontological dependence, from consciousness to quantum information and
+physics. These are **not one unified theory**, and neither Lloyd nor QIP
+establishes the synthesis PCM is sketching here. The loop is a research
+question and metaphysical diagram, not part of the software's assumptions.
+The intermediate Biological, Social, Linguistic, and Cybernetic layers
+remain indispensable descriptions of how particular organisms, societies,
+meanings, and feedback systems are organized even if consciousness were
+fundamental.
 
 ### Social and Linguistic: networks, communication, discourse, and meaning
 
@@ -385,8 +434,11 @@ Here **Ψ** names the panpsychist background and **Φ** retains its
 specific IIT meaning. Psychic being listed sixth does not relocate
 panpsychism to the top of a computational hierarchy: under that
 metaphysical interpretation, experiential or proto-experiential aspects
-would be foundational. The question of how particular subjects form
-remains distinct.
+would be foundational. QIP makes this non-hierarchical reading especially
+explicit: if consciousness is ontologically prior to quantum information,
+then the sixth descriptive layer may also loop conceptually beneath the
+first. PCM treats that possibility as speculative and does not require it.
+The question of how particular subjects form remains distinct.
 
 ### How the layers compose
 
@@ -511,9 +563,11 @@ understand the limits of the mechanism they use.
   GWT-derived indicators concern functional organization and access.
   They are different constructs, neither an interchangeable coherence
   score nor an established substrate-independent test for experience.
-- **Not a quantum project.** Quantum consciousness (Orch-OR, QIP) is an
-  optional speculative research branch; nothing here requires a quantum
-  computer or assumes one is coming.
+- **Not a quantum project.** Lloyd's quantum-computational picture is a
+  theoretical lens on the Physical layer; QIP and Orch-OR are optional
+  speculative consciousness branches. Nothing in PCM requires a quantum
+  computer, assumes quantum effects are necessary for cognition, or makes
+  the kernel depend on any quantum interpretation.
 - **Not a finished product.** Version 0.1 is the minimal constitution:
   enough to found a rhizome, remember together, and decide. The rest is
   grown by the rhizomes themselves.
@@ -725,6 +779,37 @@ And the project description that follows from it:
 PCM belongs to a wider conversation about minds, machines, and the common.
 These traditions offer different resources. Their proximity does not make
 them one theory, and citing a project does not establish its empirical claims.
+
+### Lloyd: physical reality as information processing
+
+Seth Lloyd's [*Computational Capacity of the Universe*](https://doi.org/10.1103/PhysRevLett.88.237901)
+and [*The Universe as Quantum Computer*](https://arxiv.org/abs/1312.4455)
+provide the Physical layer with an information-theoretic vocabulary.
+Physical systems register information through their states and transform
+it through dynamics; on Lloyd's stronger interpretation, the universe can
+be regarded as a quantum computer. PCM uses this as a way to connect
+matter, dynamics, and computation without pretending that the interpretation
+is a proof that reality is literally software or that information
+processing by itself entails consciousness.
+
+### Faggin and D'Ariano: a speculative loop from physics to consciousness
+
+Federico Faggin and Giacomo Mauro D'Ariano's
+[*Hard Problem and Free Will: An Information-Theoretical Approach*](https://doi.org/10.1007/978-3-030-85480-5_5)
+proposes Quantum Information Panpsychism: classical physics supervenes on
+quantum physics, quantum physics on quantum information, and quantum
+information on consciousness. PCM treats this as a speculative
+metaphysical branch, not as established quantum physics or consciousness
+science.
+
+Its value for the layer model is architectural. The six layers remain
+useful descriptions of organization, but they need not be a one-way
+emergence ladder. QIP allows a possible **Physical ↔ Psychic** loop:
+physical dynamics can be described informationally, while consciousness
+could, under QIP, be ontologically prior to the quantum information from
+which physical description is constructed. This possibility is kept
+separate from Lloyd's work; juxtaposing the theories is PCM's synthesis,
+not a claim made by either author.
 
 ### Luhmann: systems remain different even when coupled
 
