@@ -1,10 +1,26 @@
 import os
 import sys
 import unittest
+import urllib.error
+from unittest.mock import patch
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 
 from multitude.integrations.introspection import JSpaceLabProvider, RetentionMode, parse_sse_blocks  # noqa: E402
+
+
+class FakeSseResponse:
+    def __init__(self, chunks):
+        self.chunks = list(chunks)
+
+    def read(self, _size):
+        return self.chunks.pop(0) if self.chunks else b""
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc, tb):
+        return False
 
 
 class JSpaceLabIntegrationTests(unittest.TestCase):
@@ -47,6 +63,28 @@ class JSpaceLabIntegrationTests(unittest.TestCase):
         frame = JSpaceLabProvider("http://example.invalid").normalize_event({"type": "frame"})
         self.assertIsNone(frame.token_index)
         self.assertEqual(frame.provider_metrics, {})
+
+    def test_ask_mode_uses_sse_without_network(self):
+        response = FakeSseResponse([
+            b'data: {"type":"ask_token","text":"hel"}\n\n',
+            b'data: {"type":"ask_token","text":"lo"}\n\n',
+            b'data: {"type":"ask_done"}\n\n',
+        ])
+        provider = JSpaceLabProvider("http://example.invalid")
+        with patch("multitude.integrations.introspection.urllib.request.urlopen", return_value=response):
+            observation = provider.ask("test prompt")
+        self.assertEqual(observation.status, "ok")
+        self.assertEqual(observation.text, "hello")
+        self.assertTrue(observation.metadata["ask_done"])
+        self.assertIn("prompt_sha256", observation.metadata)
+        self.assertNotIn("test prompt", observation.metadata.values())
+
+    def test_unavailable_provider_returns_explicit_state(self):
+        provider = JSpaceLabProvider("http://example.invalid")
+        with patch("multitude.integrations.introspection.urllib.request.urlopen", side_effect=urllib.error.URLError("offline")):
+            observation = provider.ask("test prompt")
+        self.assertEqual(observation.status, "unavailable")
+        self.assertIn("offline", observation.error)
 
     def test_frame_has_no_governance_mutation_surface(self):
         frame = JSpaceLabProvider("http://example.invalid").normalize_event({"type": "frame"})
