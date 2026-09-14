@@ -168,6 +168,11 @@ from .benchmark import (  # noqa: E402
     SelfKnowledgeRespondent,
     grade_claim,
 )
+from .aion_jspace import (  # noqa: E402
+    AionJSpaceProvider,
+    SelfModelCalibration,
+    calibration_status,
+)
 
 __all__ = [
     "IntrospectionFrame",
@@ -177,6 +182,9 @@ __all__ = [
     "JSpaceLabProvider",
     "JSpaceLabError",
     "parse_sse_blocks",
+    "AionJSpaceProvider",
+    "SelfModelCalibration",
+    "calibration_status",
     "CalibrationResult",
     "CallableRespondent",
     "GroundTruthObservation",
