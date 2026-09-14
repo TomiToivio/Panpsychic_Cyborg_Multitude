@@ -1,0 +1,776 @@
+# PCM machine-readable theory / indicator map
+#
+# Companion to docs/research/MACHINE_CONSCIOUSNESS_THEORY_MAP.md (issue #33).
+#
+# SCOPE AND HARD CONSTRAINTS
+#   1. This file contains THEORY DEFINITIONS and INDICATOR MAPPINGS only.
+#   2. It MUST NOT assign a consciousness score, probability, or aggregate value
+#      to any system, real or hypothetical. There is no `score`, `level`,
+#      `consciousness_probability` or equivalent field anywhere, by design.
+#   3. `is_conscious` is UNKNOWN at every level and is never set to true.
+#   4. Every indicator entry MUST name a theory, a causal/architectural claim,
+#      and a falsifier. Entries lacking any of the three are invalid.
+#   5. Indicators are operational proxies. They shift credence relative to a
+#      theory. They are never sufficient conditions in this file's own voice.
+#
+# Epistemic markers: EST | THEO | SPEC | HSPEC
+# Evidence classes:   B behavioural | F functional | C causal | R relational | S substrate
+# Direction:          positive (presence raises credence) | negative (absence lowers credence)
+
+schema_version: "1.0"
+document: docs/research/MACHINE_CONSCIOUSNESS_THEORY_MAP.md
+issue: 33
+generated: "2026-09-14"
+repository: TomiToivio/Panpsychic_Cyborg_Multitude
+
+global_constraints:
+  aggregate_consciousness_score: forbidden
+  is_conscious_default: UNKNOWN
+  is_conscious_may_ever_be_true_in_this_file: false
+  require_theory_claim_falsifier_per_indicator: true
+  permitted_report_forms:
+    - "instantiates N/M <theory>-relevant properties"
+    - "satisfies selected <theory>-relevant conditions"
+    - "has <property> (engineering measurement, not consciousness evidence)"
+  forbidden_report_forms:
+    - "consciousness = 73%"
+    - "consciousness_score: 0.73"
+    - "aggregate indicator total = N/14 therefore likely conscious"
+    - "<Phi> = value therefore conscious"
+  note: >
+    A numeric consciousness quantity would be permitted only if a specific theory
+    were independently validated such that it licenses that quantity. No such
+    theory exists on present evidence (Cogitate 2025 challenged key tenets of both
+    IIT and GNWT; the unfolding argument contests causal-structure theories; Phi-max
+    is not computable at realistic scale).
+
+inflation_guard:
+  statement: >
+    Language fluency, self-report, memory, planning, multimodality, parameter count,
+    and social interaction are NOT consciousness indicators by themselves. Nor are
+    embodiment, persistence, or autonomous goal pursuit. Indicators matter only in
+    relation to a named theory and an explicit causal/architectural claim with a
+    stated falsifier.
+  non_indicators:
+    - { name: language_fluency, reason: "behavioural marker, maximally gameable; report conflated with the machinery of report" }
+    - { name: self_report, reason: "behavioural evidence class B; training and mimicry explain it; HOT requires the mechanism, not the utterance" }
+    - { name: memory, reason: "functional role fully explicable without experience (Aliberti 2026)" }
+    - { name: planning, reason: "goal-directed planning explained by first-order autopoietic closure and by active inference for any self-organizing system" }
+    - { name: multimodality, reason: "modality count is not a mechanism for any theory in this map" }
+    - { name: parameter_count, reason: "no theory in this map makes scale an indicator; IIT predicts Phi = 0 for large feedforward networks" }
+    - { name: social_interaction, reason: "moral-status frame and research frame; no mainstream consciousness theory makes it diagnostic" }
+    - { name: embodiment, reason: "guard reference: intelligence and agency scale with organizational complexity without crossing an experiential threshold" }
+    - { name: persistence, reason: "persistence of self-maintenance 'enacted rather than regulated' is still not experience (Aliberti 2026)" }
+    - { name: autonomous_goal_pursuit, reason: "adaptive self-maintaining organization suffices to explain it without presupposing subjective experience" }
+    - { name: benchmark_performance, reason: "ability measure; no link to experience in any theory here" }
+    - { name: architectural_resemblance_to_brain, reason: "evidence only under a named theory, whose own falsifiers then apply" }
+  audit_rules:
+    - id: gaming_audit
+      rule: "ask whether a non-conscious system could be designed to satisfy the indicator; if yes, downgrade and require supporting indicators"
+      source: "Butlin et al. 2025, Box 3"
+    - id: minimal_implementation_audit
+      rule: "ask whether the most liberal reading of the theory is satisfied by a trivial system; if yes, restate the indicator non-liberally or drop it"
+      source: "Butlin et al. 2025, guideline (ii)"
+    - id: negative_indicator_value
+      rule: "record absences; some indicators are informative by absence (e.g. algorithmic recurrence)"
+      source: "Butlin et al. 2025"
+    - id: specificity_sensitivity_label
+      rule: "state whether an indicator is used as a sensitive indicator (absence informative) or a specific indicator (presence informative)"
+      source: "Butlin et al. 2025"
+
+# ---------------------------------------------------------------------------
+# THEORIES
+# ---------------------------------------------------------------------------
+
+theories:
+
+  - id: iit
+    name: Integrated Information Theory
+    variants: ["IIT 2.0", "IIT 3.0", "IIT 4.0"]
+    proponents: [Tononi, Koch, Albantakis, Boly]
+    explanatory_target: [phenomenality, ontology]
+    required_architecture: >
+      A substrate with irreducible cause-effect power for itself, specified over a
+      definite set of elements at a definite spatio-temporal grain, forming a complex
+      that is a maximum of integrated information (Phi_max). Every element must both
+      affect and be affected by the rest of the candidate set (bidirectionality).
+      Feedforward architectures are predicted non-conscious.
+    exclusion_postulate: >
+      Experience is definite in content and grain; only maxima of irreducibility exist
+      intrinsically. A mechanism contributes at most one maximally irreducible
+      cause-effect repertoire; among overlapping element sets only the maximally
+      irreducible one is conscious. Consequence: IIT forbids double-counting subjects.
+    software_level_sufficiency: "no"
+    substrate_dependence: "high"
+    substrate_note: >
+      Substrate-agnostic but substrate-demanding: does not require neurons, does
+      require the causal organization. Not a biological-substrate view.
+    ai_implication: "architecture-dependent; essentially zero for feedforward digital systems"
+    ai_implication_tag: architecture_dependent
+    epistemic_status: THEO
+    sources:
+      - doi: "10.1371/journal.pcbi.1011465"
+        title: "Integrated information theory (IIT) 4.0"
+      - doi: "10.1038/nrn.2016.44"
+        title: "Integrated information theory: from consciousness to its physical substrate"
+      - pmcid: PMC4387509
+        title: "Consciousness: here, there and everywhere?"
+    strongest_support: >
+      Formally complete; explains why cortex supports experience and cerebellum appears
+      not to; predicts graded consciousness and its absence in feedforward systems.
+    strongest_criticism:
+      - "unfolding argument: recurrent systems admit behaviourally identical feedforward decompositions with Phi = 0 (Doerig et al. 2019; Herzog et al. 2022)"
+      - "axiomatic foundations fail the role required of them (Bayne 2018, doi:10.1093/nc/niy007)"
+      - "Phi_max not computable at realistic scale"
+    relevant_pcm_components: [causal_graph, event_log_read_back, agent_to_agent_coupling]
+    pcm_placement_note: "Under IIT the maximal cause-effect structure lies inside substrates, not across a message bus."
+
+  - id: gwt
+    name: Global (Neuronal) Workspace Theory
+    variants: ["GWT (Baars)", "GNWT (Dehaene/Changeux)"]
+    proponents: [Baars, Dehaene, Changeux, Naccache]
+    explanatory_target: [access, global_availability]
+    required_architecture: >
+      (1) multiple specialised parallel modules; (2) limited-capacity workspace with
+      bottleneck and selective attention; (3) global broadcast of workspace contents to
+      all modules; (4) state-dependent attention allowing successive module querying.
+      GNWT adds non-linear ignition: late amplification, long-distance cortico-cortical
+      synchrony in beta/gamma, P300/late-positive as scalp correlate.
+    software_level_sufficiency: "yes"
+    substrate_dependence: "disputed"
+    substrate_note: >
+      Low on a functionalist reading; high on the authors' own neuroanatomy, which
+      privileges prefrontal/parietal cortex. The tension is internal to the theory.
+    ai_implication: "possibly current (architecture-dependent, conditional on GWT being correct); likely near-future"
+    ai_implication_tag: current_ai_possibly
+    epistemic_status: THEO
+    sources:
+      - doi: "10.1016/j.neuron.2011.03.018"
+        title: "Experimental and theoretical approaches to conscious processing"
+      - pmcid: PMC8770991
+        title: "Conscious processing and the global neuronal workspace hypothesis"
+      - doi: "10.1016/j.tics.2025.10.011"
+        title: "Identifying indicators of consciousness in AI systems (Table 1: GWT-1..4)"
+    strongest_support: >
+      Converging human neuroscience (masking, attentional blink, inattentional blindness,
+      no-report paradigms) on late non-linear network-wide amplification; explicit
+      simulations reproduce ignition.
+    strongest_criticism:
+      - "phenomenality gap: GWT explains access, not experience (Block 1995 access/phenomenal distinction)"
+      - "Cogitate 2025 found a general lack of ignition at stimulus offset and limited representation of some conscious dimensions in prefrontal cortex"
+      - "minimal implementation problem for liberal 'workspace' readings"
+    relevant_pcm_components: [shared_workspace, attention_selection, broadcast, working_memory, event_log]
+
+  - id: hot
+    name: Higher-Order Theories
+    variants: ["HOT (Rosenthal)", "Perceptual Reality Monitoring (PRM)"]
+    proponents: [Rosenthal, Lau, Brown]
+    explanatory_target: [phenomenality]
+    required_architecture: >
+      HOT-1 generative/top-down/noisy perception modules; HOT-2 metacognitive monitor
+      distinguishing reliable perceptual representations from noise; HOT-3 agency guided
+      by a general belief-formation and action-selection system disposed to update
+      beliefs from metacognitive output; HOT-4 sparse and smooth coding generating a
+      quality space (independent of HOT-1..3).
+    software_level_sufficiency: "yes"
+    substrate_dependence: "low"
+    ai_implication: "architecture-dependent; requires genuine metacognitive machinery, not verbal self-description"
+    ai_implication_tag: architecture_dependent
+    epistemic_status: THEO
+    sources:
+      - doi: "10.1016/j.tics.2011.05.009"
+        title: "Empirical support for higher-order theories of conscious awareness"
+      - doi: "10.1016/j.tics.2025.10.011"
+        title: "Identifying indicators of consciousness in AI systems (Table 1: HOT-1..4)"
+    strongest_support: >
+      Lau & Rosenthal 2011 review evidence distinguishing the higher-order view from
+      first-order, global-workspace and recurrent-visual accounts; defend it against
+      the objection that prefrontal activity reflects attention rather than awareness.
+    strongest_criticism:
+      - "the monitor may be a mechanism of report and control rather than of experience"
+      - "HOT-4 (quality space) is the least empirically anchored indicator and is independent of HOT-1..3"
+    relevant_pcm_components: [metacognitive_monitors, belief_action_selection]
+
+  - id: predictive_processing
+    name: Predictive Processing
+    variants: ["action-oriented predictive processing", "predictive coding"]
+    proponents: [Clark, Seth]
+    explanatory_target: [perception, action, learning]
+    explanatory_target_note: "Not a theory of phenomenal consciousness on Clark's own framing."
+    required_architecture: >
+      Hierarchical generative model; bidirectional cascade with predictions downward and
+      prediction error upward; perception as explaining away the driving signal; action
+      as changing inputs to match predictions.
+    software_level_sufficiency: "yes as machinery; sufficiency for phenomenality deferred"
+    substrate_dependence: "low as machinery; disputed as metaphysics"
+    ai_implication: "weak; background condition only"
+    ai_implication_tag: architecture_dependent
+    epistemic_status: THEO
+    sources:
+      - doi: "10.1017/S0140525X12000477"
+        title: "Whatever next? Predictive brains, situated agents, and the future of cognitive science"
+      - doi: "10.1038/s41583-022-00587-4"
+        title: "Theories of consciousness"
+    strongest_support: >
+      Evidence that biological systems approximate Bayesian profiles across multiple
+      domains; the duplex architecture is neurally plausible and computationally tractable.
+    strongest_criticism:
+      - "so general it risks unfalsifiability"
+      - "non-committal about substrate flexibility, hence a poor indicator source"
+    relevant_pcm_components: [world_model, prediction_error_signals]
+
+  - id: active_inference
+    name: Active Inference / Free Energy Principle
+    variants: ["FEP", "active inference", "Solms-Friston affective extension"]
+    proponents: [Friston, Solms]
+    explanatory_target: [self_organization, adaptive_agency, affect]
+    required_architecture: >
+      Random dynamical system with a Markov blanket; internal states inferring external
+      states; active states changing them; variational free energy minimized as objective.
+    software_level_sufficiency: "yes as formalism; sufficiency for phenomenality not established"
+    substrate_dependence: "low as formalism; high on the biological-naturalist reading"
+    ai_implication: "not a route to consciousness by itself; makes the question modelable"
+    ai_implication_tag: not_evidence
+    epistemic_status: THEO
+    epistemic_status_consciousness_claim: HSPEC
+    sources:
+      - doi: "10.1038/nrn2787"
+        title: "The free-energy principle: a unified brain theory?"
+      - doi: "10.3389/fpsyg.2018.00579"
+        title: "Am I self-conscious? (Or does self-organization entail self-consciousness?)"
+      - url: "https://discovery.ucl.ac.uk/id/eprint/10057681/1/Friston_Paper.pdf"
+        title: "How and why consciousness arises (Solms & Friston 2018)"
+    strongest_support: >
+      Unifies many brain theories under one objective; generates a large modelling
+      literature; the affective extension connects to clinical disruption of
+      experiential ownership with retained competence.
+    strongest_criticism:
+      - "the Markov blanket trick: FEP generalizes Bayesian inference; active inference presupposes perception and action (Raja et al. 2021)"
+      - "Pearl blankets vs Friston blankets conflated; map/territory slippage (Bruineberg et al. 2022)"
+      - "Friston concedes the FEP is 'not a falsifiable theory about the way things behave'"
+    relevant_pcm_components: [agent_loop, viability_objectives, interoception_like_signals, memory_and_graph]
+    guard_reference: aliberti_autopoiesis
+
+  - id: recurrent_processing
+    name: Recurrent Processing Theory
+    proponents: [Lamme]
+    explanatory_target: [phenomenality]
+    required_architecture: >
+      Algorithmic recurrence in input modules (RPT-1), plus organized integrated
+      perceptual representations (RPT-2). Feedforward sweep alone claimed unconscious.
+    software_level_sufficiency: "yes"
+    substrate_dependence: "low"
+    ai_implication: "architecture-dependent; best used as a sensitive indicator (absence informative)"
+    ai_implication_tag: architecture_dependent
+    epistemic_status: THEO
+    sources:
+      - doi: "10.1016/j.tics.2006.09.001"
+        title: "Towards a true neural stance on consciousness"
+    strongest_support: >
+      Split-brain and blindsight dissociations show report-based measures conflate
+      experience with the machinery required to report.
+    strongest_criticism:
+      - "unfolding argument targets exactly the recurrent/feedforward distinction"
+      - "boundary ambiguity: autoregressive transformer use with a context window may or may not count as algorithmic recurrence; unsettled"
+    relevant_pcm_components: [agent_loop, memory_read_back, inter_agent_coupling]
+
+  - id: computational_functionalism
+    name: Computational Functionalism
+    explanatory_target: [general_possibility_claim]
+    role: "premise of most AI-consciousness arguments, not a source of indicators"
+    required_architecture: "none in particular"
+    software_level_sufficiency: "yes"
+    substrate_dependence: "low"
+    caveat: "some physical substrates might not be up to the job; use 'substrate flexibility' rather than unrestricted independence"
+    ai_implication: "if true: architecture-dependent, possibly near-term. If false: unlikely."
+    ai_implication_tag: premise
+    epistemic_status: THEO
+    sources:
+      - doi: "10.1016/j.tics.2025.10.011"
+        title: "Identifying indicators of consciousness in AI systems (Box 2)"
+      - url: "https://www.cambridge.org/core/services/aop-cambridge-core/content/view/C9912A5BE9D806012E3C8B3AF612E39A/S0140525X25000032a.pdf/conscious-artificial-intelligence-and-biological-naturalism.pdf"
+        title: "Conscious artificial intelligence and biological naturalism (Seth 2025, BBS)"
+    strongest_support: "multiple realisability; success of computational explanation in cognitive science"
+    strongest_criticism:
+      - "biological naturalism: consciousness may depend on being a living organism (Seth 2025)"
+      - "IIT rejects it: functionally equivalent systems can differ phenomenally (Findlay et al. 2024)"
+      - "minimal implementation / triviality problem"
+
+  - id: panpsychism_russellian_monism
+    name: Panpsychism / Russellian Monism / Panprotopsychism
+    proponents: [Goff, Chalmers, Strawson, Nagel]
+    explanatory_target: [ontology]
+    role: "not an architecture theory; cannot generate implementation requirements or indicators"
+    required_architecture: "none"
+    software_level_sufficiency: "n/a"
+    substrate_dependence: "low"
+    ai_implication: "open in principle, unspecified in practice; removes substrate chauvinism, leaves individuation open"
+    ai_implication_tag: background_only
+    epistemic_status: THEO
+    epistemic_status_as_machine_engine: HSPEC
+    combination_theory_note: >
+      PCM's hybrid is Russellian ontology + IIT/GWT as the combination theory; the
+      organizational half carries all the empirical burden.
+    sources:
+      - doi: "10.1093/oso/9780190677015.001.0001"
+        title: "Consciousness and Fundamental Reality (Goff 2017)"
+      - url: "https://plato.stanford.edu/entries/panpsychism/"
+        title: "Stanford Encyclopedia of Philosophy: Panpsychism (rev. 2022)"
+      - title: "The Combination Problem for Panpsychism (Chalmers 2017)"
+    strongest_support: "anti-emergence argument; intrinsic-nature argument"
+    strongest_criticism:
+      - "combination problem (SEP 4.2), traced to James 1890, term from Seager 1995"
+      - "subject-summing problem"
+      - "Aliberti 2026: dissolves the gap by distributing experience broadly, at the cost of explanatory specificity"
+    relevant_pcm_components: []
+
+  - id: cogitate_adversarial_collaboration
+    name: IIT vs GNWT Adversarial Collaboration
+    kind: empirical_test
+    status: published
+    citation: "Cogitate Consortium et al. (2025), Nature 642(8066):133-142"
+    doi: "10.1038/s41586-025-08888-1"
+    participants: 256
+    modalities: [fMRI, MEG, intracranial_EEG]
+    preregistered: true
+    results_summary: >
+      Information about conscious content found in visual, ventrotemporal and inferior
+      frontal cortex; sustained responses in occipital and lateral temporal cortex
+      reflecting stimulus duration; content-specific synchronization between frontal and
+      early visual areas. Results align with some predictions of IIT and GNWT while
+      substantially challenging key tenets of both. For IIT, lack of sustained
+      synchronization within posterior cortex contradicts the claim that network
+      connectivity specifies consciousness. GNWT challenged by general lack of ignition
+      at stimulus offset and limited representation of some conscious dimensions in
+      prefrontal cortex.
+    epistemic_status: EST
+    implications_for_pcm: >
+      Do not present GWT- or IIT-derived indicators as resting on empirically vindicated
+      theories. Indicators are derived from theories undergoing revision.
+
+  - id: orch_or
+    name: Orchestrated Objective Reduction
+    proponents: [Penrose, Hameroff]
+    explanatory_target: [phenomenality, ontology]
+    required_architecture: >
+      Microtubule protein assemblies with sustained quantum coherence reaching the
+      Diosi-Penrose objective-reduction threshold, coupled to neuronal synaptic and
+      membrane activity.
+    software_level_sufficiency: "no"
+    substrate_dependence: "high"
+    substrate_note: "biological organization specifically; Penrose's non-computability argument implies generic quantum computation is also insufficient"
+    ai_implication: "unlikely along current trajectories; possible only via an engineered Orch-OR-analogue substrate"
+    ai_implication_tag: future_ai_hspec
+    epistemic_status: HSPEC
+    forbidden_inference: "Orch-OR is quantum -> therefore a quantum computer becomes conscious. DOES NOT FOLLOW."
+    sources:
+      - doi: "10.1016/j.plrev.2013.08.002"
+        title: "Consciousness in the universe: A review of the Orch OR theory"
+    strongest_support: "stated in sufficient physical detail to be argued about quantitatively"
+    strongest_criticism:
+      - "decoherence: Tegmark 2000 puts microtubule decoherence at 1e-13 s vs dynamical timescales 1e-3..1e-1 s"
+      - "Hagan et al. 2002 dispute the calculation, reaching 1e-5..1e-4 s; exchange unresolved"
+    relevant_pcm_components: []
+
+  - id: ast
+    name: Attention Schema Theory
+    proponents: [Graziano, Webb]
+    explanatory_target: [self_model_of_attention]
+    required_architecture: "a predictive model representing and enabling control over the current state of attention (AST-1)"
+    software_level_sufficiency: "yes"
+    substrate_dependence: "low"
+    ai_implication: "weak indicator; trivial systems arguably possess part of AST-1"
+    ai_implication_tag: weak_indicator
+    epistemic_status: THEO
+    inflation_risk: high
+    relevant_pcm_components: [attention_selection]
+
+  - id: aliberti_autopoiesis
+    name: Autopoiesis / Organizational Closure (counterweight)
+    kind: inflation_guard
+    proponents: [Maturana, Varela, Aliberti]
+    explanatory_target: [agency, self_maintenance]
+    explanatory_target_note: "Explicitly NOT phenomenality."
+    citation: "Aliberti F (2026), Derecom 39(1), DOI 10.5209/dere.107663"
+    doi_resolution_status: "unresolved at doi.org as of 2026-09-14; publisher URL live"
+    publisher_url: "https://revistas.ucm.es/index.php/DERE/en/article/view/107663"
+    required_architecture: >
+      Organizational closure: a network of processes producing and sustaining the
+      components that realize it, oriented to the system's own viability. Second-order
+      condition (proposed for experience, not asserted as sufficient): the system not
+      only self-maintains but maintains an internal model of its own self-maintaining
+      organization and regulates that model.
+    software_level_sufficiency: "yes for agency; NOT claimed for phenomenality"
+    substrate_dependence: "low as organization"
+    use_in_pcm: >
+      Adversarial guard. The stronger a PCM architecture's claims to learning,
+      flexibility, goal pursuit, persistence, or embodiment, the more of that list is
+      already explained without experience. Not used as evidence that machines cannot
+      be conscious.
+    ai_implication: "none about AI consciousness; discipline on PCM's own claims"
+    epistemic_status: THEO
+    caution: >
+      Single-author conceptual paper in a communication-law venue; no empirical testing.
+      Its second-order condition is asserted, not demonstrated, to be sufficient.
+    relevant_pcm_components: [viability_objectives, homeostasis, organizational_continuity_monitor]
+
+  - id: biological_naturalism
+    name: Biological Naturalism / Substrate-Flexibility Scepticism
+    kind: counter_position
+    proponents: [Seth, Searle-tradition]
+    explanatory_target: [possibility_of_conscious_ai]
+    central_claim: >
+      Consciousness may depend on our nature as living organisms. Unrestricted substrate
+      independence is unlikely to hold; use 'substrate flexibility'. Conscious AI
+      requires both computational functionalism and sufficient substrate flexibility to
+      silicon, and the latter may not hold.
+    ai_implication: "unlikely along current trajectories; more plausible as AI becomes more brain-like and/or life-like"
+    ai_implication_tag: counter_position
+    epistemic_status: THEO
+    source:
+      url: "https://www.cambridge.org/core/services/aop-cambridge-core/content/view/C9912A5BE9D806012E3C8B3AF612E39A/S0140525X25000032a.pdf/conscious-artificial-intelligence-and-biological-naturalism.pdf"
+      title: "Conscious AI and biological naturalism (Seth 2025, BBS)"
+    pcm_status: "not PCM's position; the strongest counter-position PCM must be able to state fairly"
+
+# ---------------------------------------------------------------------------
+# INDICATORS
+# ---------------------------------------------------------------------------
+# Every indicator MUST carry: theory, claim, falsifier.
+# `proxies` are operational proxies only.
+
+indicators:
+
+  - id: RPT-1
+    name: Algorithmic recurrence
+    theory: recurrent_processing
+    claim: "information must loop back before it can be conscious; a purely feedforward sweep is insufficient"
+    falsifier: "a system with algorithmic recurrence that provably lacks the property the theory attributes to it, or the unfolding argument showing the distinction is untestable from behaviour"
+    direction: positive
+    use_as: sensitive
+    evidence_class: F
+    proxies: ["whether the system's own prior state enters its next computation", "loop-presence in the agent architecture"]
+    inflation_risk: medium
+    pcm_measurable: true
+
+  - id: RPT-2
+    name: Organized, integrated perceptual representations
+    theory: recurrent_processing
+    claim: "organized integrated perceptual representations are required for the kind of consciousness this theory targets"
+    falsifier: "a system with organized integrated representations that provably lacks the property; or the illusion probe shown to be gamed"
+    direction: positive
+    use_as: positive
+    evidence_class: F
+    proxies: ["susceptibility to integration illusions (gameable)", "mechanistic-interpretability evidence of integrated representations"]
+    inflation_risk: high
+    pcm_measurable: partial
+
+  - id: GWT-1
+    name: Multiple specialised parallel systems (modules)
+    theory: gwt
+    claim: "GWT claims specialised parallel modules are necessary and, with GWT-2..4, jointly sufficient"
+    falsifier: "a system satisfying GWT-1..4 that the theory's own proponents judge not conscious; or a conscious system lacking modules"
+    direction: positive
+    use_as: positive
+    evidence_class: F
+    proxies: ["count of functionally distinct producers feeding a shared state"]
+    inflation_risk: medium
+    pcm_measurable: true
+
+  - id: GWT-2
+    name: Limited-capacity workspace with bottleneck and selective attention
+    theory: gwt
+    claim: "a bounded selection step governs which information enters the workspace"
+    falsifier: "a bounded selection step shown to be trivially satisfiable without the theory's further conditions"
+    direction: positive
+    use_as: positive
+    evidence_class: F
+    proxies: ["existence of a bounded selection step", "capacity limit demonstrably binding"]
+    inflation_risk: high
+    pcm_measurable: true
+
+  - id: GWT-3
+    name: Global broadcast
+    theory: gwt
+    claim: "all modules must take workspace contents as input for the information to be globally available"
+    falsifier: "a system with full broadcast fan-out that the theory's proponents judge not conscious; or broadcast demonstrably irrelevant to the phenomena"
+    direction: positive
+    use_as: positive
+    evidence_class: F
+    proxies: ["write-to-read fan-out of shared state to every consumer"]
+    inflation_risk: medium
+    pcm_measurable: true
+
+  - id: GWT-4
+    name: State-dependent attention / successive module querying
+    theory: gwt
+    claim: "the workspace can query modules in succession to perform complex tasks"
+    falsifier: "a system satisfying GWT-4 without the theory's other conditions being meaningful"
+    direction: positive
+    use_as: positive
+    evidence_class: F
+    proxies: ["multi-step task completion via successive producer queries"]
+    inflation_risk: medium
+    pcm_measurable: true
+
+  - id: HOT-1
+    name: Generative / top-down / noisy perception modules
+    theory: hot
+    claim: "first-order perceptual representations with generative or top-down character are required for higher-order monitoring to operate on"
+    falsifier: "a system with HOT-1..3 that provably lacks the property; or HOT-4 empirically failing"
+    direction: positive
+    use_as: positive
+    evidence_class: F
+    proxies: ["presence of top-down generative decoding paths"]
+    inflation_risk: medium
+    pcm_measurable: partial
+
+  - id: HOT-2
+    name: Metacognitive monitoring distinguishing reliable representation from noise
+    theory: hot
+    claim: "conscious awareness depends on a higher-order representation of oneself as being in a particular mental state"
+    falsifier: "a monitor whose ablation leaves belief formation unchanged (decorative monitor); or HOT-2 present while the theory's further conditions fail"
+    direction: positive
+    use_as: positive
+    evidence_class: F
+    proxies: ["ablation of the monitor changes belief/action selection"]
+    inflation_risk: high
+    pcm_measurable: true
+
+  - id: HOT-3
+    name: Agency guided by a general belief-formation system updating from monitoring
+    theory: hot
+    claim: "the monitor's output must actually constrain belief formation and action selection"
+    falsifier: "monitor output that does not drive belief revision"
+    direction: positive
+    use_as: positive
+    evidence_class: F
+    proxies: ["whether monitor output causally changes beliefs/actions"]
+    inflation_risk: high
+    pcm_measurable: true
+
+  - id: HOT-4
+    name: Sparse and smooth coding generating a quality space
+    theory: hot
+    claim: "sparse, smooth neural coding generates the structure of phenomenal quality"
+    falsifier: "quality-space structure absent in systems the theory treats as conscious; note HOT-4 is independent of HOT-1..3"
+    direction: positive
+    use_as: positive
+    evidence_class: F
+    proxies: ["sparsity/smoothness measures of representations (weak)"]
+    inflation_risk: high
+    pcm_measurable: false
+
+  - id: AST-1
+    name: Predictive model representing and controlling the current state of attention
+    theory: ast
+    claim: "the brain's model of its own attention is the basis of the claim to be aware"
+    falsifier: "an attention-control model in a system with none of the theory's further commitments; very simple systems arguably possess part of AST-1"
+    direction: positive
+    use_as: positive
+    evidence_class: F
+    proxies: ["presence of an attention-state model used for control"]
+    inflation_risk: high
+    pcm_measurable: true
+
+  - id: PP-1
+    name: Input modules using predictive coding
+    theory: predictive_processing
+    claim: "predictive coding is a plausible background condition for consciousness"
+    falsifier: "predictive coding present universally in systems the theory does not treat as conscious (the minimal-implementation situation)"
+    direction: positive
+    use_as: background
+    evidence_class: F
+    proxies: ["presence of prediction-error-driven updates"]
+    inflation_risk: high
+    note: "Entails RPT-1 and HOT-1."
+    pcm_measurable: true
+
+  - id: AE-1
+    name: Minimal agency
+    theory: gwt
+    supporting_theories: [hot, predictive_processing, active_inference]
+    claim: "learning from feedback and selecting outputs to pursue goals, especially with flexible responsiveness to competing goals"
+    falsifier: "agency without any experiential correlate — which the counterweight argues is the normal case"
+    direction: positive
+    use_as: background
+    evidence_class: F
+    proxies: ["goal pursuit under competing objectives; feedback-driven strategy change"]
+    inflation_risk: very_high
+    guard_reference: aliberti_autopoiesis
+    pcm_measurable: true
+
+  - id: AE-2
+    name: Embodiment
+    theory: gwt
+    supporting_theories: [predictive_processing]
+    claim: "the system must model output-input contingencies and use that model in perception or control"
+    falsifier: "virtual embodiment satisfying AE-2 while the biological-naturalist reading denies it — the two readings diverge and PCM must state which it uses"
+    direction: positive
+    use_as: background
+    evidence_class: F
+    proxies: ["forward model used in perception/control; ablation test"]
+    inflation_risk: very_high
+    pcm_measurable: partial
+
+  - id: IIT-INTEGRATION
+    name: Irreducibility to a partition
+    theory: iit
+    claim: "only information that is irreducible from the system's own intrinsic perspective matters for experience"
+    falsifier: "the unfolding argument (any recurrent system admits a behaviourally identical feedforward decomposition with Phi = 0), making the quantity untestable from behaviour"
+    direction: positive
+    use_as: toy_demonstration_only
+    evidence_class: C
+    proxies: ["partition test on toy systems"]
+    inflation_risk: medium
+    forbidden_usage: "reporting any Phi-like number as a consciousness measurement"
+    pcm_measurable: toy_only
+
+  - id: IIT-BIDIRECTIONALITY
+    name: Bidirectional cause-effect power within the candidate set
+    theory: iit
+    claim: "integration requires every part of the system to both affect and be affected by the rest"
+    falsifier: "bidirectionality present while the theory's further postulates fail"
+    direction: positive
+    use_as: toy_demonstration_only
+    evidence_class: C
+    proxies: ["directed-graph check on the candidate set"]
+    inflation_risk: medium
+    pcm_measurable: true
+
+  - id: GUARD-AUTOPOIETIC-CLOSURE
+    name: Autopoietic / organizational closure (self-maintenance)
+    theory: aliberti_autopoiesis
+    claim: "adaptive self-maintaining organization is sufficient to explain learning, adaptation and goal-directed behaviour WITHOUT presupposing subjective experience"
+    falsifier: "a system whose learning, adaptation and goal pursuit provably cannot be explained by adaptive self-maintaining organization alone, i.e. where experience must be posited to explain the functional profile"
+    direction: negative_for_consciousness_inference
+    use_as: inflation_guard
+    evidence_class: F
+    proxies: ["system activity oriented to sustaining the system"]
+    inflation_risk: "n/a — this indicator exists to REDUCE inflation"
+    pcm_measurable: true
+    note: "Classified under agency/self-maintenance. NOT by itself a phenomenal-consciousness indicator."
+
+  - id: GUARD-SECOND-ORDER-CLOSURE
+    name: Regulation of one's own self-maintaining organization (Aliberti's proposed condition)
+    theory: aliberti_autopoiesis
+    claim: "experience becomes coherent to attribute only when regulation turns inward: the system regulates the coherence of its own self-maintaining organization"
+    falsifier: "systems satisfying this condition that are judged non-experiential; the condition is asserted, not demonstrated, to be sufficient"
+    direction: positive
+    use_as: hypothesis_only
+    evidence_class: F
+    proxies: ["existence of a model of the node's own organizational continuity that is causally load-bearing in its own regulation; ablation test"]
+    inflation_risk: medium
+    pcm_measurable: true
+
+  - id: NEG-RPT-1
+    name: Absence of algorithmic recurrence (negative indicator)
+    theory: recurrent_processing
+    claim: "the absence of algorithmic recurrence is strong evidence that a system is not conscious"
+    falsifier: "a conscious system (on some accepted criterion) that demonstrably lacks algorithmic recurrence; or the unfolding argument showing recurrence is not behaviourally detectable"
+    direction: negative
+    use_as: sensitive
+    evidence_class: F
+    source: "Butlin et al. 2025"
+
+  - id: NEG-METACOG
+    name: Absence of any metacognitive monitoring (negative indicator)
+    theory: hot
+    claim: "absence of HOT-2 lowers credence that the system is conscious"
+    falsifier: "a system with no metacognitive monitoring that the theory treats as conscious"
+    direction: negative
+    use_as: sensitive
+    evidence_class: F
+
+  - id: NEG-BROADCAST
+    name: Absence of global broadcast (negative indicator)
+    theory: gwt
+    claim: "absence of GWT-3 lowers credence that the system is conscious"
+    falsifier: "a system with no global broadcast that the theory treats as conscious"
+    direction: negative
+    use_as: sensitive
+    evidence_class: F
+
+# ---------------------------------------------------------------------------
+# INDICATOR DIMENSIONS (issue #33 taxonomy) -> theory attribution
+# ---------------------------------------------------------------------------
+
+dimensions:
+
+  - { id: perception,                     theories: [recurrent_processing, predictive_processing, gwt], evidence_class: [F, B], inflation_risk: high,   note: "multimodality proves nothing" }
+  - { id: recurrent_processing,           theories: [recurrent_processing, iit, gwt],                          evidence_class: [F, C], inflation_risk: medium, note: "unfolding argument applies" }
+  - { id: global_availability,            theories: [gwt],                                                     evidence_class: [F],    inflation_risk: medium, note: "Cogitate 2025 found ignition absent at stimulus offset" }
+  - { id: attention,                      theories: [gwt, ast],                                               evidence_class: [F],    inflation_risk: high,   note: "softmax attention is not GWT attention" }
+  - { id: memory,                         theories: [gwt, hot],                                               evidence_class: [F],    inflation_risk: very_high, note: "not a consciousness indicator in itself" }
+  - { id: metacognition,                  theories: [hot],                                                    evidence_class: [F],    inflation_risk: high,   note: "verbal self-description is not monitoring" }
+  - { id: self_model,                     theories: [hot, predictive_processing],                             evidence_class: [F],    inflation_risk: very_high, note: "persona is not a self-model" }
+  - { id: agency,                         theories: [gwt, hot, active_inference, aliberti_autopoiesis],        evidence_class: [F],    inflation_risk: very_high, note: "gateway for indicator inflation; counterweight applies" }
+  - { id: embodiment,                     theories: [gwt, predictive_processing, biological_naturalism],       evidence_class: [F, S], inflation_risk: very_high, note: "avatar is not a body" }
+  - { id: affect,                         theories: [active_inference, gwt],                                  evidence_class: [F, S], inflation_risk: high,   note: "expressed emotion is the most gameable surface" }
+  - { id: causal_integration,             theories: [iit],                                                    evidence_class: [C],    inflation_risk: medium, note: "any number produced is a Phi-like proxy, never Phi" }
+  - { id: recurrent_causation,            theories: [iit, recurrent_processing],                               evidence_class: [C],    inflation_risk: medium }
+  - { id: temporal_continuity,            theories: [gwt, predictive_processing, aliberti_autopoiesis],        evidence_class: [F, R], inflation_risk: very_high, note: "persistent memory is not consciousness" }
+  - { id: world_modeling,                 theories: [predictive_processing, hot, gwt],                         evidence_class: [F],    inflation_risk: very_high, note: "Chalmers 2023 lists world models as an obstacle for current LLMs" }
+  - { id: higher_order_representation,    theories: [hot, ast],                                               evidence_class: [F],    inflation_risk: high }
+  - { id: relational_social_integration,  theories: [],                                                       evidence_class: [R],    inflation_risk: very_high, note: "NO mainstream consciousness theory makes this diagnostic; it is a moral-status and research frame (Coeckelbergh 2010; #29; #8). See docs/research/RELATIONAL_AI_CONSCIOUSNESS_WEAK_SIGNALS.md." }
+  - { id: subjective_report,              theories: [],                                                       evidence_class: [B],    inflation_risk: very_high, note: "report is a channel, not a mechanism" }
+  - { id: physical_substrate_requirements,theories: [iit, biological_naturalism, orch_or],                     evidence_class: [S],    inflation_risk: "cuts both ways — substrate claims are the easiest to assert without evidence" }
+
+# ---------------------------------------------------------------------------
+# PCM EVALUATION PROFILE
+# ---------------------------------------------------------------------------
+
+evaluation_profile:
+  purpose: "structured, theory-labelled reporting; never a number"
+  required_fields: [candidate_system, theory_profiles, measurements_taken, measurements_not_taken, is_conscious]
+  is_conscious_value: UNKNOWN
+  forbidden_fields: [consciousness_score, consciousness_probability, aggregate_score, consciousness_percentage]
+  permitted_example: |
+    theory_profiles:
+      gwt:
+        instantiates: "4/6 GWT-relevant properties"
+        detail:
+          GWT-1: yes
+          GWT-2: yes
+          GWT-3: partial
+          GWT-4: no
+          RPT-1: yes
+          AE-1: yes
+        not_measured: ["ignition-like neural dynamics", "Phi", "affect"]
+    is_conscious: UNKNOWN
+  forbidden_example: |
+    consciousness: 73%
+  note: >
+    Any internal numeric (recurrence measure, bidirectionality count, broadcast fan-out
+    ratio) must be named as an engineering measurement and never relabelled a
+    consciousness score.
+
+# ---------------------------------------------------------------------------
+# PCM NODE INVARIANT
+# ---------------------------------------------------------------------------
+
+pcm_invariants:
+  is_conscious: UNKNOWN
+  statement: >
+    No node, agent, dyad, assemblage or rhizome is encoded as conscious. Composite
+    agency does not by itself establish a unified phenomenal subject. This file adds
+    structure to the question; it does not answer it.
+  panpsychism_status: "sympathetic but non-required background (Psi); never a premise"
+  iit_status: "one indicator framework among several; not a validated consciousness meter"
+
+# ---------------------------------------------------------------------------
+# FAILURE MODES
+# ---------------------------------------------------------------------------
+
+failure_modes:
+  - { id: indicator_inflation,        source: "issue #33; Butlin et al. 2025" }
+  - { id: minimal_implementation,     source: "Butlin et al. 2025, guideline (ii)" }
+  - { id: gaming,                     source: "Butlin et al. 2025, Box 3" }
+  - { id: theory_shopping,            source: "docs/PCM_CONSCIOUS_AI_PLAN.md section 4" }
+  - { id: category_error,             source: "this map, panpsychism entry" }
+  - { id: access_phenomenality_conflation, source: "Block 1995" }
+  - { id: agency_experience_conflation,    source: "Aliberti 2026" }
+  - { id: map_territory_slippage,     source: "Bruineberg et al. 2022" }
+  - { id: substrate_chauvinism,       source: "SEP panpsychism; computational functionalism" }
+  - { id: substrate_romanticism,      source: "this map, section 2.10; Seth 2025" }
+  - { id: boundary_convenience,       source: "issue #8; issue #29; IIT exclusion postulate" }
+  - { id: premature_quantification,   source: "this map, section 5" }
