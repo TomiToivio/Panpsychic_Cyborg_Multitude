@@ -22,11 +22,15 @@ dependencies = [
 zenoh = [
   "eclipse-zenoh>=1.10",
 ]
+iit = [
+  "pyphi @ git+https://github.com/wmayner/pyphi@main ; python_version >= '3.13'",
+]
 dev = [
   "pytest>=8.0",
 ]
 all = [
   "eclipse-zenoh>=1.10",
+  "pyphi @ git+https://github.com/wmayner/pyphi@main ; python_version >= '3.13'",
   "pytest>=8.0",
 ]
 
@@ -43,4 +47,5 @@ where = ["src"]
 testpaths = ["tests"]
 markers = [
   "zenoh: tests that require the optional eclipse-zenoh runtime",
+  "iit: tests that require the optional PyPhi IIT runtime",
 ]
