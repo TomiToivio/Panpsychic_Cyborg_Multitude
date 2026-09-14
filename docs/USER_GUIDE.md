@@ -186,9 +186,20 @@ multitude counsel --as "PCM node" --topic "how should we split work?"
 > **PCM works without an LLM.** Every feature in this guide functions
 > with only biological members; AI agents are optional participants.
 
-The Hermes integration (`src/multitude/integrations/hermes/`) is a thin
-adapter for running Hermes agents as members — usable, but it is an
-integration layer, not a requirement.
+Two runtime adapters exist for running AI agents as members — both thin,
+both optional, both subject to the same fail-closed permission checks:
+
+- **Hermes** (`src/multitude/integrations/hermes/`) — guide:
+  [HERMES.md](../HERMES.md)
+- **Claude Code** (`src/multitude/integrations/claude/`) — guide:
+  [CLAUDE.md](../CLAUDE.md), integration doc:
+  [docs/CLAUDE_INTEGRATION.md](CLAUDE_INTEGRATION.md)
+
+Both adapters are optional and subject to the same fail-closed
+permission checks; neither runtime is a requirement. The Claude Code
+adapter's default identity is `agent:claude-code` (deliberately
+low-privilege); shared participant rules in
+[AGENTS.md](../AGENTS.md).
 
 ---
 
@@ -285,9 +296,15 @@ Architecture and security model: [docs/NETWORKING_STACK.md](NETWORKING_STACK.md)
 
 **Other interfaces.** `multitude serve-api` runs a minimal local JSON
 API; `multitude telegram` runs the Telegram gateway (requires a repo
-`.env` with the bot token). The Hermes integration runs agents as
-members. These adapters are thin and real — but they are transports,
-not core features.
+`.env` with the bot token). The Hermes integration
+(`src/multitude/integrations/hermes/`, guide: [HERMES.md](../HERMES.md))
+and the Claude Code integration (`src/multitude/integrations/claude/`,
+guide: [CLAUDE.md](../CLAUDE.md)) run AI agents as members. AI agents
+are one optional participant class among others, and capability is not
+authority: every runtime goes through the same fail-closed permission
+checks, and the default agent identity is deliberately low-privilege
+(shared rules in [AGENTS.md](../AGENTS.md)). These adapters are thin and
+real — but they are transports and participants, not core features.
 
 ---
 

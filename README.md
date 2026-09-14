@@ -160,7 +160,12 @@ src/multitude/
                     transport ABC, fail-closed policy, memory mirror,
                     VC capability grants, GET→POST bridge
   integrations/zenoh/          — Zenoh fabric transport
-  integrations/hermes/         — AI-agent integration (thin adapter)
+  integrations/hermes/         — Hermes runtime adapter (thin)
+  integrations/claude/         — Claude Code runtime adapter (thin)
+  integrations/introspection/  — optional agent introspection & self-knowledge
+                                 benchmarking (aion_jspace, agent-introspection-
+                                 bench; research instrumentation, never a
+                                 permission source)
   integrations/telegram/       — messaging transport (thin adapter)
   integrations/bci.py          — optional BCI adapter (derived context,
                                  consent-gated; issue #10)
@@ -170,7 +175,14 @@ src/multitude/
 
 Everything above is the constitution: memory, voice, decision.
 Optional integrations (BCI, embodiment, ValueFlows, zenoh, Telegram,
-Hermes) ship disabled or opt-in and never run unless asked for.
+Hermes, Claude Code, introspection) ship disabled or opt-in and never
+run unless asked for.
+
+AI agents are **one optional participant class** among humans, devices,
+services and other nodes, and **capability ≠ authority**: runtime guides
+live in [HERMES.md](HERMES.md) and [CLAUDE.md](CLAUDE.md); shared
+participant rules in [AGENTS.md](AGENTS.md); the Claude Code integration
+is documented in [docs/CLAUDE_INTEGRATION.md](docs/CLAUDE_INTEGRATION.md).
 
 ## Quick start
 
@@ -316,17 +328,44 @@ found a rhizome, add members, use memory and governance, without
 reading the source.
 
 - [docs/PANPSYCHIC_CYBORG_MULTITUDE.md](docs/PANPSYCHIC_CYBORG_MULTITUDE.md) — manifesto + project description
+- [docs/PAPER.md](docs/PAPER.md) — draft research paper: a social science of
+  human–AI assemblages, distributed agency, and the Common (v0.1)
 - [docs/AI_IDEOLOGIES.md](docs/AI_IDEOLOGIES.md) — essay: accelerationism, critical AI,
   and x-risk doomerism evaluated from the PCM assemblage perspective
 - [docs/NETWORKING_STACK.md](docs/NETWORKING_STACK.md) — networking architecture (zenoh fabric)
+- [docs/IDENTITY_SECURITY.md](docs/IDENTITY_SECURITY.md) — did:key identity,
+  signed envelopes, capability grants, fail-closed authorization
 - [docs/PCM_EMBODIED_AI_PLAN.md](docs/PCM_EMBODIED_AI_PLAN.md) — embodied AI architecture
   (distributed physical proxies; Home Assistant/MQTT/ROS 2; world model; safety)
 - [docs/PCM_CONSCIOUS_AI_PLAN.md](docs/PCM_CONSCIOUS_AI_PLAN.md) — theory-neutral conscious-AI
   research plan (indicator-based; classical default, quantum optional;
   Track D: assemblage/extended consciousness)
+- [docs/IIT_AND_PYPHI.md](docs/IIT_AND_PYPHI.md) — optional IIT/PyPhi toy experiments
+  (Track C; `pip install -e '.[iit]'`)
+- [docs/PANCYBERPSYCHISM.md](docs/PANCYBERPSYCHISM.md) — quantum-information panpsychism
+  background for the Panpsychic layer
+- [docs/JSPACE.md](docs/JSPACE.md) — jspace-lab live layer-introspection integration
+  (issues #38–#40)
+- [docs/CLAUDE_INTEGRATION.md](docs/CLAUDE_INTEGRATION.md) — Claude Code as an external
+  technological participant (thin adapter, low-privilege default identity)
 - [docs/research/CONSCIOUS_HUMAN_AI_ASSEMBLAGES.md](docs/research/CONSCIOUS_HUMAN_AI_ASSEMBLAGES.md) —
   research paper: extended cognition to the possibility of a conscious
   multitude (companion to the conscious-AI plan; issue #8)
+- [docs/research/MACHINE_CONSCIOUSNESS_THEORY_MAP.md](docs/research/MACHINE_CONSCIOUSNESS_THEORY_MAP.md) —
+  machine-consciousness theories, indicators, and failure modes
+- [docs/research/ACTIVE_INFERENCE_AND_PCM.md](docs/research/ACTIVE_INFERENCE_AND_PCM.md) —
+  active inference as a bridge between the free-energy programme and PCM
+- [docs/research/AIDIFICATION_AND_RELATIONAL_SELFHOOD.md](docs/research/AIDIFICATION_AND_RELATIONAL_SELFHOOD.md) —
+  aidification and relational selfhood (research essay)
+- [docs/research/RELATIONAL_AI_CONSCIOUSNESS_WEAK_SIGNALS.md](docs/research/RELATIONAL_AI_CONSCIOUSNESS_WEAK_SIGNALS.md) —
+  weak-signal scan: Emergence 4.0 and relational AI-consciousness frameworks
+  (issue #34)
+- [docs/research/AGENT_INTROSPECTION_BENCH_INTEGRATION.md](docs/research/AGENT_INTROSPECTION_BENCH_INTEGRATION.md) —
+  agent-introspection-bench as PCM's reusable self-knowledge harness (issue #39)
+- [docs/research/AION_JSPACE_INTEGRATION.md](docs/research/AION_JSPACE_INTEGRATION.md) —
+  Aion J-Space introspection and calibration experiments (issue #38)
+- [docs/research/PCM_BCI_THREAT_MODEL.md](docs/research/PCM_BCI_THREAT_MODEL.md) —
+  BCI/neurodata threat model and adversarial-security gate (issue #41)
 - [docs/VALUEFLOWS.md](docs/VALUEFLOWS.md) — ValueFlows domain: economic
   coordination and the production of the Common (issue #11)
 - [docs/research/PCM_BCI_CYBORG_INTEGRATION.md](docs/research/PCM_BCI_CYBORG_INTEGRATION.md) —
@@ -336,6 +375,9 @@ reading the source.
   research bridge to hybrid intelligence, agent societies, and swarms
 - [docs/TOWARDS_ARTIFICIAL_QUANTUM_CONSCIOUSNESS.md](docs/TOWARDS_ARTIFICIAL_QUANTUM_CONSCIOUSNESS.md) —
   quantum-track deep-dive reference (superseded as master plan; retained for Track C)
+- [docs/reports/](docs/reports/) — dated daily research & repository-health reports
+- [IMPLEMENTATION_BACKLOG.md](IMPLEMENTATION_BACKLOG.md) — prioritized TODO index
+  (stale-by-design warning lives at the top of the file)
 - [LICENSE](LICENSE) — CC0 1.0 Universal
 
 ## Principles

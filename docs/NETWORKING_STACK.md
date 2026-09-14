@@ -50,7 +50,8 @@ FABRIC          ZenohTransport over eclipse-zenoh 1.10 (peer-native)  [new]
 POLICY          pcm.policy — fail-closed authorization + safety       [new]
 PUBLIC FACE     ActivityPub later; Nostr concepts borrowed
 FILES           local-first storage; object refs ride the fabric
-AI              Hermes Agent nodes — replaceable LLM behind Ollama (already true)
+AI              Hermes / Claude Code nodes — replaceable runtime,
+                one fail-closed permission model (thin adapters)
 BCI             OpenBCI → BrainFlow → derived context → agent (already scaffolded)
 ```
 
@@ -354,6 +355,8 @@ Scenario 1 exercises: greeting reply, sensor observation, queryable-backed tempe
 
 ```text
 Phase 0  DONE  kernel + Hermes adapter + did:key identity + PCM 1 envelope
+               (Claude Code adapter added later; one identity/permission/
+               fabric model, many agent runtimes)
 Phase 1  DONE  single node: proposal envelopes, status surface
 Phase 2  DONE  fabric: namespace + events + Transport ABC + ZenohTransport
                (peer/client modes, liveliness presence, policy layer)
