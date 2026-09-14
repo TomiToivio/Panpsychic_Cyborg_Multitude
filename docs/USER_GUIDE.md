@@ -37,20 +37,20 @@ cd Panpsychic_Cyborg_Multitude
 python3 -m venv .venv
 source .venv/bin/activate        # Windows: .venv\Scripts\activate
 
-pip install -e .
+python -m pip install -e .
 ```
 
-This installs the **core** package only: Pydantic, cryptography, and
-base58. Zenoh networking and test tooling are optional extras:
+`pyproject.toml` is the **canonical dependency and packaging source**.
+The command above installs the core package only: Pydantic,
+cryptography, and base58. Optional extras are explicit:
 
 ```bash
-pip install -e '.[zenoh]'   # node-to-node fabric
-pip install -e '.[dev]'     # pytest/development dependencies
-pip install -e '.[all]'     # all currently packaged optional extras
+python -m pip install -e '.[dev]'        # pytest/development dependencies
+python -m pip install -e '.[zenoh]'      # node-to-node fabric
+python -m pip install -e '.[iit]'        # PyPhi IIT experiments (Python 3.13+)
+python -m pip install -e '.[all]'        # all currently packaged extras
 ```
 
-`pip install -r requirements.txt` remains available when you want only
-the core runtime dependencies without installing PCM as a package.
 Python 3.11+ is supported. Ollama, Zenoh, Telegram, BCI and embodiment
 support are optional at runtime; PCM works without them unless the
 corresponding feature is explicitly used.
@@ -276,7 +276,7 @@ activity. This is the simplest and private-by-default mode.
 **Zenoh (optional node fabric).** Install the networking extra first:
 
 ```bash
-pip install -e '.[zenoh]'
+python -m pip install -e '.[zenoh]'
 export PCM_ZENOH_ENABLED=true
 python3 -m unittest tests.test_pcm_phase2_zenoh   # two-node demo
 ```
@@ -347,7 +347,7 @@ $PCM_DATA_DIR (default: <repo>/data/)
     └── <rhizome-slug>/
         ├── events.jsonl          ← THE authoritative state (append-only log)
         ├── tribe.json            ← discovery metadata (name, charter, slug)
-        ├── private_notes.jsonl    ← per-member private notes (stays local)
+        ├── private_notes.jsonl   ← per-member private notes (stays local)
         └── identity/
             └── pcm_identity.json ← SENSITIVE long-term signing key
 ```
@@ -405,6 +405,7 @@ Practical rules, no stronger than the implementation:
 | Wrong rhizome selected | PCM picks the most recently used rhizome; target explicitly with `--rhizome DIR`. |
 | `counsel` fails / model unavailable | Ollama not running or model missing: check `PCM_OLLAMA_HOST`, run `ollama pull <model>`. PCM works without it. |
 | Zenoh unavailable | Install `.[zenoh]`, then set `PCM_ZENOH_ENABLED=true`; otherwise everything stays local. |
+| IIT/PyPhi unavailable | Use Python 3.13+ and install `.[iit]`; IIT experiments are optional. |
 | `embodiment is disabled` | Set `PCM_EMBODIMENT_ENABLED=true` — it is off by default. |
 | Where do I inspect history? | `multitude log` prints the raw event log; the file is `<rhizome-dir>/events.jsonl`. |
 | A technological node won't vote | Check `members`: voting can be revoked (`demote`) or omitted at join (`--no-vote`); `promote` restores it. |
