@@ -27,6 +27,8 @@ Adversarial-security model (issue #41):
   a local freshness/replay/provenance gate before downstream handling.
 * Passing the BCI gate does NOT authorize an action; ordinary PCM
   capability/policy checks remain mandatory for devices/governance.
+* ``BCICommandDispatcher`` is a narrow fail-closed bridge from validated
+  BCI intent into the existing ``PhysicalAgency`` authorization chain.
 * Real BCI traffic remains behind the Phase 3b confidentiality gate.
 
 Mapping to PCM's six-layer model: observations carry a ``layer``
@@ -41,10 +43,9 @@ from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from typing import Any, Optional
 
-# Layers a BCI observation may target (never physical/social/linguistic).
-BCI_LAYERS = frozenset({"biological", "psychic", "cybernetic"})
+from multitude.integrations.embodiment import DeviceAction, PhysicalAgency
 
-# Signals considered sensitive regardless of name (fail-closed default).
+BCI_LAYERS = frozenset({"biological", "psychic", "cybernetic"})
 DEFAULT_SENSITIVITY = "private"
 
 
@@ -103,7 +104,6 @@ class BCIObservation:
             )
 
     def to_payload(self) -> dict[str, Any]:
-        """Plain payload (for tests, adapters, and explicit publishing)."""
         return {
             "ts": self.ts,
             "signal_type": self.signal_type.strip().lower(),
@@ -119,11 +119,7 @@ class BCIObservation:
 
 @dataclass(frozen=True)
 class BCICommand:
-    """Explicit low-bandwidth human-intent claim from a BCI adapter.
-
-    This is deliberately NOT a subtype of ``BCIObservation``. Passive context
-    cannot become authoritative merely by changing a field downstream.
-    """
+    """Explicit low-bandwidth human-intent claim from a BCI adapter."""
 
     ts: str
     command: str
@@ -149,11 +145,7 @@ class BCICommand:
 
 
 class BCISecurityGate:
-    """Local replay/freshness gate for intentional BCI commands.
-
-    The gate does not grant capabilities. A validated command must still pass
-    the ordinary PCM policy/capability layer before any consequential action.
-    """
+    """Local replay/freshness gate for intentional BCI commands."""
 
     def __init__(self, *, max_age_seconds: float = 10.0, max_future_skew_seconds: float = 2.0) -> None:
         if max_age_seconds <= 0:
@@ -167,14 +159,12 @@ class BCISecurityGate:
     def validate_command(self, command: BCICommand, *, now: Optional[datetime] = None) -> BCICommand:
         if not isinstance(command, BCICommand):
             raise BCISecurityError("passive BCI observations cannot be validated as intentional commands")
-
         current = now or datetime.now(timezone.utc)
         if current.tzinfo is None:
             raise ValueError("now must be timezone-aware")
         current = current.astimezone(timezone.utc)
         event_time = _parse_utc_timestamp(command.ts)
         age = (current - event_time).total_seconds()
-
         if age > self.max_age_seconds:
             raise BCISecurityError(
                 f"stale BCI command rejected: age {age:.3f}s exceeds {self.max_age_seconds:.3f}s"
@@ -186,26 +176,59 @@ class BCISecurityGate:
             )
         if command.event_id in self._seen_event_ids:
             raise BCISecurityError(f"replayed BCI command rejected: event_id={command.event_id!r}")
-
         provenance = command.metadata.get("provenance")
         if provenance is not None and not isinstance(provenance, dict):
             raise BCISecurityError("BCI command provenance metadata must be a dict when present")
-
         self._seen_event_ids.add(command.event_id)
         return command
 
     def reset_replay_cache(self) -> None:
-        """Clear replay state for deterministic tests or explicit session reset."""
         self._seen_event_ids.clear()
 
 
-def normalize_observation_payload(payload: dict[str, Any]) -> dict[str, Any]:
-    """Validate + normalize a raw payload into a publishable observation dict.
+class BCICommandDispatcher:
+    """Fail-closed bridge from validated BCI intent to physical agency.
 
-    Raises BCIError on malformed input. UNKNOWN values are preserved:
-    a device that cannot classify (e.g. sleep state UNKNOWN) is reported
-    as UNKNOWN, never guessed.
+    Commands are first checked for freshness/replay/provenance, then translated
+    into an ordinary ``DeviceAction``. Authorization is delegated to
+    ``PhysicalAgency.execute`` so BCI input cannot bypass the device capability
+    allowlist or PCM policy decision path.
     """
+
+    def __init__(self, *, gate: BCISecurityGate, physical_agency: PhysicalAgency) -> None:
+        self._gate = gate
+        self._physical_agency = physical_agency
+
+    async def dispatch_device_command(
+        self,
+        command: BCICommand,
+        *,
+        requested_by: str,
+        target: str,
+        action: str,
+        parameters: Optional[dict[str, Any]] = None,
+        now: Optional[datetime] = None,
+    ) -> Any:
+        validated = self._gate.validate_command(command, now=now)
+        if not str(requested_by).strip():
+            raise BCISecurityError("BCI command dispatch requires an explicit biological requester")
+        device_action = DeviceAction(
+            action=str(action).strip(),
+            target=str(target).strip(),
+            parameters=dict(parameters or {}),
+            requested_by=str(requested_by).strip(),
+        )
+        result = await self._physical_agency.execute(device_action)
+        return {
+            "result": result,
+            "bci_event_id": validated.event_id,
+            "bci_source": validated.source,
+            "bci_confidence": validated.confidence,
+            "authority": "policy_checked_device_action",
+        }
+
+
+def normalize_observation_payload(payload: dict[str, Any]) -> dict[str, Any]:
     if not isinstance(payload, dict):
         raise BCIError("observation payload must be a dict")
     ts = str(payload.get("ts", "")).strip()
@@ -241,25 +264,17 @@ def normalize_observation_payload(payload: dict[str, Any]) -> dict[str, Any]:
 
 
 class BCIAdapter:
-    """Minimal contract for device-specific adapters.
-
-    Subclasses produce observations from their device; ``read_context``
-    returns derived context ONLY (never raw signals). ``enabled=False``
-    makes the adapter inert: every read returns an empty list.
-    """
-
     name: str = "generic-bci"
 
     def __init__(self, enabled: bool = False) -> None:
         self.enabled = bool(enabled)
 
     def read_context(self) -> list[BCIObservation]:
-        """Return current derived context. Empty when disabled."""
         if not self.enabled:
             return []
         return self._read()
 
-    def _read(self) -> list[BCIObservation]:  # pragma: no cover - interface
+    def _read(self) -> list[BCIObservation]:
         raise NotImplementedError
 
     def _observation(
@@ -286,19 +301,9 @@ class BCIAdapter:
 
 
 class SyntheticBCIAdapter(BCIAdapter):
-    """Reference adapter for tests and demos. No hardware, ever.
-
-    Emits deterministic (or seeded) synthetic observations so the whole
-    pipeline is exercisable without a device.
-    """
-
     name = "synthetic-bci"
 
-    def __init__(
-        self,
-        enabled: bool = False,
-        script: Optional[list[dict[str, Any]]] = None,
-    ) -> None:
+    def __init__(self, enabled: bool = False, script: Optional[list[dict[str, Any]]] = None) -> None:
         super().__init__(enabled=enabled)
         self._script = list(script or [])
         self._cursor = 0
@@ -312,15 +317,6 @@ class SyntheticBCIAdapter(BCIAdapter):
 
 
 class BCIHub:
-    """Per-member BCI integration point. Consent guard, not a recorder.
-
-    - ``enable``/``disable`` are consent acts: ``by`` must name a
-      BIOLOGICAL member of the rhizome. Technological (AI) members are
-      refused by default: AI agents cannot enable monitoring on a human.
-    - Observations stay in the hub. Nothing reaches the rhizome until a
-      human calls ``publish`` for that observation.
-    """
-
     def __init__(self, rhizome: Any) -> None:
         self._rhizome = rhizome
         self._adapters: dict[str, BCIAdapter] = {}
@@ -345,7 +341,6 @@ class BCIHub:
         adapter.enabled = False
 
     def read_context(self, name: str, *, by: str) -> list[BCIObservation]:
-        """Poll one adapter; results stay private in the hub."""
         self._require_human(by, "read BCI context")
         adapter = self._adapters.get(name)
         if adapter is None:
@@ -356,7 +351,6 @@ class BCIHub:
         return observations
 
     def latest(self, name: str) -> list[BCIObservation]:
-        """Last read observations for an adapter (private, not shared)."""
         return list(self._latest.get(name, []))
 
     def publish(
@@ -367,11 +361,6 @@ class BCIHub:
         by: str,
         sensitivity: Optional[str] = None,
     ) -> dict[str, Any]:
-        """Explicitly publish ONE passive observation into rhizome memory.
-
-        Publishing does not grant command authority. ``BCICommand`` objects are
-        deliberately rejected here and belong on a separately gated command path.
-        """
         self._require_human(by, "publish BCI observations")
         if not isinstance(observation, BCIObservation):
             raise BCIError("BCIHub.publish accepts passive BCIObservation objects only")
