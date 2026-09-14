@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Tests for the optional BCI integration (issue #10).
+"""Tests for the optional BCI integration (issues #10 and #41).
 
 Hardware is never required: the synthetic adapter feeds the pipeline.
 """
@@ -7,13 +7,17 @@ import os
 import sys
 import tempfile
 import unittest
+from datetime import datetime, timedelta, timezone
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 
 from multitude.integrations.bci import (  # noqa: E402
     BCIAdapter,
+    BCICommand,
     BCIError,
     BCIObservation,
+    BCISecurityError,
+    BCISecurityGate,
     BCIHub,
     SyntheticBCIAdapter,
     normalize_observation_payload,
@@ -34,6 +38,20 @@ def obs(**overrides):
     )
     base.update(overrides)
     return BCIObservation(**base)
+
+
+def command(now: datetime, **overrides):
+    base: dict = dict(
+        ts=now.astimezone(timezone.utc).isoformat().replace("+00:00", "Z"),
+        command="select",
+        event_id="evt-1",
+        source="synthetic-bci",
+        intentional=True,
+        confidence=0.9,
+        metadata={"provenance": {"adapter": "synthetic-bci", "classifier": "test-v1"}},
+    )
+    base.update(overrides)
+    return BCICommand(**base)
 
 
 class ObservationTests(unittest.TestCase):
@@ -97,7 +115,49 @@ class SyntheticAdapterTests(unittest.TestCase):
         self.assertEqual(first[0].signal_type, "heart_rate")
         second = adapter.read_context()
         self.assertEqual(second[0].signal_type, "attention")
-        self.assertEqual(adapter.read_context(), [])  # script exhausted
+        self.assertEqual(adapter.read_context(), [])
+
+
+class BCISecurityGateTests(unittest.TestCase):
+    def setUp(self):
+        self.now = datetime(2026, 9, 14, 10, 0, 0, tzinfo=timezone.utc)
+        self.gate = BCISecurityGate(max_age_seconds=10, max_future_skew_seconds=2)
+
+    def test_valid_intentional_command_passes(self):
+        cmd = command(self.now)
+        self.assertIs(self.gate.validate_command(cmd, now=self.now), cmd)
+
+    def test_replayed_command_is_rejected(self):
+        cmd = command(self.now)
+        self.gate.validate_command(cmd, now=self.now)
+        with self.assertRaises(BCISecurityError):
+            self.gate.validate_command(cmd, now=self.now)
+
+    def test_stale_command_is_rejected(self):
+        stale = command(self.now - timedelta(seconds=11), event_id="stale-1")
+        with self.assertRaises(BCISecurityError):
+            self.gate.validate_command(stale, now=self.now)
+
+    def test_future_dated_command_is_rejected(self):
+        future = command(self.now + timedelta(seconds=3), event_id="future-1")
+        with self.assertRaises(BCISecurityError):
+            self.gate.validate_command(future, now=self.now)
+
+    def test_passive_observation_cannot_escalate_to_command(self):
+        passive = obs(confidence=0.99)
+        with self.assertRaises(BCISecurityError):
+            self.gate.validate_command(passive, now=self.now)  # type: ignore[arg-type]
+
+    def test_command_requires_explicit_intent_and_provenance_source(self):
+        with self.assertRaises(BCISecurityError):
+            command(self.now, intentional=False, event_id="no-intent")
+        with self.assertRaises(BCISecurityError):
+            command(self.now, source="", event_id="no-source")
+
+    def test_bad_provenance_shape_fails_closed(self):
+        cmd = command(self.now, event_id="bad-prov", metadata={"provenance": "forged"})
+        with self.assertRaises(BCISecurityError):
+            self.gate.validate_command(cmd, now=self.now)
 
 
 class HubConsentTests(unittest.TestCase):
@@ -122,7 +182,6 @@ class HubConsentTests(unittest.TestCase):
     def test_ai_agent_cannot_add_enable_or_read(self):
         with self.assertRaises(BCIError):
             self.hub.add_adapter("muse", self.adapter, by="PCM node")
-        # human adds it first, then AI is still locked out of consent acts
         self.hub.add_adapter("muse", self.adapter, by="Alice")
         with self.assertRaises(BCIError):
             self.hub.enable("muse", by="PCM node")
@@ -132,7 +191,6 @@ class HubConsentTests(unittest.TestCase):
             self.hub.read_context("muse", by="PCM node")
         with self.assertRaises(BCIError):
             self.hub.publish("muse", obs(), by="PCM node")
-        # and nothing was ever enabled or read
         self.assertFalse(self.adapter.enabled)
 
     def test_unknown_member_refused(self):
@@ -152,7 +210,6 @@ class HubConsentTests(unittest.TestCase):
         self.hub.add_adapter("muse", self.adapter, by="Alice")
         self.hub.enable("muse", by="Alice")
         observation = self.hub.read_context("muse", by="Alice")[0]
-        # nothing recorded yet: reading is not publishing
         self.assertEqual(len(self.rhizome.biometric_signals), 0)
         rec = self.hub.publish("muse", observation, by="Alice")
         self.assertEqual(len(self.rhizome.biometric_signals), 1)
@@ -161,15 +218,21 @@ class HubConsentTests(unittest.TestCase):
         self.assertEqual(rec["meta"]["confidence"], 0.63)
         self.assertEqual(rec["meta"]["layer"], "psychic")
         self.assertEqual(rec["meta"]["bci_adapter"], "muse")
+        self.assertEqual(rec["meta"]["authority"], "passive_context_only")
 
     def test_publish_sensitive_as_shared_refused(self):
         self.hub.add_adapter("muse", self.adapter, by="Alice")
         with self.assertRaises(BCIError):
             self.hub.publish("muse", obs(sensitivity="private"),
                              by="Alice", sensitivity="shared")
-        # limited is allowed with consent
         rec = self.hub.publish("muse", obs(), by="Alice", sensitivity="limited")
         self.assertEqual(rec["sensitivity"], "limited")
+
+    def test_publish_rejects_intentional_command_object(self):
+        self.hub.add_adapter("muse", self.adapter, by="Alice")
+        cmd = command(datetime.now(timezone.utc))
+        with self.assertRaises(BCIError):
+            self.hub.publish("muse", cmd, by="Alice")  # type: ignore[arg-type]
 
     def test_publish_heart_rate_biological_layer(self):
         hr = SyntheticBCIAdapter(enabled=True, script=[dict(
