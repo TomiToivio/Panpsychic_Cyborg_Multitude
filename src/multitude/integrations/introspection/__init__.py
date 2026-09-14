@@ -1,4 +1,4 @@
-"""Optional read-only model instrumentation for PCM."""
+"""Optional read-only model instrumentation and self-knowledge evaluation for PCM."""
 from __future__ import annotations
 
 import hashlib
@@ -152,3 +152,41 @@ class JSpaceLabProvider:
 
     def stream(self, prompt: str, *, context: dict | None = None) -> Iterable[IntrospectionFrame]:
         raise JSpaceLabError("Use stream_events() with the upstream live SSE stream; ASK mode is implemented by ask().")
+
+
+from .benchmark import (  # noqa: E402
+    CalibrationResult,
+    CallableRespondent,
+    GroundTruthObservation,
+    GroundTruthProvider,
+    HermesRespondent,
+    MappingGroundTruthProvider,
+    PCMRuntimeGroundTruthProvider,
+    PCM_QUESTION_BANK,
+    SelfKnowledgeBenchmark,
+    SelfKnowledgeProbe,
+    SelfKnowledgeRespondent,
+    grade_claim,
+)
+
+__all__ = [
+    "IntrospectionFrame",
+    "IntrospectionObservation",
+    "RetentionMode",
+    "LiveIntrospectionProvider",
+    "JSpaceLabProvider",
+    "JSpaceLabError",
+    "parse_sse_blocks",
+    "CalibrationResult",
+    "CallableRespondent",
+    "GroundTruthObservation",
+    "GroundTruthProvider",
+    "HermesRespondent",
+    "MappingGroundTruthProvider",
+    "PCMRuntimeGroundTruthProvider",
+    "PCM_QUESTION_BANK",
+    "SelfKnowledgeBenchmark",
+    "SelfKnowledgeProbe",
+    "SelfKnowledgeRespondent",
+    "grade_claim",
+]
