@@ -206,15 +206,15 @@ PCM should be especially suspicious of false emergence produced by centralized o
 
 ## Machine-readable philosophical context
 
-Pancyberpsychism's Machine Scripts are useful as a precedent for agent-readable context, but PCM treats these files as **semantic documentation only**.
+Pancyberpsychism's Machine Scripts are useful as a precedent for agent-readable context, but PCM treats such files as **semantic documentation only**.
 
-PCM therefore provides:
+A future PCM machine-context layer could use:
 
 - `/llm.txt` — concise agent-facing project context;
-- `/ai.txt` — epistemic and ethical guidance for AI participants;
+- `/ai.txt` — epistemic and ethical context for AI participants;
 - `/.well-known/pcm.json` — structured machine-readable project metadata.
 
-These files must never claim that parsing them creates consciousness or grants authority. They describe PCM's concepts, uncertainty and governance principles.
+These files should describe project identity, core concepts, notation, epistemic status, relational hypotheses, ethical principles and canonical documentation. They should never imply that parsing them creates consciousness, personhood, membership or authority.
 
 ## Research stance
 
