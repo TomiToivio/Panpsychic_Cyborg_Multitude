@@ -23,14 +23,14 @@ zenoh = [
   "eclipse-zenoh>=1.10",
 ]
 iit = [
-  "pyphi @ git+https://github.com/wmayner/pyphi@main ; python_version >= '3.13'",
+  "pyphi @ git+https://github.com/wmayner/pyphi@1f47a1e20b6a27fd92c25ec4e8a1aa5e829f8198 ; python_version >= '3.13'",
 ]
 dev = [
   "pytest>=8.0",
 ]
 all = [
   "eclipse-zenoh>=1.10",
-  "pyphi @ git+https://github.com/wmayner/pyphi@main ; python_version >= '3.13'",
+  "pyphi @ git+https://github.com/wmayner/pyphi@1f47a1e20b6a27fd92c25ec4e8a1aa5e829f8198 ; python_version >= '3.13'",
   "pytest>=8.0",
 ]
 
