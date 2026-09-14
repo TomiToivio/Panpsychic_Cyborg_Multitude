@@ -77,10 +77,10 @@ def recurrent_or() -> ToyNetwork:
 
 
 def as_pyphi(model: ToyNetwork):
-    """Build a PyPhi Network for a toy model.
+    """Build a PyPhi Substrate for a toy model.
 
     PyPhi is optional and intentionally imported lazily. Current IIT 4.0
-    experiments target the PyPhi 2.0 development line on Python 3.13+.
+    experiments target the pinned PyPhi 2.x development API on Python 3.13+.
     """
 
     try:
@@ -90,7 +90,7 @@ def as_pyphi(model: ToyNetwork):
             "PyPhi is optional. On Python 3.13+, install PCM with the 'iit' extra."
         ) from exc
 
-    return pyphi.Network(model.tpm, cm=model.cm)
+    return pyphi.Substrate(model.tpm, cm=model.cm)
 
 
 def system_phi(model: ToyNetwork) -> float:
@@ -103,6 +103,5 @@ def system_phi(model: ToyNetwork) -> float:
             "PyPhi is optional. On Python 3.13+, install PCM with the 'iit' extra."
         ) from exc
 
-    network = as_pyphi(model)
-    subsystem = pyphi.Subsystem(network, model.state, range(2))
-    return float(pyphi.compute.sia(subsystem).phi)
+    substrate = as_pyphi(model)
+    return float(pyphi.analyze(substrate, model.state).phi)
