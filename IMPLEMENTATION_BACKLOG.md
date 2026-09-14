@@ -1,413 +1,250 @@
 # PCM Implementation Backlog
 
-This backlog converts the external project inspirations into concrete, prioritized work in the repository. Each item is mapped to the exact code and architecture files where it should live and includes the relevant project inspiration behind it.
+> **Source-of-truth rule:** when this backlog conflicts with current code or canonical documentation, the current repository wins. In particular, use `README.md`, `docs/USER_GUIDE.md`, `docs/NETWORKING_STACK.md`, `docs/PCM_CONSCIOUS_AI_PLAN.md`, and the code under `src/multitude/` as authoritative. This file is only a prioritized TODO index.
 
-The ordering keeps the current merged kernel stable while expanding it in the directions best fit for PCM:
+This backlog is intentionally narrow. It contains only work that is still relevant to the current **Rhizome** architecture.
 
-- local-first, append-only memory
-- worker-co-op and commons governance
-- explicit dissent and provenance
-- human + AI parity in agent structure
-- text-first interfaces before larger embodiment systems
+## Current architecture already implemented
 
----
+The following are **not backlog items** anymore:
 
-## Priority 0 — Preserve and harden the merged kernel
+- event-sourced Rhizome kernel in `src/multitude/rhizome.py` + `src/multitude/store.py`;
+- six-layer member profiles in `src/multitude/layers.py`;
+- canonical service layer in `src/multitude/service.py`;
+- ValueFlows/Common economic domain in `src/multitude/economy_vf.py` and `docs/VALUEFLOWS.md`;
+- consent-first BCI adapter in `src/multitude/integrations/bci.py` and `docs/research/PCM_BCI_CYBORG_INTEGRATION.md`;
+- embodied-device architecture in `src/multitude/integrations/embodiment.py` and `docs/PCM_EMBODIED_AI_PLAN.md`;
+- did:key identity, signed envelopes, namespaces, transport, policy and capability grants under `src/multitude/pcm/`;
+- Zenoh fabric integration under `src/multitude/integrations/zenoh/`;
+- Hermes and Claude Code as thin technological-member adapters under `src/multitude/integrations/hermes/` and `src/multitude/integrations/claude/`;
+- agent self-knowledge/introspection experiments under `src/multitude/integrations/introspection/`;
+- IIT and Active-Inference toy experiments under `experiments/`;
+- theory-neutral consciousness research docs under `docs/research/`.
 
-### 0.1 Final merge and regression safety
-
-Project inspirations:
-- Sensorica / True Commons / DisCO / commons governance patterns
-- repo merge-safety guidance from concurrent agent work
-
-Target files:
-- [src/multitude/tribe.py](src/multitude/tribe.py)
-- [src/multitude/service.py](src/multitude/service.py)
-- [src/multitude/store.py](src/multitude/store.py)
-- [tests/test_tribe.py](tests/test_tribe.py)
-- [ARCHITECTURE.md](ARCHITECTURE.md)
-
-Scope:
-- keep the library-level event-sourced root stable
-- protect against replay bugs, double-apply issues, and schema drift
-- verify the project still passes the current kernel test suite
-
-Acceptance criteria:
-- all existing kernel tests still pass
-- no silent overwrite of member, proposal, or goal history
-- architecture and implementation remain aligned
+Legacy names such as `tribe` may still appear in serialized fields, compatibility APIs or historical prose. New implementation work should use **Rhizome** terminology unless compatibility requires otherwise.
 
 ---
 
-## Priority 1 — Governance and commons work model
+## Priority 0 — Kernel reliability and provenance
 
-### 1.1 Add a resource + work ontology to the domain model
+### 0.1 Keep replay and schema evolution boring
 
-Project inspirations:
-- hREA
-- Sensorica
-- True Commons
+Current files:
 
-Target files:
-- [src/multitude/models.py](src/multitude/models.py)
-- [src/multitude/goals.py](src/multitude/goals.py)
-- [src/multitude/tribe.py](src/multitude/tribe.py)
-- [src/multitude/service.py](src/multitude/service.py)
+- `src/multitude/rhizome.py`
+- `src/multitude/store.py`
+- `src/multitude/service.py`
+- `src/multitude/models.py`
+- `tests/`
 
-Scope:
-- formally model work resources, obligations, and value flows
-- separate task ownership from goal ownership
-- represent co-op planning and member labor in a durable, queryable way
+Work:
 
-Planned additions:
-- resource types and resource state
-- event flows for task/work commitments
-- member-to-task/goal attribution with provenance
-- ledger-friendly accounting of costs and revenue
+- protect replay against double-apply and schema drift;
+- keep event provenance explicit;
+- add migrations only when needed and keep old event logs readable;
+- keep mutating behavior behind the canonical service/policy paths.
 
-Acceptance criteria:
-- real tasks and contribution data can be tracked without hidden mutable state
-- work tracking is serialized through the same event log pattern as proposals and goals
+Acceptance:
 
-### 1.2 Add explicit commons governance hooks
-
-Project inspirations:
-- DisCO
-- True Commons
-- Nondominium
-
-Target files:
-- [PLAN.md](PLAN.md)
-- [src/multitude/goals.py](src/multitude/goals.py)
-- [src/multitude/tribe.py](src/multitude/tribe.py)
-- [src/multitude/service.py](src/multitude/service.py)
-
-Scope:
-- clarify tribe governance beyond a generic “vote and win” model
-- add explicit co-op operation categories: labor, value, care, and maintenance
-- capture governance decisions in terms of shared work and responsibility, not just simple ballots
-
-Acceptance criteria:
-- governance can represent more than majority voting
-- worker co-op obligations and shared labor are recorded in the same durable system
+- append-only history is never silently rewritten;
+- replay remains deterministic;
+- new state can be reconstructed from persisted events.
 
 ---
 
-## Priority 2 — Local-first memory and selective sharing
+## Priority 1 — Selective sharing and memory boundaries
 
-### 2.1 Expand memory boundaries and provenance
+### 1.1 Make shared vs private vs agent-scoped memory more explicit
 
-Project inspirations:
-- Noosphere
-- local-first memory systems
-- shared social memory patterns in AGENTS.md and ARCHITECTURE.md
+Current files:
 
-Target files:
-- [src/multitude/store.py](src/multitude/store.py)
-- [src/multitude/tribe.py](src/multitude/tribe.py)
-- [src/multitude/service.py](src/multitude/service.py)
-- [AGENTS.md](AGENTS.md)
-- [ARCHITECTURE.md](ARCHITECTURE.md)
+- `src/multitude/rhizome.py`
+- `src/multitude/store.py`
+- `src/multitude/service.py`
+- `src/multitude/models.py`
+- `AGENTS.md`
 
-Scope:
-- distinguish tribe memory from personal agent memory
-- strengthen provenance tags for human versus AI-authored entries
-- add selective-sharing metadata rather than implicit global access
+Work:
 
-Planned additions:
-- memory visibility levels
-- author provenance and source attribution
-- memory replay filters by scope or audience
+- strengthen visibility/audience metadata where the current model is too coarse;
+- preserve human-, agent-, imported- and system-derived provenance;
+- keep personal/runtime-local caches distinct from shared Rhizome memory;
+- make search respect visibility and provenance.
 
-Acceptance criteria:
-- the memory model states exactly what is shared, what is personal, and what is imported
-- no memory item silently loses provenance or authorship
+Acceptance:
 
-### 2.2 Add durable search and recall by topic, actor, and source
+- no memory item silently loses authorship or scope;
+- agent-local state is not mistaken for collective memory;
+- search results can explain who asserted what and when.
 
-Project inspirations:
-- noosphere-like memory graphs
-- memory-first social systems
+### 1.2 Improve durable recall across memory, proposals and decisions
 
-Target files:
-- [src/multitude/tribe.py](src/multitude/tribe.py)
-- [src/multitude/service.py](src/multitude/service.py)
-- [src/multitude/models.py](src/multitude/models.py)
+Work:
 
-Scope:
-- support contextual retrieval across memory, proposals, decisions, and notes
-- produce search outputs that preserve scope and provenance
-
-Acceptance criteria:
-- memory search can answer “what did the tribe decide about X?” or “which agent said Y?” without rewriting history
+- contextual retrieval by topic, actor, source and decision;
+- return source event IDs/provenance with search results;
+- preserve dissent and superseded positions rather than flattening history.
 
 ---
 
-## Priority 3 — Deliberation and disagreement mapping
+## Priority 2 — Deliberation and disagreement mapping
 
-### 3.1 Upgrade proposal presentation to plural deliberation, not only binary voting
+Current files:
 
-Project inspirations:
-- Pol.is
-- Plurality
-- disagreement mapping
+- `src/multitude/rhizome.py`
+- `src/multitude/service.py`
+- `src/multitude/models.py`
+- `src/multitude/llm.py`
 
-Target files:
-- [src/multitude/tribe.py](src/multitude/tribe.py)
-- [src/multitude/service.py](src/multitude/service.py)
-- [src/multitude/llm.py](src/multitude/llm.py)
-- [src/multitude/models.py](src/multitude/models.py)
+Work:
 
-Scope:
-- preserve dissent as a first-class signal
-- surface vote reasons and block positions in proposal views
-- show “cluster” or “theme” summaries without flattening disagreement
+- make proposal views expose reasons, dissent and blocking rationales clearly;
+- support plural summaries/clusters without turning them into a single synthetic consensus;
+- keep AI counsel/proposals separate from accepted collective decisions.
 
-Planned additions:
-- proposal rationales aggregation
-- dissent summary by member or theme
-- supporting context extraction from prior memory or task notes
+Acceptance:
 
-Acceptance criteria:
-- proposal outputs show not only counts, but the reasoned disagreement that shaped the outcome
-
-### 3.2 Add AI counsel and synthesis as a deliberative layer, not sovereign ruler
-
-Project inspirations:
-- Plurality
-- Pol.is
-- AI-as-sensemaking rather than AI-as-authority
-
-Target files:
-- [src/multitude/llm.py](src/multitude/llm.py)
-- [src/multitude/service.py](src/multitude/service.py)
-- [src/multitude/tribe.py](src/multitude/tribe.py)
-
-Scope:
-- keep LLM-generated counsel clearly labeled as counsel
-- add context-to-counsel prompts grounded in shared memory and proposals
-- do not treat AI output as the final decision source
-
-Acceptance criteria:
-- AI suggestions remain distinct from human consent, voting, and objecting
-- the system makes the distinction explicit in display and records
+- an AI suggestion is visibly a proposal/observation, not the Multitude's position;
+- minority reasoning remains inspectable after a decision.
 
 ---
 
-## Priority 4 — Research import and social data capture
+## Priority 3 — Commons / cooperative institutional layer
 
-### 4.1 Finish the normalized scraper and 4CAT-compatible import/export pipeline
+ValueFlows primitives already exist. Remaining work should focus on **institutional use**, not rebuilding the ontology.
 
-Project inspirations:
-- Zeeschuimer patterns
-- old TikTok scraper patterns
-- 4CAT import/export compatibility
+Current files:
 
-Target files:
-- [src/multitude/scraping](src/multitude/scraping)
-- [src/multitude/store.py](src/multitude/store.py)
-- [data](data)
-- [ARCHITECTURE.md](ARCHITECTURE.md)
+- `src/multitude/economy_vf.py`
+- `src/multitude/goals.py`
+- `src/multitude/service.py`
+- `docs/VALUEFLOWS.md`
 
-Scope:
-- normalize social capture into durable records with provenance
-- export to SQLite and CSV while keeping raw collections
-- provide 4CAT-like import adaptation with explicit metadata
+Work:
 
-Acceptance criteria:
-- scraped data lands in a structured local store rather than ad hoc dumps
-- import adapters can map 4CAT-like records into the repo’s event/log model without contaminating shared tribe memory
+- connect goals/work/contributions to cooperative planning where useful;
+- model care, maintenance, financing and common infrastructure explicitly when real use cases require them;
+- keep accounting/provenance event-sourced.
 
-### 4.2 Separate captured research from canonical tribe memory
+Acceptance:
 
-Project inspirations:
-- social-data capture and research workflows
-- local-first memory boundaries
-
-Target files:
-- [src/multitude/store.py](src/multitude/store.py)
-- [src/multitude/service.py](src/multitude/service.py)
-- [ARCHITECTURE.md](ARCHITECTURE.md)
-- [data](data)
-
-Scope:
-- stop treating research ingestion as if it were shared tribal memory by default
-- require explicit import or event conversion to move capture data into the tribe layer
-
-Acceptance criteria:
-- research scraping and archive ingestion remain clearly separated from governance and member memory
+- work and resource coordination can be inspected without hidden mutable state;
+- economic coordination does not become a centralized authority layer.
 
 ---
 
-## Priority 5 — Biological, device, and sensing layer
+## Priority 4 — Distributed fabric hardening
 
-### 5.1 Add a clean sensing pipeline for physical and biological inputs
+Canonical reference: `docs/NETWORKING_STACK.md`.
 
-Project inspirations:
-- Michael Levin / TAME
-- sensor and device telemetry patterns
-- BCI / wearable / environment work
+Current files:
 
-Target files:
-- [src/multitude/layers.py](src/multitude/layers.py)
-- [src/multitude/models.py](src/multitude/models.py)
-- [OPENBCI_PLAN.md](OPENBCI_PLAN.md)
-- [LAYERS_PLAN.md](LAYERS_PLAN.md)
-- [src/multitude/tribe.py](src/multitude/tribe.py)
+- `src/multitude/pcm/`
+- `src/multitude/integrations/zenoh/`
 
-Scope:
-- extend the six-layer model to represent device and biosignal inputs without collapsing them into direct governance actions
-- keep biological and cybernetic factors separate but linkable
+Work:
 
-Acceptance criteria:
-- device and sensor events can be recorded with provenance and opt-in semantics
-- biological and physical signals do not override consensus or shared-memory boundaries
+- continue confidentiality/key-lifecycle work before sensitive biosignal traffic;
+- test multi-node failure, reconnect, replay and adversarial cases;
+- preserve `reachable != authenticated != authorized != trusted`;
+- keep routers/transports as infrastructure, never authority.
 
-### 5.2 Formalize a consent-first data model for health and awareness signals
+Acceptance:
 
-Project inspirations:
-- shared-memory + consent-first governance
-- privacy-conscious local-first coordination
-
-Target files:
-- [src/multitude/models.py](src/multitude/models.py)
-- [src/multitude/layers.py](src/multitude/layers.py)
-- [src/multitude/tribe.py](src/multitude/tribe.py)
-- [SPEC.md](SPEC.md)
-
-Scope:
-- add explicit opt-in and scope markers for sensitive signals
-- separate readable health metadata from decisive governance data
-
-Acceptance criteria:
-- health or neuro-sensitive records cannot be silently treated as shared tribal memory
+- fail closed under missing/invalid identity or capability grants;
+- no transport can bypass PCM policy;
+- sensitive data does not ride the fabric before its privacy gate is satisfied.
 
 ---
 
-## Priority 6 — Future research and speculative exploration
+## Priority 5 — Human/AI/device boundary experiments
 
-### 6.1 Keep broader grand-system ideas in research mode
+Current files:
 
-Project inspirations:
-- Global Brain / Principia Cybernetica
-- Levin / multi-scale agency
-- A(I)nimism / Institute of the Cosmos
-- other speculative network or consciousness frameworks
+- `src/multitude/integrations/bci.py`
+- `src/multitude/integrations/embodiment.py`
+- `src/multitude/integrations/introspection/`
+- `experiments/active_inference/`
+- `experiments/iit/`
+- `docs/research/`
 
-Target files:
-- [README.md](README.md)
-- [PHILOSOPHY.md](PHILOSOPHY.md)
-- [whitepaper.md](whitepaper.md)
-- [manifesto.md](manifesto.md)
-- [PLAN.md](PLAN.md)
+Work:
 
-Scope:
-- keep these as conceptual and philosophical context
-- do not let them drive production features without a file-level operational mapping
+- keep adding **small, explicit experiments** that separate agency, self-model, causal organization, relation and phenomenology;
+- prefer synthetic/mock devices and tiny causal systems first;
+- preserve raw neural/device data locally and publish derived context only when consent allows;
+- continue self-knowledge calibration without treating introspection as consciousness evidence.
 
-Acceptance criteria:
-- speculative ideas remain explicitly documented as future framing, not implementation requirements
+Acceptance:
 
----
-
-## Priority 7 — Dependency policy: agent frameworks
-
-### 7.1 LangGraph and LlamaIndex are NOT dependencies — decision record (2026-09-06)
-
-Project inspirations:
-- maintainer question: "Pitäisikö meidän käyttää LangGraph tai LlamaIndex?"
-- PCM integration map: prefer raw primitives over orchestration platforms
-
-Decision: **neither.** Rationale (so nobody has to re-derive it):
-
-**LangGraph — rejected: it solves a problem PCM does not have.**
-1. Orchestration already exists. The Transport ABC + zenoh fabric +
-   capability grants + fail-closed Policy (`pcm/policy.py`) already
-   route agent traffic. LangGraph's core is a state machine steering
-   agent flow — adding it would create a **second authority**, which
-   violates the architecture's one-rule-per-layer design.
-2. Graph-as-code freezes a dynamic network. PCM agents discover each
-   other via fabric liveliness + capability grants, not a static graph
-   defined in code. A LangGraph graph is an org chart; the PCM fabric
-   is a city.
-3. It is an orchestration platform — the exact category the roadmap
-   lists as rejected (platform-owned choke points do not compose into
-   a multitude).
-
-**LlamaIndex — rejected for the kernel, allowed in analysis projects:**
-1. It is a data-ingestion/RAG framework. PCM memory is events.jsonl —
-   append-only, provenance-first. Vector-store abstraction would make
-   memory *non-truthful*: similarity search is not provenance-bound
-   (it cannot answer "who asserted this, when").
-2. Acceptable *outside* the kernel where provenance rules differ
-   (e.g. document search in the discourse-analysis sister work) — a
-   separate project's tool, never a kernel dependency.
-
-**The test (apply before accepting ANY framework dependency):**
-
-> If a library proposes that it *is* the architecture, it does not
-> belong in PCM. If it offers isolated primitives, it does.
-
-Examples of primitives that pass: pydantic, cryptography,
-eclipse-zenoh. Examples that fail: LangGraph, LlamaIndex (kernel),
-AutoGen, CrewAI — anything whose selling point is "we are the
-orchestration layer".
-
-**Interop stays wire-level, not code-level:** when PCM must talk to
-foreign agents (MCP / A2A / whatever survives the protocol war), those
-are thin adapters over the Transport ABC — the same pattern as the
-Hermes and Telegram integrations. Never an embedded framework.
-
-Target files:
-- [requirements.txt](requirements.txt) — stays minimal; no framework entries
-- [src/multitude/pcm/transport.py](src/multitude/pcm/transport.py) — the only
-  place an interop adapter may appear
-- [docs/NETWORKING_STACK.md](docs/NETWORKING_STACK.md) §"Explicitly NOT adopted" —
-  add orchestration platforms alongside Matrix/Holochain/IPFS
-
-Acceptance criteria:
-- requirements.txt contains no agent-framework dependency
-- any PR adding one must reopen this decision, not silently override it
+- every experiment states what it measures and what it does **not** establish;
+- no biosignal, introspection metric or theory proxy becomes an authorization signal.
 
 ---
 
-## phased execution roadmap
+## Priority 6 — Machine-consciousness comparative research
 
-### Phase 1: stabilize and align
-- finalize merge safety in [src/multitude/tribe.py](src/multitude/tribe.py)
-- lock down shared memory provenance in [src/multitude/store.py](src/multitude/store.py)
-- validate against [tests/test_tribe.py](tests/test_tribe.py)
+Canonical files:
 
-### Phase 2: governance and work
-- add common resource/event work model in [src/multitude/models.py](src/multitude/models.py)
-- expand co-op goals and labor tracking in [src/multitude/goals.py](src/multitude/goals.py)
-- align with [PLAN.md](PLAN.md)
+- `docs/PCM_CONSCIOUS_AI_PLAN.md`
+- `docs/research/MACHINE_CONSCIOUSNESS_THEORY_MAP.md`
+- `data/theory/machine_consciousness_indicators.yaml`
+- `docs/IIT_AND_PYPHI.md`
+- `docs/research/ACTIVE_INFERENCE_AND_PCM.md`
+- `docs/PANCYBERPSYCHISM.md`
+- `docs/research/AIDIFICATION_AND_RELATIONAL_SELFHOOD.md`
+- `docs/research/CONSCIOUS_HUMAN_AI_ASSEMBLAGES.md`
 
-### Phase 3: deliberation and sensemaking
-- extend proposal and dissent output in [src/multitude/service.py](src/multitude/service.py)
-- keep AI counsel distinct in [src/multitude/llm.py](src/multitude/llm.py)
+Work:
 
-### Phase 4: instruments and context streams
-- integrate biological and device layers via [src/multitude/layers.py](src/multitude/layers.py)
-- coordinate with [OPENBCI_PLAN.md](OPENBCI_PLAN.md) and [LAYERS_PLAN.md](LAYERS_PLAN.md)
-
-### Phase 5: research and ecosystem integration
-- keep social capture + imports modular and compartmentalized in [src/multitude/scraping](src/multitude/scraping)
-- keep theory work in the conceptual docs without leaking into the kernel
+- maintain theory-specific indicators and falsifiers;
+- distinguish behavioral, functional, causal, relational and substrate evidence;
+- track current-AI vs future-architecture claims separately;
+- keep panpsychism/Russellian monism as ontology/background, not an engineering shortcut;
+- never turn indicator counts into a synthetic consciousness percentage.
 
 ---
 
-## Recommended order of implementation
+## Priority 7 — Agent runtimes remain adapters
 
-1. [src/multitude/store.py](src/multitude/store.py)
-2. [src/multitude/tribe.py](src/multitude/tribe.py)
-3. [src/multitude/models.py](src/multitude/models.py)
-4. [src/multitude/goals.py](src/multitude/goals.py)
-5. [src/multitude/service.py](src/multitude/service.py)
-6. [src/multitude/llm.py](src/multitude/llm.py)
-7. [src/multitude/layers.py](src/multitude/layers.py)
-8. [src/multitude/scraping](src/multitude/scraping)
-9. [OPENBCI_PLAN.md](OPENBCI_PLAN.md)
-10. conceptual docs: [PLAN.md](PLAN.md), [README.md](README.md), [PHILOSOPHY.md](PHILOSOPHY.md)
+Canonical files:
 
-This order preserves the current architecture while making the best use of the external project influences already identified in the PCM integration map.
+- `AGENTS.md`
+- `HERMES.md`
+- `CLAUDE.md`
+- `src/multitude/integrations/hermes/`
+- `src/multitude/integrations/claude/`
+- `src/multitude/pcm/transport.py`
+
+Decision remains:
+
+> If a library proposes that it **is** the architecture, it does not belong in the PCM kernel. If it offers isolated primitives that preserve PCM's authority boundaries, it may.
+
+Therefore:
+
+- no LangGraph, AutoGen, CrewAI or similar orchestration layer in the kernel;
+- no LlamaIndex as canonical memory architecture;
+- foreign agent protocols belong behind thin adapters/wire boundaries;
+- Hermes, Claude and future runtimes share PCM identity, permissions, memory and transport semantics.
+
+---
+
+## Explicitly out of scope: scraping / social-data collection
+
+PCM **does not contain or plan a scraper subsystem**. Do not reintroduce `src/multitude/scraping` or a social-media collection CLI here.
+
+Collection and computational discourse-analysis work belongs in dedicated research projects such as LaclauGPT/AI26, 4CAT/Zeeschuimer-based workflows, or other external data pipelines. PCM may consume explicitly imported research artifacts through a future narrow adapter, but captured social data is not Rhizome memory by default.
+
+---
+
+## Recommended implementation order
+
+1. replay/provenance hardening;
+2. selective memory boundaries and provenance-aware search;
+3. richer deliberation/dissent views;
+4. distributed confidentiality and adversarial fabric tests;
+5. cooperative institutional use of existing ValueFlows primitives;
+6. bounded BCI/embodiment/introspection experiments;
+7. theory-map maintenance and research comparisons.
+
+Keep the kernel small. Keep experiments optional. Keep authority explicit.
