@@ -3,6 +3,7 @@
 
 Hardware is never required: the synthetic adapter feeds the pipeline.
 """
+import asyncio
 import os
 import sys
 import tempfile
@@ -14,6 +15,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 from multitude.integrations.bci import (  # noqa: E402
     BCIAdapter,
     BCICommand,
+    BCICommandDispatcher,
     BCIError,
     BCIObservation,
     BCISecurityError,
@@ -22,8 +24,17 @@ from multitude.integrations.bci import (  # noqa: E402
     SyntheticBCIAdapter,
     normalize_observation_payload,
 )
+from multitude.integrations.embodiment import (  # noqa: E402
+    EmbodimentError,
+    PhysicalAgency,
+    SimulatedLight,
+)
 from multitude.models import NodeKind  # noqa: E402
 from multitude.rhizome import Rhizome  # noqa: E402
+
+
+def run(coro):
+    return asyncio.run(coro)
 
 
 def obs(**overrides):
@@ -158,6 +169,105 @@ class BCISecurityGateTests(unittest.TestCase):
         cmd = command(self.now, event_id="bad-prov", metadata={"provenance": "forged"})
         with self.assertRaises(BCISecurityError):
             self.gate.validate_command(cmd, now=self.now)
+
+
+class BCICommandDispatchTests(unittest.TestCase):
+    def setUp(self):
+        self.now = datetime(2026, 9, 14, 10, 0, 0, tzinfo=timezone.utc)
+
+    def test_fresh_bci_command_with_no_policy_grant_is_denied(self):
+        def deny_all(author, action, target, parameters):
+            return False
+
+        agency = PhysicalAgency(enabled=True, policy_decide=deny_all)
+        light = SimulatedLight(initial_state="on")
+        agency.register(light)
+        dispatcher = BCICommandDispatcher(
+            gate=BCISecurityGate(max_age_seconds=10),
+            physical_agency=agency,
+        )
+        cmd = command(self.now, event_id="deny-1")
+        with self.assertRaises(EmbodimentError):
+            run(dispatcher.dispatch_device_command(
+                cmd,
+                requested_by="Alice",
+                target="sim-light-01",
+                action="power.set",
+                parameters={"value": "off"},
+                now=self.now,
+            ))
+        self.assertEqual(run(agency.read_state("sim-light-01"))["power"], "on")
+        self.assertEqual(agency.journal, [])
+
+    def test_policy_authorized_bci_command_executes_through_existing_agency(self):
+        def allow_alice(author, action, target, parameters):
+            return author == "Alice" and action == "power.set" and target == "sim-light-01"
+
+        agency = PhysicalAgency(enabled=True, policy_decide=allow_alice)
+        agency.register(SimulatedLight(initial_state="on"))
+        dispatcher = BCICommandDispatcher(
+            gate=BCISecurityGate(max_age_seconds=10),
+            physical_agency=agency,
+        )
+        cmd = command(self.now, event_id="allow-1")
+        dispatched = run(dispatcher.dispatch_device_command(
+            cmd,
+            requested_by="Alice",
+            target="sim-light-01",
+            action="power.set",
+            parameters={"value": "off"},
+            now=self.now,
+        ))
+        self.assertTrue(dispatched["result"].ok)
+        self.assertEqual(dispatched["result"].state_after["power"], "off")
+        self.assertEqual(dispatched["authority"], "policy_checked_device_action")
+        self.assertEqual(dispatched["bci_event_id"], "allow-1")
+
+    def test_replayed_bci_command_is_rejected_before_second_device_action(self):
+        agency = PhysicalAgency(enabled=True, policy_decide=lambda *args: True)
+        agency.register(SimulatedLight(initial_state="on"))
+        dispatcher = BCICommandDispatcher(
+            gate=BCISecurityGate(max_age_seconds=10),
+            physical_agency=agency,
+        )
+        cmd = command(self.now, event_id="replay-dispatch")
+        run(dispatcher.dispatch_device_command(
+            cmd,
+            requested_by="Alice",
+            target="sim-light-01",
+            action="power.set",
+            parameters={"value": "off"},
+            now=self.now,
+        ))
+        with self.assertRaises(BCISecurityError):
+            run(dispatcher.dispatch_device_command(
+                cmd,
+                requested_by="Alice",
+                target="sim-light-01",
+                action="power.set",
+                parameters={"value": "on"},
+                now=self.now,
+            ))
+        self.assertEqual(len(agency.journal), 1)
+        self.assertEqual(run(agency.read_state("sim-light-01"))["power"], "off")
+
+    def test_passive_observation_cannot_enter_command_dispatch(self):
+        agency = PhysicalAgency(enabled=True, policy_decide=lambda *args: True)
+        agency.register(SimulatedLight())
+        dispatcher = BCICommandDispatcher(
+            gate=BCISecurityGate(max_age_seconds=10),
+            physical_agency=agency,
+        )
+        with self.assertRaises(BCISecurityError):
+            run(dispatcher.dispatch_device_command(
+                obs(confidence=0.99),  # type: ignore[arg-type]
+                requested_by="Alice",
+                target="sim-light-01",
+                action="power.set",
+                parameters={"value": "off"},
+                now=self.now,
+            ))
+        self.assertEqual(agency.journal, [])
 
 
 class HubConsentTests(unittest.TestCase):
