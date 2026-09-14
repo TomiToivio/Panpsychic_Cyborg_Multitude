@@ -12,7 +12,23 @@ Primary software source:
 
 - PyPhi: https://github.com/wmayner/pyphi
 
-As of 2026-09, PyPhi's PyPI 1.x line implements IIT 3.0, while the repository's in-development 2.0 line implements IIT 4.0 and requires Python 3.13+. PCM itself continues to support Python 3.11+, so PyPhi is version-gated as an optional experimental dependency rather than raising the runtime floor for the project.
+PCM does not depend on the old PyPI 1.x / IIT 3.0 interface. The optional `iit` extra uses the PyPhi 2.x development API on Python 3.13+ and pins an exact upstream revision in `pyproject.toml` for reproducibility:
+
+```text
+wmayner/pyphi@1f47a1e20b6a27fd92c25ec4e8a1aa5e829f8198
+```
+
+PCM itself continues to support Python 3.11+, so PyPhi remains a version-gated optional experimental dependency rather than raising the runtime floor for the project.
+
+The current adapter uses the PyPhi 2.x API directly:
+
+```python
+substrate = pyphi.Substrate(tpm, cm=cm)
+analysis = pyphi.analyze(substrate, state)
+phi_s = float(analysis.phi)
+```
+
+Older code based on `pyphi.Network`, `pyphi.Subsystem`, or `pyphi.compute.sia(...)` is legacy API and should not be copied into new PCM experiments.
 
 ## 1. What IIT claims
 
@@ -107,38 +123,51 @@ Direct PyPhi computation on a full transformer, production multi-agent swarm, la
 Toy causal networks let PCM ask narrow questions without pretending to measure modern AI consciousness:
 
 - Does adding reciprocal causal coupling make a model less decomposable?
-- Does a recurrent loop differ from a feed-forward chain under IIT analysis?
+- Does a recurrent loop differ from a feed-forward chain under a selected IIT formalism?
 - When do two coupled subsystems form one candidate complex rather than two?
 - Which result changes when the system boundary changes?
-- How sensitive is integration to coupling direction and causal assumptions?
+- How sensitive is integration to coupling direction, probabilistic assumptions, and formalism choice?
 
 The experiments in `experiments/iit/` therefore use tiny Boolean systems with explicit transition probability matrices (TPMs).
 
-Each experiment records:
+Each experiment should record:
 
-1. units and state;
-2. deterministic update rule / TPM;
-3. connectivity assumptions;
-4. system boundary;
-5. PyPhi quantity computed;
-6. interpretation;
-7. limitations.
+1. PyPhi revision and selected formalism;
+2. units and state;
+3. deterministic or probabilistic update rule / TPM;
+4. connectivity assumptions;
+5. system boundary;
+6. PyPhi quantity computed;
+7. interpretation;
+8. limitations.
+
+### Deterministic-network caveat
+
+The pinned PyPhi development line defaults to the current IIT 4.0 formalism, under which deterministic networks can return `φ_s = 0`. This matters for PCM because the current fixtures are intentionally deterministic.
+
+A zero value is not automatically a failed experiment, and it must not be promoted into a claim that the corresponding real system is unconscious. These toy systems remain useful for testing causal-model construction, boundary assumptions, API compatibility, and sensitivity to formalism. If a future comparison depends on a non-zero published IIT result, the experiment must explicitly select and document the matching formalism rather than silently relying on defaults.
 
 ## 5. PyPhi integration policy
 
 PCM keeps PyPhi outside the core runtime.
 
-The optional `iit` dependency targets the current PyPhi development line only on Python 3.13+, because that is the line implementing IIT 4.0. PCM's normal Python 3.11+ environment and CI remain valid without it.
+The optional `iit` dependency targets the pinned PyPhi 2.x development revision only on Python 3.13+, because that is the API used by the IIT 4.0 experiment layer. PCM's normal Python 3.11+ environment and CI remain valid without it.
 
-Install in a Python 3.13+ environment with:
+Install the reproducible IIT environment with:
 
 ```bash
-python -m pip install -e '.[iit]'
+python -m pip install -e '.[dev,iit]'
 ```
 
-The experiment modules must still import without PyPhi installed. Functions that perform PyPhi calculations raise a clear optional-dependency error, while tests skip PyPhi-specific calculations cleanly when it is absent.
+Run the IIT test slice with:
 
-PyPhi is computationally expensive by design because partitions, purviews and candidate subsystems proliferate combinatorially. Keep experiments tiny.
+```bash
+python -m pytest -q -m iit
+```
+
+The experiment modules still import without PyPhi installed. Functions that perform PyPhi calculations import it lazily and raise a clear optional-dependency error, while PyPhi-specific tests skip cleanly when the dependency is absent.
+
+PyPhi is computationally expensive by design because partitions, purviews and candidate systems proliferate combinatorially. Keep experiments tiny.
 
 ## 6. Experiments
 
@@ -151,7 +180,7 @@ Compare two deterministic two-bit causal systems:
 - feed-forward: `A' = A`, `B' = A`;
 - reciprocal: `A' = B`, `B' = A`.
 
-The comparison asks whether bidirectional causal dependence changes system irreducibility relative to a one-way organization.
+The comparison asks how bidirectional causal dependence differs from a one-way organization under a specified IIT analysis. Under the current default formalism, deterministic systems may both produce zero system integrated information, so interpretation must include the selected formalism and causal structure rather than assuming that recurrence should automatically produce a larger scalar.
 
 ### B. Modular vs integrated
 
@@ -189,7 +218,7 @@ This does not validate Pancyberpsychism's equations or imply that relational syn
 
 A positive or larger Phi-like result in these experiments means, at most:
 
-> Under this particular IIT formalism, causal model, grain, state and system boundary, the modeled system is more irreducible by the selected measure.
+> Under this particular IIT formalism, PyPhi revision, causal model, grain, state and system boundary, the modeled system is more irreducible by the selected measure.
 
 It does **not** establish:
 
@@ -200,16 +229,16 @@ It does **not** establish:
 - consciousness in a real human-machine dyad;
 - consciousness in PCM as a whole.
 
-Conversely, a low result for a toy abstraction does not establish that the real system it loosely represents is unconscious.
+Conversely, a zero or low result for a toy abstraction does not establish that the real system it loosely represents is unconscious.
 
 ## 9. PCM research questions
 
 The initial IIT track should stay narrow:
 
-1. reproduce small canonical PyPhi calculations;
+1. reproduce small canonical PyPhi calculations with explicit version/formalism metadata;
 2. compare feed-forward and recurrent causal organization;
 3. vary reciprocal coupling in tiny agent models;
-4. test sensitivity to boundary and grain;
+4. test sensitivity to boundary, grain, probabilistic dynamics, and formalism;
 5. record disagreements between IIT predictions and functional / relational theories rather than averaging theories into one score.
 
 The design principle is simple:
