@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Optional BCI / biosignal adapter layer (issue #10).
+"""Optional BCI / biosignal adapter layer (issues #10 and #41).
 
 A thin, OPTIONAL interface between a biological human member and the
 wider PCM assemblage. The kernel has no dependency on this module;
@@ -19,6 +19,16 @@ Privacy model (non-negotiable):
   consciousness. Support UNKNOWN / low-confidence rather than
   inventing certainty.
 
+Adversarial-security model (issue #41):
+
+* Passive observations are context only and can never silently become
+  commands, regardless of confidence.
+* Intentional commands use a separate ``BCICommand`` type and must pass
+  a local freshness/replay/provenance gate before downstream handling.
+* Passing the BCI gate does NOT authorize an action; ordinary PCM
+  capability/policy checks remain mandatory for devices/governance.
+* Real BCI traffic remains behind the Phase 3b confidentiality gate.
+
 Mapping to PCM's six-layer model: observations carry a ``layer``
 field restricted to ``biological`` (sleep/wake, heart rate, HRV),
 ``psychic`` (attention, relaxation/arousal estimates) and
@@ -28,6 +38,7 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass, field
+from datetime import datetime, timezone
 from typing import Any, Optional
 
 # Layers a BCI observation may target (never physical/social/linguistic).
@@ -39,6 +50,25 @@ DEFAULT_SENSITIVITY = "private"
 
 class BCIError(Exception):
     """Invalid BCI observation, adapter misuse, or consent violation."""
+
+
+class BCISecurityError(BCIError):
+    """A BCI event failed the adversarial freshness/replay/authority gate."""
+
+
+def _parse_utc_timestamp(value: str) -> datetime:
+    raw = str(value).strip()
+    if not raw:
+        raise BCISecurityError("BCI event needs a non-empty timestamp")
+    if raw.endswith("Z"):
+        raw = raw[:-1] + "+00:00"
+    try:
+        parsed = datetime.fromisoformat(raw)
+    except ValueError as exc:
+        raise BCISecurityError(f"BCI event timestamp is not valid ISO-8601: {value!r}") from exc
+    if parsed.tzinfo is None:
+        raise BCISecurityError("BCI event timestamp must be timezone-aware")
+    return parsed.astimezone(timezone.utc)
 
 
 @dataclass(frozen=True)
@@ -67,8 +97,6 @@ class BCIObservation:
         conf = float(self.confidence)
         if math.isnan(conf) or not (0.0 <= conf <= 1.0):
             raise BCIError(f"confidence must be in [0.0, 1.0], got {self.confidence}")
-        # discipline: observations are private unless explicitly widened later
-        # by a human member at publish time.
         if self.sensitivity not in {"private", "limited", "shared"}:
             raise BCIError(
                 f"sensitivity must be private, limited, or shared, got '{self.sensitivity}'"
@@ -87,6 +115,88 @@ class BCIObservation:
             "sensitivity": self.sensitivity,
             "metadata": dict(self.metadata),
         }
+
+
+@dataclass(frozen=True)
+class BCICommand:
+    """Explicit low-bandwidth human-intent claim from a BCI adapter.
+
+    This is deliberately NOT a subtype of ``BCIObservation``. Passive context
+    cannot become authoritative merely by changing a field downstream.
+    """
+
+    ts: str
+    command: str
+    event_id: str
+    source: str
+    intentional: bool = True
+    confidence: float = 0.0
+    metadata: dict[str, Any] = field(default_factory=dict)
+
+    def __post_init__(self) -> None:
+        if not str(self.command).strip():
+            raise BCISecurityError("BCI command needs a non-empty command")
+        if not str(self.event_id).strip():
+            raise BCISecurityError("BCI command needs a non-empty event_id")
+        if not str(self.source).strip():
+            raise BCISecurityError("BCI command needs non-empty source provenance")
+        if self.intentional is not True:
+            raise BCISecurityError("BCI command must be explicitly marked intentional=True")
+        conf = float(self.confidence)
+        if math.isnan(conf) or not (0.0 <= conf <= 1.0):
+            raise BCISecurityError(f"confidence must be in [0.0, 1.0], got {self.confidence}")
+        _parse_utc_timestamp(self.ts)
+
+
+class BCISecurityGate:
+    """Local replay/freshness gate for intentional BCI commands.
+
+    The gate does not grant capabilities. A validated command must still pass
+    the ordinary PCM policy/capability layer before any consequential action.
+    """
+
+    def __init__(self, *, max_age_seconds: float = 10.0, max_future_skew_seconds: float = 2.0) -> None:
+        if max_age_seconds <= 0:
+            raise ValueError("max_age_seconds must be > 0")
+        if max_future_skew_seconds < 0:
+            raise ValueError("max_future_skew_seconds must be >= 0")
+        self.max_age_seconds = float(max_age_seconds)
+        self.max_future_skew_seconds = float(max_future_skew_seconds)
+        self._seen_event_ids: set[str] = set()
+
+    def validate_command(self, command: BCICommand, *, now: Optional[datetime] = None) -> BCICommand:
+        if not isinstance(command, BCICommand):
+            raise BCISecurityError("passive BCI observations cannot be validated as intentional commands")
+
+        current = now or datetime.now(timezone.utc)
+        if current.tzinfo is None:
+            raise ValueError("now must be timezone-aware")
+        current = current.astimezone(timezone.utc)
+        event_time = _parse_utc_timestamp(command.ts)
+        age = (current - event_time).total_seconds()
+
+        if age > self.max_age_seconds:
+            raise BCISecurityError(
+                f"stale BCI command rejected: age {age:.3f}s exceeds {self.max_age_seconds:.3f}s"
+            )
+        if age < -self.max_future_skew_seconds:
+            raise BCISecurityError(
+                f"future-dated BCI command rejected: skew {-age:.3f}s exceeds "
+                f"{self.max_future_skew_seconds:.3f}s"
+            )
+        if command.event_id in self._seen_event_ids:
+            raise BCISecurityError(f"replayed BCI command rejected: event_id={command.event_id!r}")
+
+        provenance = command.metadata.get("provenance")
+        if provenance is not None and not isinstance(provenance, dict):
+            raise BCISecurityError("BCI command provenance metadata must be a dict when present")
+
+        self._seen_event_ids.add(command.event_id)
+        return command
+
+    def reset_replay_cache(self) -> None:
+        """Clear replay state for deterministic tests or explicit session reset."""
+        self._seen_event_ids.clear()
 
 
 def normalize_observation_payload(payload: dict[str, Any]) -> dict[str, Any]:
@@ -216,7 +326,6 @@ class BCIHub:
         self._adapters: dict[str, BCIAdapter] = {}
         self._latest: dict[str, list[BCIObservation]] = {}
 
-    # ------------------------------------------------------------ consent
     def add_adapter(self, name: str, adapter: BCIAdapter, *, by: str) -> None:
         self._require_human(by, "add a BCI adapter")
         self._adapters[name] = adapter
@@ -235,7 +344,6 @@ class BCIHub:
             raise BCIError(f"no BCI adapter '{name}'")
         adapter.enabled = False
 
-    # ------------------------------------------------------------- reads
     def read_context(self, name: str, *, by: str) -> list[BCIObservation]:
         """Poll one adapter; results stay private in the hub."""
         self._require_human(by, "read BCI context")
@@ -251,7 +359,6 @@ class BCIHub:
         """Last read observations for an adapter (private, not shared)."""
         return list(self._latest.get(name, []))
 
-    # ---------------------------------------------------------- publishing
     def publish(
         self,
         name: str,
@@ -260,14 +367,14 @@ class BCIHub:
         by: str,
         sensitivity: Optional[str] = None,
     ) -> dict[str, Any]:
-        """Explicitly publish ONE observation into rhizome memory.
+        """Explicitly publish ONE passive observation into rhizome memory.
 
-        The publishing member must be the biological human the
-        observation belongs to. Sensitivity can only be widened from
-        private by this explicit call; the kernel-side consent checks
-        still apply (record_biometric_signal re-validates).
+        Publishing does not grant command authority. ``BCICommand`` objects are
+        deliberately rejected here and belong on a separately gated command path.
         """
         self._require_human(by, "publish BCI observations")
+        if not isinstance(observation, BCIObservation):
+            raise BCIError("BCIHub.publish accepts passive BCIObservation objects only")
         if name not in self._adapters:
             raise BCIError(f"no BCI adapter '{name}'")
         payload = normalize_observation_payload(observation.to_payload())
@@ -276,9 +383,6 @@ class BCIHub:
             if sensitivity not in {"private", "limited", "shared"}:
                 raise BCIError(f"invalid sensitivity '{sensitivity}'")
             payload["sensitivity"] = sensitivity
-        # The kernel re-checks consent for sensitive signals; a shared
-        # sensitivity with a sensitive signal raises there. We surface
-        # the same discipline here with a clear message:
         sensitive_markers = (
             "attention", "valence", "sleep", "stress", "fatigue", "hrv",
             "heart", "brain", "bci", "neural", "cognitive", "awareness",
@@ -305,11 +409,11 @@ class BCIHub:
                 "confidence": payload["confidence"],
                 "layer": payload["layer"],
                 "bci_adapter": name,
+                "authority": "passive_context_only",
             },
         )
         return rec.model_dump()
 
-    # ------------------------------------------------------------ internals
     def _require_human(self, by: str, action: str) -> Any:
         member = self._rhizome.member_by_name(by)
         if member is None:
