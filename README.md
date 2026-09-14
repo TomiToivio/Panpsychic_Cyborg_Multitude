@@ -139,27 +139,26 @@ UNKNOWN` for every node, composite or not.
 
 ```text
 multitude.py                      repository entrypoint (python multitude.py ...)
-pyproject.toml                    package metadata + optional dependency extras
-requirements.txt                  minimal/core dependencies only
+pyproject.toml                    canonical package metadata + dependency extras
 docs/                             all programme documents (see Documents below)
 LICENSE                           CC0 1.0 Universal
 src/multitude/
   rhizome.py      — rhizome model: members, events, memory, proposals
-  store.py      — append-only event store (JSONL)
-  service.py    — application layer (all operations)
-  cli.py        — the CLI interface
-  models.py     — typed models (pydantic)
-  layers.py     — six-layer agent profiles (physical..cybernetic)
-  goals.py      — goals, contributions, value flows
-  domains.py    — domain reducer registry (keeps the core reducer small)
-  economy_vf.py — optional ValueFlows domain (economic flows of the Common)
-  llm.py        — technological nodes (LLM agents as members)
-  http_json.py  — small HTTP helper
-  config.py     — runtime config
-  pcm/          — node protocol: did:key identity, signed envelopes,
-                  proposals/votes, key namespace, typed events,
-                  transport ABC, fail-closed policy, memory mirror,
-                  VC capability grants, GET→POST bridge
+  store.py        — append-only event store (JSONL)
+  service.py      — application layer (all operations)
+  cli.py          — the CLI interface
+  models.py       — typed models (pydantic)
+  layers.py       — six-layer agent profiles (physical..cybernetic)
+  goals.py        — goals, contributions, value flows
+  domains.py      — domain reducer registry (keeps the core reducer small)
+  economy_vf.py   — optional ValueFlows domain (economic flows of the Common)
+  llm.py          — technological nodes (LLM agents as members)
+  http_json.py    — small HTTP helper
+  config.py       — runtime config
+  pcm/            — node protocol: did:key identity, signed envelopes,
+                    proposals/votes, key namespace, typed events,
+                    transport ABC, fail-closed policy, memory mirror,
+                    VC capability grants, GET→POST bridge
   integrations/zenoh/          — Zenoh fabric transport
   integrations/hermes/         — AI-agent integration (thin adapter)
   integrations/telegram/       — messaging transport (thin adapter)
@@ -175,10 +174,10 @@ Hermes) ship disabled or opt-in and never run unless asked for.
 
 ## Quick start
 
-Core/local installation:
+Core/local installation uses `pyproject.toml` as the canonical dependency source:
 
 ```bash
-pip install -e .
+python -m pip install -e .
 
 multitude found --name "My Multitude" --founder alice
 multitude say --as alice --text "The rhizome is alive."
@@ -186,14 +185,21 @@ multitude status
 ```
 
 The repository launcher remains supported, so the same commands can
-also be run as `python multitude.py ...`. `pip install -r
-requirements.txt` installs the same core dependencies without
-installing the package.
+also be run as `python multitude.py ...`.
+
+Optional extras:
+
+```bash
+python -m pip install -e '.[dev]'        # pytest / development tools
+python -m pip install -e '.[zenoh]'      # node-to-node fabric
+python -m pip install -e '.[iit]'        # PyPhi IIT experiments (Python 3.13+)
+python -m pip install -e '.[all]'        # all currently packaged extras
+```
 
 Optional node-to-node networking (Phase 2+ fabric):
 
 ```bash
-pip install -e '.[zenoh]'
+python -m pip install -e '.[zenoh]'
 export PCM_ZENOH_ENABLED=true
 python3 -m unittest tests.test_pcm_phase2_zenoh   # two-node exchange demo
 ```
@@ -202,19 +208,23 @@ python3 -m unittest tests.test_pcm_phase2_zenoh   # two-node exchange demo
 
 GitHub Actions runs the core suite on Python 3.11, 3.12, 3.13 and 3.14
 for every push and pull request. Zenoh tests run in a separate Python
-3.12 job, so an optional-integration failure is distinct from a core
-regression and neither job needs external secrets or services.
+3.12 job. IIT experiments run separately on Python 3.13, so optional
+integration failures are distinct from core regressions.
 
 Run the same groups locally:
 
 ```bash
 # Fast/core suite without optional integrations
 python -m pip install -e '.[dev]'
-python -m pytest -q -m "not zenoh"
+python -m pytest -q -m "not zenoh and not iit"
 
 # Optional Zenoh integration suite
 python -m pip install -e '.[dev,zenoh]'
 python -m pytest -q -m zenoh
+
+# Optional IIT experiment suite
+python -m pip install -e '.[dev,iit]'
+python -m pytest -q -m iit
 ```
 
 ## Networking architecture
