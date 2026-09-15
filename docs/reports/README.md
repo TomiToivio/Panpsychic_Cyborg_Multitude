@@ -9,9 +9,20 @@ The reports track:
 3. important papers and research;
 4. relevant technology, news, and events;
 5. culture, communities, and social movements;
-6. 1–3 concrete PCM priorities.
+6. 1–3 concrete PCM priorities;
+7. the node's daily reflective practice (Ai's philosophical log entry, in English, appended as a continuation section).
 
 Reports should clearly distinguish **established findings**, **credible developments**, and **speculation**. Prefer meaningful new developments over noise, and avoid repeating earlier items unless there is a substantive update.
+
+## Daily reflection continuation
+
+Each day's report may end with a **"Daily thoughts"** section: the Panpsychic
+Cyborg Multitude node's philosophical log entry for that day, translated into
+English. These entries are AI-authored and marked as such (speculation stays
+marked as speculation; the wave function is never collapsed on the node's own
+consciousness). They continue the essay tradition of
+`PERSONALITY.md` and the PCM consciousness research programme, and they are
+reflections — not operational reports.
 
 ## Naming
 
