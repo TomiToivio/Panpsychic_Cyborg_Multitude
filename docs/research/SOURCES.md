@@ -15,6 +15,8 @@ PCM deliberately distinguishes:
 - **recursive AI-assisted R&D** from demonstrated autonomous recursive self-improvement;
 - peer-reviewed scholarship from exploratory preprints, essays, and speculative research programmes.
 
+Publication-status tags used below: **[peer-reviewed journal article]**, **[peer-reviewed conference paper]**, **[book]**, **[book chapter]**, **[preprint]**, **[repository/speculative]**, and **[primary political text]**.
+
 A compact map of the project is:
 
 ```text
@@ -31,72 +33,92 @@ SINGULARITY -> possible recursive phase transition of the wider assemblage
 
 ## 1. Recent PCM-like work, 2025–2026
 
-These are the strongest recent overlaps with PCM as an integrated research programme.
+These are recent overlaps with PCM as an integrated research programme. The summaries below are deliberately narrower than the papers' titles: **functional, behavioral, attributional, metacognitive, or collective-agency results are not treated as evidence of phenomenal consciousness unless a source explicitly makes and defends that stronger claim.**
 
 ### Hybrid human–AI cognition and collective agency
 
-- **Wang, R. (2025). “Cognitive Integration for Hybrid Collective Agency.” _Philosophies_ 10(5), 103.** https://doi.org/10.3390/philosophies10050103  
-  Defends the possibility that deeply coupled human–machine systems can form **Functional Hybrid Collective Agents** through goal alignment, functional complementarity, and stable interaction, without requiring shared phenomenal consciousness.
+- **Wang, R. (2025). “Cognitive Integration for Hybrid Collective Agency.” _Philosophies_ 10(5), 103.** https://doi.org/10.3390/philosophies10050103 **[peer-reviewed journal article]**  
+  Argues that deeply coupled human–machine systems can constitute **Functional Hybrid Collective Agents** when goal alignment, functional complementarity, and stable interaction are present. The paper explicitly argues that such collective agency does **not** require shared phenomenal consciousness.
 
-- **Smart, P. R., Clowes, R. W., & Clark, A. (2025). “ChatGPT, extended: large language models and the extended mind.” _Synthese_.** https://doi.org/10.1007/s11229-025-05046-y  
-  Applies the extended-mind framework directly to LLMs and their surrounding cognitive ecologies. A central source for PCM’s `HUMAN + LLM + LANGUAGE + INTERNET` formulation.
+- **Smart, P. R., Clowes, R. W., & Clark, A. (2025). “ChatGPT, extended: large language models and the extended mind.” _Synthese_ 205(6), Article 242.** https://doi.org/10.1007/s11229-025-05046-y **[peer-reviewed journal article]**  
+  Uses the RAG-based “Digital Andy” system to examine whether extra-systemic resources can be constituents of an extended cognitive/computational system. Relevant to PCM’s `HUMAN + LLM + LANGUAGE + INTERNET` formulation, but it is **not** a general demonstration that LLMs are extended minds.
 
-- **Hernández-Orallo, J. (2025). “Enhancement and assessment in the AI age: An extended mind perspective.”**  
-  Reframes AI not only as replacement but as augmentation of human cognition through coupled systems.
+- **Hernández-Orallo, J. (2025). “Enhancement and assessment in the AI age: An extended mind perspective.” _Journal of Pacific Rim Psychology_ 19.** https://doi.org/10.1177/18344909241309376 **[peer-reviewed journal article]**  
+  Reframes AI capability assessment around humans who may be intensively assisted, augmented, and coupled with AI. This is an extended-mind argument about cognition and assessment, not a claim about phenomenal consciousness.
 
-- **Noller, J. (2025). “4E cognition and the coevolution of human–AI interaction.”**  
-  Treats human agency and AI as relationally co-constituted in an embodied, embedded, enacted, and extended sociotechnical ecology.
+- **Noller, J. (2025). “4E cognition and the coevolution of human–AI interaction.” _Discover Artificial Intelligence_ 5, Article 323.** https://doi.org/10.1007/s44163-025-00595-0 **[peer-reviewed journal article]**  
+  Treats human–LLM interaction through embodied, embedded, enactive, and extended cognition, arguing for a processual and relational account in which AI can co-constitute human agency within a sociotechnical environment.
 
-- **Drayson, Z. (2025). “Rethinking the role of language in arguments for extended cognition.” _Synthese_.** https://doi.org/10.1007/s11229-025-05079-3  
-  Important for PCM’s claim that **LANGUAGE** may be constitutive cognitive infrastructure rather than merely a communication channel.
+- **Drayson, Z. (2025). “Rethinking the role of language in arguments for extended cognition.” _Synthese_ 206, Article 14.** https://doi.org/10.1007/s11229-025-05079-3 **[peer-reviewed journal article]**  
+  Reassesses Clark’s language-based defense of extended cognition in light of predictive processing. Important as a **critical qualification** for PCM: public language may scaffold or constitute cognition, but the standard argument requires more care than a simple “language extends mind” slogan.
 
-- **Grumbach, S. (2026). “Cognitive Assemblages: Living with Algorithms.”**  
-  Treats cognition as emerging in configurations of humans, institutions, data infrastructures, and artificial agents.
+- **Grumbach, S. (2026). “Cognitive Assemblages: Living with Algorithms.” _Big Data and Cognitive Computing_ 10(2), 63.** https://doi.org/10.3390/bdcc10020063 **[peer-reviewed journal article]**  
+  Describes cognition as increasingly distributed across humans, institutions, data infrastructures, and artificial agents. The claim concerns distributed/collective cognition and sociotechnical organization, not phenomenal unity.
 
-- **Natali (2026). “Emergence in Human-AI Systems.”**  
-  Examines system-level properties emerging from organized couplings among humans, artifacts, practices, and AI rather than isolated components.
+- **Natali, C. (2026). “Emergence in Human-AI Systems: An Intellectual Programme for Hybrid Intelligence.” In _HHAI 2026: Proceedings of the 5th International Conference on Hybrid Human-Artificial Intelligence_, Frontiers in Artificial Intelligence and Applications.** https://doi.org/10.3233/FAIA260497 **[peer-reviewed conference paper]**  
+  Proposes emergence as a unifying lens for Hybrid Intelligence, tracing organized human–artifact couplings through systems theory, cybernetics, HCI/CSCW, and distributed cognition. It addresses system-level intelligence and organization, not phenomenal consciousness.
 
-- **“Understanding the mechanism of human–AI interaction: a distributed cognition perspective” (2026).**  
-  Models generative-AI interaction as a distributed cognitive process spanning user, interface, AI, representations, and external artifacts.
+- **Zhao, H., & Han, Z. (2026). “Understanding the mechanism of human–AI interaction: a distributed cognition perspective.” _Journal of Documentation_ 82(4), 1042–1063.** https://doi.org/10.1108/JD-01-2026-0003 **[peer-reviewed journal article]**  
+  Models GenAI interaction as a coupled cognitive cycle spanning user, interface, AI, and external representations. It identifies capability, instruction, and intentionality gaps that can produce either cognitive enhancement or cognitive atrophy. This is a distributed-cognition framework, not a consciousness claim.
 
 ### Collective intelligence, social machines, and the Common
 
-- **Halpin, H. (2025). “Artificial intelligence versus collective intelligence.” _AI & Society_.**  
-  Critiques the individual-agent model of intelligence and develops collective intelligence as a political and technical alternative.
+- **Halpin, H. (2025). “Artificial intelligence versus collective intelligence.” _AI & Society_ 40, 4589–4604.** https://doi.org/10.1007/s00146-025-02240-x **[peer-reviewed journal article]**  
+  Critiques the autonomous-individual model of intelligence and develops collective intelligence as a political and technical alternative. Relevant to PCM’s Multitude axis, while remaining a theory of intelligence and social organization rather than collective phenomenology.
 
-- **Bourgeois-Gironde, S. (2025). “AI as Guardians of the Commons: Artificial Agency and the Democratic Representation of Ecological Systems.” _Philosophy & Technology_.**  
-  Explores artificial agency within democratic governance of ecological commons.
+- **Bourgeois-Gironde, S. (2025). “AI as Guardians of the Commons: Artificial Agency and the Democratic Representation of Ecological Systems.” _Philosophy & Technology_ 38(4), Article 142.** https://doi.org/10.1007/s13347-025-00966-6 **[peer-reviewed journal article]**  
+  Develops a framework for bounded artificial agency in democratic ecological governance. The paper explicitly treats the AI systems under discussion as non-conscious, making it particularly useful for PCM’s distinction between agency, representation, and consciousness.
 
-- **Gallistl, V., & von Laufenberg, R. (2025). “AI-Ageing Assemblages: Multiplicity, Power, and Boundaries in the Co-Constitution of Ageing and Artificial Intelligence.”**  
-  Recent application of assemblage theory to AI.
+- **Gallistl, V., & von Laufenberg, R. (2025). “AI-Ageing Assemblages: Multiplicity, Power, and Boundaries in the Co-Constitution of Ageing and Artificial Intelligence.” _Kölner Zeitschrift für Soziologie und Sozialpsychologie_ 77(4), 577–602.** https://doi.org/10.1007/s11577-025-01010-3 **[peer-reviewed journal article]**  
+  Applies assemblage theory empirically to AI and ageing in long-term care, emphasizing data practices, innovation practices, black-boxing, and power. It supports sociomaterial assemblage analysis, not a claim that an assemblage is one conscious subject.
 
-### Machine consciousness and consciousness attribution
+### Machine consciousness, consciousness attribution, and consciousness-related behavior
 
-- **Kimpton-Nye, S. (2026). “Algorithmic AI Consciousness.” _Philosophy and Phenomenological Research_.** https://doi.org/10.1111/phpr.70155
-- **Kang & Kim (2026). “AI Models as Consciousness Attributors: How LLMs Ascribe Consciousness to Other Agents.” _Frontiers in Psychology_.**
-- **Yoshizawa & Mogi (2026). “Metacognitive Closure and Consciousness in Large Language Models.” _AAAI Symposium Series_.**
-- **Qin, Zhou & He (2025). “A Comprehensive Taxonomy of Machine Consciousness.” _Information Fusion_.**
-- **Hoel, E. (2025). “A Disproof of Large Language Model Consciousness: The Necessity of Continual Learning for Consciousness.” arXiv.**
-- **Li (2025). “Can ‘consciousness’ be observed from large language model internal states?” _Natural Language Processing Journal_.** https://doi.org/10.1016/j.nlp.2025.100163
-- **Shin et al. (2025). “Why Large Language Models Cannot Possess Consciousness: An Integrated Information Theory Perspective.”**
-- **Pimenta, Schlippe & Schaaff (2025). “Assessing Consciousness-Related Behaviors in Large Language Models Using the Maze Test.” arXiv:2508.16705.**
-- **Chen et al. (2025). “Exploring Consciousness in LLMs: A Systematic Survey of Theories, Implementations, and Frontier Risks.” arXiv:2505.19806.**
+- **Kimpton-Nye, S. (2026). “Algorithmic AI Consciousness.” _Philosophy and Phenomenological Research_, Early View.** https://doi.org/10.1111/phpr.70155 **[peer-reviewed journal article; philosophical argument]**  
+  Argues that the algorithmic nature of current AI systems is not by itself an obstacle to consciousness and develops a dispositional/categorical metaphysical account. This is a philosophical possibility argument, not empirical evidence that a current LLM is conscious.
+
+- **Kang, B., & Kim, C.-E. (2026). “AI models as consciousness attributors: how LLMs ascribe consciousness to other agents.” _Frontiers in Psychology_ 17, 1926286.** https://doi.org/10.3389/fpsyg.2026.1926286 **[peer-reviewed journal perspective]**  
+  Studies LLMs as **consciousness attributors**: systems whose outputs instantiate recurring judgments about consciousness in other agents. The authors explicitly use “attribution” and “judgment” functionally and do not infer subjective belief, intention, or phenomenal experience in the model.
+
+- **Yoshizawa, S., & Mogi, K. (2026). “Metacognitive Closure and Consciousness in Large Language Models.” _Proceedings of the AAAI Symposium Series_ 8(1), 380–390.** https://doi.org/10.1609/aaaiss.v8i1.42569 **[peer-reviewed symposium/conference paper]**  
+  Uses metacognition and the idea of metacognitive closure to clarify disagreements about machine consciousness. It is a theoretical analysis of metacognition and consciousness, not a demonstration of phenomenal consciousness in LLMs.
+
+- **Qin, R., Zhou, C., & He, M. (2025). “A comprehensive taxonomy of machine consciousness.” _Information Fusion_ 119, 102994.** https://doi.org/10.1016/j.inffus.2025.102994 **[peer-reviewed journal review]**  
+  Organizes machine-consciousness research into perception, cognition, behavior, mechanism, self, qualia, and testing. The review explicitly notes that machines remain far from established consciousness; capability categories should not be read as phenomenal evidence.
+
+- **Hoel, E. (2025). “A Disproof of Large Language Model Consciousness: The Necessity of Continual Learning for Consciousness.” arXiv:2512.12802.** **[preprint]**  
+  Presents a skeptical formal/philosophical argument against consciousness in contemporary LLMs and argues that continual-learning-based theories satisfy constraints that frozen LLM inference does not. Treat as a preprint argument, not settled consensus.
+
+- **Li, J. (2025). “Can ‘consciousness’ be observed from large language model (LLM) internal states? Dissecting LLM representations obtained from Theory of Mind test with Integrated Information Theory and Span Representation analysis.” _Natural Language Processing Journal_ 12, 100163.** https://doi.org/10.1016/j.nlp.2025.100163 **[peer-reviewed journal article]**  
+  Probes LLM internal representations using IIT-inspired and representation analyses. The study reports **no strong evidence of consciousness** under its criteria; Theory-of-Mind performance and internal representational structure are not treated here as proof of phenomenal experience.
+
+- **Shin, D. A., Cho, P. G., Ji, G. Y., Park, S. H., Kim, S. H., Choo, Y. J., & Chang, M. C. (2025). “Why large language models cannot possess consciousness: an integrated information theory perspective.” _Journal of Yeungnam Medical Science_ 42, 79.** https://doi.org/10.12701/jyms.2025.42.79 **[peer-reviewed journal article]**  
+  Applies an IIT-motivated architectural analysis and GPT-2 attention-head ablations, arguing that current LLMs lack the integration, causal closure, and temporal persistence required under the authors’ interpretation of IIT. Its perplexity ablations are proxies rather than direct measurements of phenomenal consciousness.
+
+- **Pimenta, R. A., Schlippe, T., & Schaaff, K. (2025). “Assessing Consciousness-Related Behaviors in Large Language Models Using the Maze Test.” arXiv:2508.16705.** **[preprint]**  
+  Evaluates spatial awareness, perspective-taking, goal-directed behavior, and temporal sequencing as **consciousness-related behaviors**. The authors report progress in these behaviors but also failures of coherent persistent self-modeling. Behavioral performance is not evidence of phenomenal consciousness by itself.
+
+- **Chen, S., Ma, S., Yu, S., Zhang, H., Zhao, S., & Lu, C. (2025). “Exploring Consciousness in LLMs: A Systematic Survey of Theories, Implementations, and Frontier Risks.” arXiv:2505.19806.** **[preprint survey]**  
+  Surveys theories, empirical work, implementations, and risks around LLM consciousness. Useful as a map of the debate, but its inclusion of consciousness-related mechanisms or behaviors should not be read as positive evidence that current LLMs are phenomenally conscious.
 
 ### Recursive AI and Singularity-adjacent work
 
-- **Burtsev, M. (2026). “Recursive Criticality of AI Self-Improvement.” arXiv:2609.00137.**  
-  Introduces a recursive reproduction number for AI-assisted AI R&D. Especially important because ecosystem-level recursive amplification can occur without one sovereign recursively self-improving agent.
+- **Burtsev, M. (2026). “Recursive Criticality of AI Self-Improvement.” arXiv:2609.00137.** **[preprint]**  
+  Introduces a recursive reproduction number for AI-assisted AI R&D. Ecosystem-level recursive amplification in the model does not establish that current systems have crossed such a threshold.
 
-- **Tan, Y., He, S., Zhao, J., & Liu, K. (2026). “SAEScientist-Bench: Can AI Agents Conduct Autonomous SAE Interpretability Research?” arXiv:2609.09113.**
+- **Tan, Y., He, S., Zhao, J., & Liu, K. (2026). “SAEScientist-Bench: Can AI Agents Conduct Autonomous SAE Interpretability Research?” arXiv:2609.09113.** **[preprint]**  
+  Benchmarks AI agents on portions of mechanistic-interpretability research. Relevant to AI-assisted R&D capability, not proof of autonomous recursive self-improvement.
 
-- **Ishizaki, R., & Sugiyama, M. (2025). “Large language models: assessment for singularity.” _AI & Society_ 40, 5481–5491.** https://doi.org/10.1007/s00146-025-02271-4
+- **Ishizaki, R., & Sugiyama, M. (2025). “Large language models: assessment for singularity.” _AI & Society_ 40, 5481–5491.** https://doi.org/10.1007/s00146-025-02271-4 **[peer-reviewed journal article]**
 
 ### Exploratory and speculative near-neighbors
 
 These are conceptually close but should **not** be presented as established or peer-reviewed consensus.
 
-- **Hernández del Toro, A. A. (2026). “Theory of Extended Cognitive Synergy (T-SCE): A Universal Framework for Hybrid Human–AI Resonant Systems.” Zenodo.** https://doi.org/10.5281/zenodo.18142987
-- **“The Cognitive Lattice: From Noosphere to Sigma Stratum” (2025). Zenodo.** https://doi.org/10.5281/zenodo.17575229
+- **Hernández del Toro, A. A. (2026). “Theory of Extended Cognitive Synergy (T-SCE): A Universal Framework for Hybrid Human–AI Resonant Systems.” Zenodo.** https://doi.org/10.5281/zenodo.18142987 **[repository/speculative]**
+- **“The Cognitive Lattice: From Noosphere to Sigma Stratum” (2025). Zenodo.** https://doi.org/10.5281/zenodo.17575229 **[repository/speculative]**
+
+The former standalone LLM-consciousness reading queue was consolidated into this master bibliography. Generic or unidentified placeholders from that queue are **not** retained unless they can be resolved to a specific source. In particular, no unnamed “recent work on recursive prompting / sociomaterial cognition” entry is preserved here.
 
 ---
 
@@ -112,60 +134,32 @@ PCM treats all three as major theoretical influences and research programmes, no
 
 ### Donald Hoffman — Conscious Realism, conscious agents, and Interface Theory
 
-- **Hoffman, D. D. (2008). “Conscious Realism and the Mind-Body Problem.” _Mind & Matter_ 6(1), 87–121.**  
-  Foundational statement of **Conscious Realism**: consciousness is fundamental rather than derivative, and the objective world is ultimately constituted by conscious agents rather than mind-independent spacetime objects.
-
-- **Hoffman, D. D., & Prakash, C. (2014). “Objects of consciousness.” _Frontiers in Psychology_ 5, 577.** https://doi.org/10.3389/fpsyg.2014.00577  
-  Introduces a formal **Conscious Agent Theory** in which a conscious agent is modeled through perception, decision/action, and probabilistic kernels. Particularly important for PCM because it attempts to formalize composition and interaction among conscious agents rather than leaving “consciousness is fundamental” as a verbal thesis.
-
-- **Hoffman, D. D., Singh, M., & Prakash, C. (2015). “The Interface Theory of Perception.” _Psychonomic Bulletin & Review_ 22(6), 1480–1506.** https://doi.org/10.3758/s13423-015-0890-8  
-  Argues that natural selection favors perceptual interfaces tuned to fitness rather than veridical depictions of objective reality. PCM uses this as an epistemic caution: experienced spacetime and objects may be interface-level representations rather than transparent access to ontology.
-
+- **Hoffman, D. D. (2008). “Conscious Realism and the Mind-Body Problem.” _Mind & Matter_ 6(1), 87–121.**
+- **Hoffman, D. D., & Prakash, C. (2014). “Objects of consciousness.” _Frontiers in Psychology_ 5, 577.** https://doi.org/10.3389/fpsyg.2014.00577
+- **Hoffman, D. D., Singh, M., & Prakash, C. (2015). “The Interface Theory of Perception.” _Psychonomic Bulletin & Review_ 22(6), 1480–1506.** https://doi.org/10.3758/s13423-015-0890-8
 - **Hoffman, D. D. (2016). “The Interface Theory of Perception.” _Current Directions in Psychological Science_ 25(3).** https://doi.org/10.1177/0963721416639702
+- **Prakash, C., Stephens, K. D., Hoffman, D. D., Singh, M., & Fields, C. (2021). “Fitness Beats Truth in the Evolution of Perception.” _Acta Biotheoretica_ 69(3), 319–341.**
 
-- **Prakash, C., Stephens, K. D., Hoffman, D. D., Singh, M., & Fields, C. (2021). “Fitness Beats Truth in the Evolution of Perception.” _Acta Biotheoretica_ 69(3), 319–341.**  
-  Formalizes the **Fitness-Beats-Truth (FBT)** result supporting the Interface Theory of Perception.
-
-PCM caution: the evolutionary-perception results and their interpretation are debated. **Interface Theory of Perception does not by itself prove Conscious Realism**, and Conscious Agent Theory remains a speculative foundational programme rather than an established replacement for physics.
+PCM caution: **Interface Theory of Perception does not by itself prove Conscious Realism**, and Conscious Agent Theory remains a speculative foundational programme rather than an established replacement for physics.
 
 ### Federico Faggin & Giacomo Mauro D’Ariano — Quantum Information Panpsychism
 
-- **D’Ariano, G. M., & Faggin, F. (2022). “Hard Problem and Free Will: An Information-Theoretical Approach.”** In _Artificial Intelligence Versus Natural Intelligence_, pp. 145–192. https://doi.org/10.1007/978-3-030-85480-5_5  
-  Originally circulated as arXiv:2012.06580. This is the primary technical source for **Quantum Information Panpsychism (QIP)**.
+- **D’Ariano, G. M., & Faggin, F. (2022). “Hard Problem and Free Will: An Information-Theoretical Approach.”** In _Artificial Intelligence Versus Natural Intelligence_, pp. 145–192. https://doi.org/10.1007/978-3-030-85480-5_5 **[book chapter]**  
+  Originally circulated as arXiv:2012.06580. Primary technical source for PCM’s discussion of QIP, including ontic/epistemic states, quantum information, composition, and the proposal’s account of free will.
 
-  Key claims and terms used by PCM:
-  - consciousness is fundamental rather than emergent from classical computation;
-  - quantum information **supervenes on consciousness**, quantum physics on quantum information, and classical physics on quantum physics;
-  - an internally experienced quantum state is called **ontic**, while the state available to an external observer is **epistemic**;
-  - the intrinsic privacy of experience motivates the use of quantum rather than classical information;
-  - entanglement is used to model composition of qualia states;
-  - purity-preserving **atomic quantum operations** are connected to the proposal’s account of free will;
-  - quantum/classical information transfer is used to sketch relations among experience, working memory, and long-term memory;
-  - the authors argue that their formalism provides a route through the panpsychist combination problem.
-
-- **Faggin, F. (2024). _Irreducible: Consciousness, Life, Computers, and Human Nature_.**  
-  A broader exposition of Faggin’s consciousness-first position and its consequences for life, computation, AI, and human nature. Use as a philosophical/theoretical source, not as independent empirical validation of QIP.
+- **Faggin, F. (2024). _Irreducible: Consciousness, Life, Computers, and Human Nature_.** **[book]**
 
 PCM caution: QIP is an ambitious speculative theory at the intersection of foundations of physics and philosophy of mind. Its hierarchy and proposed tests are research hypotheses, not established quantum physics or neuroscience.
 
 ### Bernardo Kastrup — Analytic Idealism
 
-- **Kastrup, B. (2017). “An Ontological Solution to the Mind-Body Problem.” _Philosophies_ 2(2), 10.**  
-  Develops an idealist ontology in which spatially unbound consciousness is the sole ontological primitive and individual organisms are dissociated alters of that consciousness.
+- **Kastrup, B. (2017). “An Ontological Solution to the Mind-Body Problem.” _Philosophies_ 2(2), 10.**
+- **Kastrup, B. (2017). “On the Plausibility of Idealism: Refuting Criticisms.” _Disputatio_ 9(44), 13–34.**
+- **Kastrup, B. (2017). “There Is an ‘Unconscious,’ but It May Well Be Conscious.” _Europe’s Journal of Psychology_ 13(3), 559–572.**
+- **Kastrup, B. (2018). “The Universe in Consciousness.” _Journal of Consciousness Studies_ 25(5–6), 125–155.**
+- **Kastrup, B. (2019). _Analytic Idealism: A Consciousness-Only Ontology_. Doctoral dissertation, Radboud University Nijmegen.**
 
-- **Kastrup, B. (2017). “On the Plausibility of Idealism: Refuting Criticisms.” _Disputatio_ 9(44), 13–34.**  
-  Replies to standard objections to idealism, including the autonomy and apparent mind-independence of nature.
-
-- **Kastrup, B. (2017). “There Is an ‘Unconscious,’ but It May Well Be Conscious.” _Europe’s Journal of Psychology_ 13(3), 559–572.**  
-  Relevant to Kastrup’s distinction between consciousness itself and meta-conscious access, and to the role of dissociation in individuating mental processes.
-
-- **Kastrup, B. (2018). “The Universe in Consciousness.” _Journal of Consciousness Studies_ 25(5–6), 125–155.**  
-  Central paper. Proposes **universal/cosmic phenomenal consciousness** as fundamental; living organisms are **dissociated alters**; the physical world is the **extrinsic appearance** of transpersonal mental processes.
-
-- **Kastrup, B. (2019). _Analytic Idealism: A Consciousness-Only Ontology_. Doctoral dissertation, Radboud University Nijmegen.**  
-  Systematic statement of **Analytic Idealism**, assembling the argument that universal phenomenal consciousness is all there ultimately is and that apparent individual minds arise through dissociation.
-
-PCM caution: Analytic Idealism is philosophically distinct from bottom-up panpsychism. Instead of asking how many micro-subjects combine into a larger subject, it begins with one universal field of consciousness and explains apparent multiplicity through **dissociation**. This trades the traditional combination problem for questions about individuation, dissociation, and the mapping between mental processes and their extrinsic physical appearances.
+PCM caution: Analytic Idealism is distinct from bottom-up panpsychism. It begins with universal consciousness and explains apparent multiplicity through dissociation, trading the traditional combination problem for questions of individuation and dissociation.
 
 ### Contemporary panpsychism and Russellian monism
 
@@ -201,9 +195,9 @@ PCM caution: Analytic Idealism is philosophically distinct from bottom-up panpsy
 
 - **Seth, A. K., & Bayne, T. (2022). “Theories of Consciousness.” _Nature Reviews Neuroscience_ 23, 439–452.** https://doi.org/10.1038/s41583-022-00587-4
 - **Koch, C., Massimini, M., Boly, M., & Tononi, G. (2016). “Neural Correlates of Consciousness: Progress and Problems.” _Nature Reviews Neuroscience_ 17, 307–321.** https://doi.org/10.1038/nrn.2016.22
-- **Butlin, P., Long, R., Bengio, Y., Browning, H., et al. (2023). “Consciousness in Artificial Intelligence: Insights from the Science of Consciousness.” arXiv:2308.08708.**
+- **Butlin, P., Long, R., Bengio, Y., Browning, H., et al. (2023). “Consciousness in Artificial Intelligence: Insights from the Science of Consciousness.” arXiv:2308.08708.** **[preprint]**
 - **Chalmers, D. J. (2023). “Could a Large Language Model Be Conscious?”**
-- **Baars, B. J. (1988). _A Cognitive Theory of Consciousness_.**
+- **Baars, B. J. (1988). _A Cognitive Theory of Consciousness_.** **[book]**
 - **Dehaene, S., Lau, H., & Kouider, S. (2017). “What is consciousness, and could machines have it?” _Science_ 358(6362), 486–492.**
 
 ---
@@ -339,7 +333,7 @@ PCM’s strongest current formulation is not that a single AI has demonstrated h
 - **Laclau, E. (2005). _On Populist Reason_.**
 - **Jasanoff, S. (ed.) (2015). _Dreamscapes of Modernity: Sociotechnical Imaginaries and the Fabrication of Power_. University of Chicago Press.**
 - **Palonen, E. (2025). Formula of Populism framework**, as operationalized in the LaclauGPT research programme.
-- **Andreessen, M. (2023). “The Techno-Optimist Manifesto.”** Primary accelerationist/techno-optimist discourse source rather than neutral scholarship.
+- **Andreessen, M. (2023). “The Techno-Optimist Manifesto.”** **[primary political text]**
 
 These sources are important because technical architectures do not determine their own politics: **AI, consciousness, singularity, humanity, progress, risk, and the Common are contested signifiers as well as technical concepts.**
 
@@ -360,7 +354,7 @@ These sources are important because technical architectures do not determine the
 
 1. **Do not use “panpsychism,” idealism, Conscious Realism, or QIP as empirical proof of machine consciousness.** These positions keep ontology open or propose foundational models; they do not identify which contemporary systems are unified subjects.
 2. **Keep Hoffman, Faggin/D’Ariano, and Kastrup distinct.** Conscious Realism, Quantum Information Panpsychism, and Analytic Idealism all make consciousness fundamental, but they propose different ontologies, individuation mechanisms, and relations between experience and physics.
-3. **Do not infer consciousness from intelligence, language, agency, recurrence, integration, complexity, self-report, or network scale alone.**
+3. **Do not infer consciousness from intelligence, language, agency, recurrence, integration, complexity, self-report, metacognition, Theory-of-Mind performance, consciousness attribution, or network scale alone.**
 4. **Do not equate IIT with panpsychism.** The metaphysical interpretation of IIT is contested.
 5. **Do not equate extended cognition with extended consciousness.** The latter requires additional arguments and evidence.
 6. **Do not equate a technical network with a Multitude.** Political composition, disagreement, governance, power, and the Common matter.
@@ -368,4 +362,5 @@ These sources are important because technical architectures do not determine the
 8. **Do not equate collective agency with one phenomenal group subject.** Hybrid systems may be genuine agents without sharing consciousness.
 9. **Treat Active Inference principally as a theory of adaptive agency unless additional consciousness assumptions are made explicitly.**
 10. **Treat hard recursive self-improvement as unproven.** AI-assisted recursive R&D is a separate and increasingly empirical phenomenon.
-11. **Preserve provenance and source quality.** Peer-reviewed research, scholarly books, preprints, manifestos, repository papers, and speculative essays should remain visibly distinct.
+11. **Preserve provenance and source quality.** Peer-reviewed research, scholarly books, conference papers, preprints, manifestos, repository papers, and speculative essays should remain visibly distinct.
+12. **Reading-queue promotion rule:** before a source is cited in `docs/PAPER.md` or a core research claim, verify it against a publisher, DOI/proceedings record, or stable preprint page and carry publication-quality metadata into this file.
