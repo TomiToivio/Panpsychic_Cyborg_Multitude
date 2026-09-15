@@ -36,6 +36,12 @@ The LLM is one component of this larger system.
 ### AI ideology
 A contested political-discursive formation concerning what AI is, what future it implies, who should control it, and which risks or promises matter. PCM currently tracks formations such as accelerationism/techno-optimism, doomerism/existential risk, critical AI, anti-AI mobilization, and left techno-optimism.
 
+### Alter / dissociated alter
+In Bernardo Kastrup’s Analytic Idealism, an apparently individual conscious organism is modeled as a **dissociated alter** of a single universal phenomenal consciousness. The term is borrowed by analogy from dissociative phenomena in psychology. PCM treats this as a metaphysical individuation proposal, not as an established neuroscientific account of personal identity.
+
+### Analytic Idealism
+Bernardo Kastrup’s consciousness-only ontology. It proposes that **universal phenomenal consciousness** is the sole ontological primitive and that individual minds arise through dissociation within that universal field. Physical organisms and the physical world are interpreted as **extrinsic appearances** of underlying mental processes. PCM treats Analytic Idealism as a major influence on the Panpsychic/metaphysical strand while keeping it distinct from bottom-up panpsychism, Russellian monism, and Hoffman’s Conscious Realism.
+
 ### Assemblage
 A heterogeneous composition whose components can include humans, machines, language, institutions, devices, memory, infrastructures, bodies, resources, and social relations. PCM uses assemblage in a Deleuze/DeLanda-inspired sense: parts retain relative autonomy, while the whole can exhibit emergent capacities.
 
@@ -47,6 +53,9 @@ The hypothesis that cognition can be distributed across humans, language, LLMs, 
 
 ### Assemblage consciousness
 The stronger and unresolved hypothesis that an assemblage could constitute one unified phenomenal subject. PCM does not assume this. The combination and individuation problems remain open.
+
+### Atomic quantum operation
+In D’Ariano and Faggin’s Quantum Information Panpsychism, a purity-preserving quantum operation associated with the evolution of an internally experienced ontic state. Their proposal connects the particular outcome of such probabilistic operations to free will. PCM treats this as part of QIP’s formal hypothesis, not established physics of volition.
 
 ### Autopoiesis
 Self-production or self-maintenance through recursive processes. PCM encounters the term especially through Luhmann, enactivism, and Active Inference. It should not be used as a synonym for consciousness.
@@ -89,6 +98,15 @@ In Hardt and Negri's sense, shared capacities and resources produced and reprodu
 ### Commons
 A resource or infrastructure governed collectively by a community rather than exclusively through private ownership or centralized state control. PCM's append-only shared memory, open code, and community-governed infrastructure are commons-oriented design choices.
 
+### Conscious agent
+In Donald Hoffman and Chetan Prakash’s formalism, a **conscious agent** is modeled through probabilistic mappings connecting experiences, decisions/actions, and a world with which the agent interacts. PCM uses the concept as a speculative formal attempt to model consciousness-first ontology. It should not be confused with PCM’s ordinary software use of the word **agent**.
+
+### Conscious Agent Theory
+Hoffman and Prakash’s formal research programme for describing networks and combinations of conscious agents. It is closely connected to Hoffman’s **Conscious Realism**, but the formal model and the metaphysical interpretation should be distinguished. PCM treats it as a major influence on the Panpsychic strand, not as established consciousness science.
+
+### Conscious Realism
+Donald Hoffman’s metaphysical hypothesis that consciousness and conscious agents are fundamental, while spacetime and ordinary physical objects are not the ultimate furniture of reality. In its strong form, objective reality is constituted by interacting conscious agents. PCM treats Conscious Realism as a major consciousness-first influence while distinguishing it from Kastrup’s Analytic Idealism and D’Ariano/Faggin’s QIP.
+
 ### Consciousness
 Phenomenal experience: there being something it is like to be a system. PCM treats consciousness as an open scientific and philosophical problem and does not infer it directly from intelligence, language, agency, complexity, self-report, or integration.
 
@@ -110,6 +128,9 @@ Distribution of control, communication, or infrastructure across multiple nodes.
 
 ### Deterritorialization
 A Deleuze/Guattari term for loosening or transforming an existing organization, coding, boundary, identity, or regime. PCM uses it mainly in theoretical discussions of rhizomes, assemblages, and changing sociotechnical structures.
+
+### Dissociation
+In Kastrup’s Analytic Idealism, the proposed mechanism by which apparently distinct individual minds arise within one universal consciousness. Dissociation is used to solve the **decombination/individuation** problem from a top-down idealist direction rather than the bottom-up combination problem of constitutive panpsychism. PCM treats this as a philosophical model requiring independent assessment.
 
 ### Distributed cognition
 A research tradition, associated especially with Edwin Hutchins, that studies cognition as distributed across people, artifacts, representations, environments, and procedures. It is a central scientific precursor to PCM's assemblage-cognition hypothesis.
@@ -133,6 +154,9 @@ The appearance of system-level properties that are not usefully explained by exa
 ### Enactivism
 An approach in which cognition arises through embodied activity and ongoing organism-environment coupling. It is important to PCM's understanding of agency, embodiment, and relational cognition.
 
+### Epistemic state (QIP)
+In D’Ariano and Faggin’s QIP, the quantum state available from the perspective of an external observer, representing knowledge or prediction about another system’s experience. It is contrasted with the internally experienced **ontic state**. PCM uses the distinction only when discussing QIP, not as a general synonym for third-person science.
+
 ### Event sourcing
 A software architecture in which state is reconstructed from an append-only sequence of events rather than overwritten in place. PCM uses event sourcing to preserve provenance, auditable governance, shared memory, and replayability.
 
@@ -145,12 +169,21 @@ The thesis, associated with Clark and Chalmers, that external resources can unde
 ### Extended consciousness
 The stronger hypothesis that phenomenal consciousness, not only cognition, can extend beyond the biological organism. PCM treats this as open and much more controversial than extended cognition.
 
+### Extrinsic appearance
+In Kastrup’s Analytic Idealism, what a mental process looks like from across a dissociative boundary. Physical bodies and the inanimate physical world are interpreted as extrinsic appearances of underlying transpersonal or dissociated mental processes. PCM treats this as an idealist explanatory proposal, not a scientific measurement category.
+
 ---
 
 ## F
 
+### Fitness-Beats-Truth (FBT)
+A theorem/result associated with Hoffman, Prakash and collaborators arguing that under their evolutionary-game assumptions, perceptual strategies tuned directly to fitness can systematically outcompete equally complex strategies aimed at veridically representing objective states. FBT motivates Hoffman’s **Interface Theory of Perception**. PCM treats both the result and its metaphysical interpretation critically because the assumptions and implications remain debated.
+
 ### Free Energy Principle (FEP)
 A formal framework associated with Karl Friston for describing self-organizing systems in terms of variational free-energy minimization. PCM treats it as a theory of organization and inference, not a consciousness detector.
+
+### Free will (QIP)
+In D’Ariano and Faggin’s proposal, the specific outcome of an intrinsically probabilistic atomic quantum operation is interpreted as an act of free will. PCM uses this definition only when describing QIP and does not treat it as an established account of human volition.
 
 ### Functional Hybrid Collective Agent (FHCA)
 A recent philosophical concept for a deeply integrated human-machine collective whose agency depends on stable interaction, complementarity, and coordinated goals. PCM uses the idea as a close conceptual neighbor to cyborg-multitude agency.
@@ -197,6 +230,9 @@ A philosophical commitment, especially important through Spinoza and Deleuze, to
 ### Individuation problem
 The problem of determining where one subject, agent, or system begins and ends. For PCM this is central both scientifically and politically: a human-LLM dyad, agent architecture, network, or assemblage may have different boundaries depending on the property being studied.
 
+### Interface Theory of Perception (ITP)
+Donald Hoffman and collaborators’ theory that perception evolved primarily as a species-specific interface for fitness-guided action rather than as a transparent depiction of objective reality. In the theory’s desktop metaphor, experienced objects and spacetime are more like interface icons than literal representations of ultimate ontology. PCM treats ITP as important to its epistemic caution, while explicitly noting that ITP does **not by itself entail Conscious Realism**.
+
 ### `is_conscious: UNKNOWN`
 A PCM constitutional and engineering rule. Artificial, composite, or uncertain entities are not labeled conscious or non-conscious without sufficient evidence. UNKNOWN is a deliberate epistemic state, not a temporary UI placeholder.
 
@@ -241,6 +277,9 @@ In Laclauian discourse theory, a privileged signifier around which meaning is pa
 ---
 
 ## O
+
+### Ontic state (QIP)
+In D’Ariano and Faggin’s Quantum Information Panpsychism, the internally experienced pure quantum state corresponding to a definite experience. It is contrasted with an observer’s **epistemic state**, which represents externally available knowledge about the system. PCM uses the term only within QIP’s own theoretical vocabulary.
 
 ### Orch-OR
 Penrose and Hameroff's quantum theory of consciousness involving orchestrated objective reduction in neuronal microtubules. PCM retains Orch-OR as a speculative research branch, not established consciousness science.
@@ -296,7 +335,11 @@ PCM reserves Φ for IIT-related integrated information or intrinsic causal integ
 ## Q
 
 ### Quantum Information Panpsychism (QIP)
-A speculative framework associated with Giacomo Mauro D'Ariano and Federico Faggin linking consciousness and quantum information. PCM treats QIP as a metaphysical/scientific hypothesis to compare with competing theories, not established physics or neuroscience.
+The consciousness-first framework developed by Giacomo Mauro D’Ariano and Federico Faggin. Its proposed hierarchy is:
+
+`classical physics -> quantum physics -> quantum information -> consciousness`
+
+where each level on the left supervenes on the level to its right. QIP distinguishes internally experienced **ontic states** from externally describable **epistemic states**, invokes quantum privacy and entanglement in its treatment of qualia, and proposes atomic quantum operations in its account of free will. PCM treats QIP as a major influence and a speculative scientific/metaphysical hypothesis, not established physics or neuroscience.
 
 ### Quorum
 A governance threshold specifying how much participation is required before a decision can be validly made. PCM supports explicit quorum rules rather than pretending every network action speaks for all members.
@@ -376,6 +419,13 @@ An observable or test derived from a particular theory of consciousness rather t
 
 ---
 
+## U
+
+### Universal phenomenal consciousness
+The fundamental reality proposed by Kastrup’s Analytic Idealism: a single, spatially unbound field of phenomenal consciousness within which individual organisms occur as dissociated alters. PCM treats this as a major idealist influence while distinguishing it from Hoffman’s network of conscious agents and QIP’s consciousness/quantum-information hierarchy.
+
+---
+
 ## V
 
 ### ValueFlows
@@ -404,6 +454,9 @@ NETWORK != RHIZOME != MULTITUDE
 RHIZOME != DEMOCRACY
 ASSEMBLAGE != SINGLE MIND
 COLLECTIVE INTELLIGENCE != COLLECTIVE CONSCIOUSNESS
+CONSCIOUS REALISM != ANALYTIC IDEALISM != QIP
+INTERFACE THEORY OF PERCEPTION != PROOF OF CONSCIOUS REALISM
+PANPSYCHISM != ANALYTIC IDEALISM
 Ψ != Φ
 AI != LLM
 ```
