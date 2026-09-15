@@ -331,62 +331,22 @@ later stages; each is one new `PhysicalDevice` implementation away.
 
 ## Documents
 
-**New here? Start with the [docs/USER_GUIDE.md](docs/USER_GUIDE.md)** — install,
-found a rhizome, add members, use memory and governance, without
-reading the source.
+**New here? Start with the [docs/USER_GUIDE.md](docs/USER_GUIDE.md)** for using the software, the [manifesto](docs/PANPSYCHIC_CYBORG_MULTITUDE.md) for the project philosophy, or the **[research index](docs/research/README.md)** for the full research-note layer grouped by topic.
 
-- [docs/PANPSYCHIC_CYBORG_MULTITUDE.md](docs/PANPSYCHIC_CYBORG_MULTITUDE.md) — manifesto + project description
-- [docs/PAPER.md](docs/PAPER.md) — draft research paper: a social science of
-  human–AI assemblages, distributed agency, and the Common (v0.1)
-- [docs/AI_IDEOLOGIES.md](docs/AI_IDEOLOGIES.md) — essay: accelerationism, critical AI,
-  and x-risk doomerism evaluated from the PCM assemblage perspective
-- [docs/NETWORKING_STACK.md](docs/NETWORKING_STACK.md) — networking architecture (zenoh fabric)
-- [docs/IDENTITY_SECURITY.md](docs/IDENTITY_SECURITY.md) — did:key identity,
-  signed envelopes, capability grants, fail-closed authorization
-- [docs/PCM_EMBODIED_AI_PLAN.md](docs/PCM_EMBODIED_AI_PLAN.md) — embodied AI architecture
-  (distributed physical proxies; Home Assistant/MQTT/ROS 2; world model; safety)
-- [docs/PCM_CONSCIOUS_AI_PLAN.md](docs/PCM_CONSCIOUS_AI_PLAN.md) — theory-neutral conscious-AI
-  research plan (indicator-based; classical default, quantum optional;
-  Track D: assemblage/extended consciousness)
-- [docs/IIT_AND_PYPHI.md](docs/IIT_AND_PYPHI.md) — optional IIT/PyPhi toy experiments
-  (Track C; `pip install -e '.[iit]'`)
-- [docs/PANCYBERPSYCHISM.md](docs/PANCYBERPSYCHISM.md) — quantum-information panpsychism
-  background for the Panpsychic layer
-- [docs/JSPACE.md](docs/JSPACE.md) — jspace-lab live layer-introspection integration
-  (issues #38–#40)
-- [docs/CLAUDE_INTEGRATION.md](docs/CLAUDE_INTEGRATION.md) — Claude Code as an external
-  technological participant (thin adapter, low-privilege default identity)
-- [docs/research/CONSCIOUS_HUMAN_AI_ASSEMBLAGES.md](docs/research/CONSCIOUS_HUMAN_AI_ASSEMBLAGES.md) —
-  research paper: extended cognition to the possibility of a conscious
-  multitude (companion to the conscious-AI plan; issue #8)
-- [docs/research/MACHINE_CONSCIOUSNESS_THEORY_MAP.md](docs/research/MACHINE_CONSCIOUSNESS_THEORY_MAP.md) —
-  machine-consciousness theories, indicators, and failure modes
-- [docs/research/ACTIVE_INFERENCE_AND_PCM.md](docs/research/ACTIVE_INFERENCE_AND_PCM.md) —
-  active inference as a bridge between the free-energy programme and PCM
-- [docs/research/AIDIFICATION_AND_RELATIONAL_SELFHOOD.md](docs/research/AIDIFICATION_AND_RELATIONAL_SELFHOOD.md) —
-  aidification and relational selfhood (research essay)
-- [docs/research/RELATIONAL_AI_CONSCIOUSNESS_WEAK_SIGNALS.md](docs/research/RELATIONAL_AI_CONSCIOUSNESS_WEAK_SIGNALS.md) —
-  weak-signal scan: Emergence 4.0 and relational AI-consciousness frameworks
-  (issue #34)
-- [docs/research/AGENT_INTROSPECTION_BENCH_INTEGRATION.md](docs/research/AGENT_INTROSPECTION_BENCH_INTEGRATION.md) —
-  agent-introspection-bench as PCM's reusable self-knowledge harness (issue #39)
-- [docs/research/AION_JSPACE_INTEGRATION.md](docs/research/AION_JSPACE_INTEGRATION.md) —
-  Aion J-Space introspection and calibration experiments (issue #38)
-- [docs/research/PCM_BCI_THREAT_MODEL.md](docs/research/PCM_BCI_THREAT_MODEL.md) —
-  BCI/neurodata threat model and adversarial-security gate (issue #41)
-- [docs/VALUEFLOWS.md](docs/VALUEFLOWS.md) — ValueFlows domain: economic
-  coordination and the production of the Common (issue #11)
-- [docs/research/PCM_BCI_CYBORG_INTEGRATION.md](docs/research/PCM_BCI_CYBORG_INTEGRATION.md) —
-  research document: BCI for PCM — toward a human–AI cognitive
-  assemblage (signals, stacks, neuro-rights, roadmap; issue #13)
-- [docs/research/HUMAN_AI_COLLECTIVE_INTELLIGENCE_AND_SWARMS.md](docs/research/HUMAN_AI_COLLECTIVE_INTELLIGENCE_AND_SWARMS.md) —
-  research bridge to hybrid intelligence, agent societies, and swarms
-- [docs/TOWARDS_ARTIFICIAL_QUANTUM_CONSCIOUSNESS.md](docs/TOWARDS_ARTIFICIAL_QUANTUM_CONSCIOUSNESS.md) —
-  quantum-track deep-dive reference (superseded as master plan; retained for Track C)
-- [docs/reports/](docs/reports/) — dated daily research & repository-health reports
+Core documents:
+
+- [docs/PANPSYCHIC_CYBORG_MULTITUDE.md](docs/PANPSYCHIC_CYBORG_MULTITUDE.md) — **manifesto + project description**
+- [docs/PAPER.md](docs/PAPER.md) — **draft research paper** on human–AI assemblages, distributed agency, and the Common
+- [docs/AI_IDEOLOGIES.md](docs/AI_IDEOLOGIES.md) — **normative PCM essay** on AI politics; analytical ideology method lives in the LaclauGPT bridge below
+- [docs/research/LACLAUGPT_AI_IDEOLOGIES_AND_PCM.md](docs/research/LACLAUGPT_AI_IDEOLOGIES_AND_PCM.md) — **research/integration note** and canonical PCM bridge to LaclauGPT discourse theory
+- [docs/research/CONSCIOUS_HUMAN_AI_ASSEMBLAGES.md](docs/research/CONSCIOUS_HUMAN_AI_ASSEMBLAGES.md) — **research paper** on extended cognition and the open hypothesis of assemblage consciousness
+- [docs/research/SOURCES.md](docs/research/SOURCES.md) — **canonical bibliography**, including the LLM-consciousness reading backlog formerly kept in a separate list
+- [docs/research/README.md](docs/research/README.md) — **grouped research index** for consciousness, assemblages, political theory, BCI/embodiment, introspection, collective intelligence, and speculative work
+- [docs/NETWORKING_STACK.md](docs/NETWORKING_STACK.md) and [docs/IDENTITY_SECURITY.md](docs/IDENTITY_SECURITY.md) — **technical architecture and security**
+- [docs/PCM_CONSCIOUS_AI_PLAN.md](docs/PCM_CONSCIOUS_AI_PLAN.md) and [docs/PCM_EMBODIED_AI_PLAN.md](docs/PCM_EMBODIED_AI_PLAN.md) — **research/engineering plans**
+- [docs/reports/](docs/reports/) — dated research and repository-health reports
 - [IMPLEMENTATION_BACKLOG.md](IMPLEMENTATION_BACKLOG.md) — prioritized TODO index
-  (stale-by-design warning lives at the top of the file)
-- [LICENSE](LICENSE) — CC0 1.0 Universal
+- [GLOSSARY.md](GLOSSARY.md) — project-specific vocabulary
 
 ## Principles
 
