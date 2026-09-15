@@ -6,6 +6,14 @@
 **A social operating system for human-AI rhizomes. Shared memory, real
 decisions, no owner.**
 
+## What kind of project is this?
+
+PCM is an **experimental attempt to respond to the paradigm shift now facing society** as artificial intelligence becomes woven into cognition, work, institutions, culture, politics, infrastructure, and everyday life. It does not assume that this shift has one inevitable meaning or destination. Instead, PCM asks what kinds of human-AI assemblages we are creating, how they might think and act together, who should govern them, and how plurality, autonomy, dissent, and the Common can survive increasingly intimate human-machine integration.
+
+The project deliberately mixes **social science, philosophy, science fiction, and open-source technology**. Social science supplies tools for studying institutions, networks, power, discourse, collective intelligence, and political organization. Philosophy keeps open questions about mind, agency, subjectivity, ontology, and ethics. Science fiction provides a speculative laboratory for imagining social and technological forms before they fully exist. Open-source technology turns those ideas into inspectable, modifiable experiments rather than leaving them as abstractions.
+
+PCM is therefore neither a prediction of the future nor a finished political programme. It is a **research platform, philosophical experiment, speculative design project, and working piece of open-source infrastructure** for exploring possible responses to a rapidly changing human-AI world.
+
 PCM studies whether **cognition — and possibly consciousness — belongs
 to the assemblage rather than to the isolated model or the isolated
 human.** It remains open to consciousness in artificial agents
