@@ -1,8 +1,21 @@
 # LaclauGPT, AI Ideologies, and Panpsychic Cyborg Multitude
 
-**Status:** conceptual integration note for the PCM research programme  
+**Status:** canonical PCM theory bridge for the analytical study of AI ideology  
 **Source of truth for LaclauGPT theory:** `TomiToivio/LaclauGPT-Discourse-Analysis/paper/PAPER.md`  
-**Scope:** philosophy, political theory, and research framing. This document does not import operational data-collection settings from LaclauGPT.
+**Scope:** philosophy, political theory, and research framing. This document does not import operational data-collection settings from LaclauGPT.  
+**Normative companion:** [`../AI_IDEOLOGIES.md`](../AI_IDEOLOGIES.md)
+
+This document answers **how PCM should analyse ideological formations around AI**. It is not a declaration that PCM is politically neutral, nor is it a frozen taxonomy of camps.
+
+The companion essay `docs/AI_IDEOLOGIES.md` answers a different question: **what political conclusions PCM itself tentatively draws**. That document is explicitly normative.
+
+PCM therefore keeps three levels separate:
+
+- **empirical claims** about actors, texts, institutions, material conditions, power, and outcomes;
+- **discourse-theoretical interpretation** using articulation, nodal/floating/empty signifiers, equivalence, antagonism, hegemony, and sociotechnical imaginaries;
+- **PCM normative commitments** about commons, governance, ownership, plural agency, safety, and emancipation.
+
+Analytical symmetry means that competing formations are studied under comparable methodological standards. It does **not** mean false equivalence: unequal ownership, coercive power, institutional authority, material harms, evidential quality, and agenda-setting capacity remain empirical facts to analyse directly.
 
 ## 1. Why PCM needs a theory of ideology
 
@@ -62,7 +75,9 @@ PCM should treat this as an empirical possibility, not a semantic property of th
 
 LaclauGPT treats ideological formations as provisional and relational rather than as fixed boxes. PCM should adopt the same discipline.
 
-The following formations are useful **sensitising concepts** for mapping contemporary AI politics.
+The following formations are useful **sensitising concepts** for mapping contemporary AI politics, not exhaustive natural kinds.
+
+The labels themselves are political objects. Terms such as **doomer**, **accelerationist**, **critical**, **Luddite**, or even **AI safety** can be self-descriptions, hostile descriptions, boundary-making devices, or shorthand that shifts across contexts. They should never replace analysis of the underlying articulations.
 
 ### 3.1 Accelerationism and techno-optimism
 
@@ -196,11 +211,13 @@ A human–LLM assemblage does not merely exchange information. It can reproduce,
 
 This is where LaclauGPT and PCM meet most directly.
 
-## 7. PCM's ideological position: pluralist, experimental, pro-common
+## 7. PCM's ideological position: analytical openness, normative commitment
 
-PCM should distinguish between its **analytical openness** and its **normative commitments**.
+PCM must distinguish between its **analytical method** and its **normative commitments**.
 
-Analytically, PCM should take accelerationist, existential-risk, Critical AI, anti-AI, and left techno-optimist claims seriously enough to study them under common evidentiary standards. None should be dismissed by label alone.
+Analytically, PCM should take accelerationist, existential-risk, Critical AI, anti-AI, labour, and left techno-optimist claims seriously enough to study them under common evidentiary and discourse-analytic standards. None should be dismissed by label alone.
+
+This does not imply that all actors are equally powerful or all claims equally supported. Analysis should explicitly measure and describe asymmetries in ownership, capital, institutional authority, labour relations, infrastructure, military and regulatory power, media reach, and material consequences.
 
 Normatively, PCM is not neutral about institutional design. Its architecture and philosophy favour:
 
@@ -213,7 +230,9 @@ Normatively, PCM is not neutral about institutional design. Its architecture and
 - uncertainty about consciousness rather than premature attribution or denial;
 - democratic control over the infrastructures through which human–machine integration occurs.
 
-This places PCM closest to a **left techno-pluralist / commons-oriented** position, while retaining the right to learn from accelerationist capability analysis, existential-risk arguments, Critical AI, labour resistance, and other perspectives.
+This places PCM closest to a **left techno-pluralist / commons-oriented** position, while retaining the right to learn from accelerationist capability analysis, existential-risk arguments, Critical AI, labour resistance, anti-AI mobilisation, and other perspectives.
+
+The normative companion essay [`../AI_IDEOLOGIES.md`](../AI_IDEOLOGIES.md) develops these commitments explicitly. Its political judgments must not be fed back into the analytical layer as though they were neutral empirical findings.
 
 PCM should therefore resist becoming an ideological mirror image of the camps it studies.
 
@@ -285,7 +304,9 @@ In consciousness research, do not prematurely resolve an open phenomenal questio
 
 In political analysis, do not prematurely resolve a contested signifier, identity, or discourse formation.
 
-The same epistemic discipline applies to both.
+In ideology coding, do not turn situated labels into fixed ontological categories.
+
+The same epistemic discipline applies to all three.
 
 ## 11. Compact synthesis
 
@@ -314,6 +335,7 @@ Primary project theory:
 
 - Toivio, T. **LaclauGPT: Ideological contestation over AI.** Public paper draft in `TomiToivio/LaclauGPT-Discourse-Analysis`, `paper/PAPER.md`.
 - Panpsychic Cyborg Multitude. **PCM research paper and manifesto.** `TomiToivio/Panpsychic_Cyborg_Multitude`.
+- Panpsychic Cyborg Multitude. **AI Ideologies from the PCM Perspective.** [`../AI_IDEOLOGIES.md`](../AI_IDEOLOGIES.md), normative companion essay.
 
 Theoretical backbone:
 
