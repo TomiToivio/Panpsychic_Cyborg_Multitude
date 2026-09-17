@@ -1,6 +1,6 @@
 # HCOMP / Collective Intelligence 2026 as an empirical PCM checkpoint
 
-**Status:** pre-conference triage, 2026-09-15  
+**Status:** pre-conference triage, 2026-09-17  
 **Conference:** ACM HCOMP 2026 + ACM Collective Intelligence 2026, 27–30 September 2026  
 **Issue:** #47  
 **Purpose:** use the joint conference as an empirical checkpoint for PCM claims about heterogeneous human–AI assemblages, collective agency, governance, provenance, delegation, calibration, and distributed cognition.
@@ -12,6 +12,39 @@ Official programme pages:
 - CI 2026: https://ci.acm.org/2026/program.html
 
 This note deliberately separates **collective capability / coordination** from **collective consciousness**. Nothing in HCOMP or CI evidence, including strong complementarity or emergent group-level performance, is by itself evidence that a human–AI collective is one phenomenal subject.
+
+---
+
+## 0. Execution state for issue #47
+
+Issue #47 is intentionally a two-stage research checkpoint.
+
+### Stage A — complete before the conference
+
+The pre-conference pass is complete:
+
+- [x] triage relevant HCOMP/CI 2026 papers, talks, workshops, and keynote material;
+- [x] map them to PCM concepts;
+- [x] identify candidate empirical measures;
+- [x] define at least two concrete PCM experiments;
+- [x] define falsification / negative-evidence criteria;
+- [x] keep collective intelligence separate from claims about phenomenal consciousness.
+
+### Stage B — blocked until conference materials exist
+
+The post-conference acceptance criteria must remain open until proceedings, workshop papers, slides, recordings, or equivalent primary materials are available after 27–30 September 2026.
+
+Do **not** close issue #47 before the Stage B checklist below is completed from actual conference material:
+
+- [ ] replace title/program-level inference with methods and results from primary materials;
+- [ ] extract 5–10 validated high-signal findings or methods;
+- [ ] validate, revise, or reject at least two proposed PCM empirical measures / experiments;
+- [ ] add only genuinely useful citations to PCM research documentation;
+- [ ] record any PCM architecture or governance changes supported by specific evidence;
+- [ ] explicitly record findings that contradict or weaken PCM assumptions;
+- [ ] re-check the collective capability != collective consciousness firewall.
+
+This prevents a recurrent failure mode where a time-bounded research issue is closed after preparatory work while its empirical checkpoint is still in the future.
 
 ---
 
@@ -406,5 +439,23 @@ After proceedings, workshop position papers, slides, and recordings become avail
 5. add only genuinely useful scholarly citations to `docs/research/SOURCES.md`;
 6. propose PCM implementation changes only when supported by specific findings;
 7. update issue #47 with what changed and why.
+
+### Post-conference evidence record
+
+For each retained finding, record it in this structure:
+
+```text
+Source:
+Material type: paper | workshop paper | slides | recording | proceedings
+Empirical setting:
+Method / measure:
+Result:
+PCM concept affected:
+Supports / weakens / complicates:
+Concrete PCM implication:
+Consciousness relevance: none unless independently justified
+```
+
+This keeps the eventual synthesis auditable and prevents thematic resemblance from being mistaken for evidence.
 
 Until that pass, this document is a **pre-conference research map, not a statement of conference findings**.
