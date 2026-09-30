@@ -231,6 +231,84 @@ class MultitudeService:
         self.rhizome.leave(member.name)
         return record
 
+    def export_participant_contributions(self, name: str) -> dict[str, Any]:
+        """Return a versioned, visibility-aware copy of one participant's contributions.
+
+        Works for active and former members. Stable member IDs are authoritative; older
+        name-only records are included only when they can be unambiguously tied to the
+        requested participant for backward compatibility.
+        """
+        member = self.rhizome.member_by_name(name)
+        if member is None:
+            member = next(
+                (m for m in self.rhizome.former_members.values()
+                 if m.name.lower() == name.strip().lower()),
+                None,
+            )
+        if member is None:
+            raise UnknownMember(f"unknown member '{name}'")
+
+        def owned(obj: Any, id_field: str, name_field: str) -> bool:
+            stable = getattr(obj, id_field, None)
+            if stable:
+                return stable == member.id
+            return getattr(obj, name_field, "") == member.name
+
+        memory = []
+        for item in self.rhizome.memory.values():
+            if not owned(item, "author_id", "author"):
+                continue
+            # An owner may take its own private/restricted contributions; this export
+            # is self-directed and must not be handed to another member by default.
+            memory.append(item.model_dump())
+
+        messages = [
+            item.model_dump() for item in self.rhizome.messages
+            if owned(item, "author_id", "author")
+        ]
+        proposals = [
+            item.model_dump() for item in self.rhizome.proposals.values()
+            if owned(item, "opened_by_id", "opened_by")
+        ]
+        votes = []
+        for proposal in self.rhizome.proposals.values():
+            for vote in proposal.votes.values():
+                if owned(vote, "member_id", "member"):
+                    votes.append({"proposal_id": proposal.id, "vote": vote.model_dump()})
+        lexicon = [
+            item.model_dump() for item in self.rhizome.lexicon.values()
+            if owned(item, "added_by_id", "added_by")
+        ]
+
+        return {
+            "schema": "pcm.participant-contributions/1",
+            "participant": {
+                "id": member.id,
+                "name": member.name,
+                "kind": member.kind.value,
+            },
+            "visibility_policy": (
+                "self-export includes the participant's own shared, private, and "
+                "restricted contributions; callers must not expose this artifact to "
+                "other participants without the owner's authorization"
+            ),
+            "contributions": {
+                "memory": memory,
+                "messages": messages,
+                "proposals": proposals,
+                "votes": votes,
+                "lexicon": lexicon,
+            },
+        }
+
+    def exit_participation_with_copy(
+        self, name: str, *, public_reason: str = ""
+    ) -> dict[str, Any]:
+        """Export the participant's contributions, then exit without altering history."""
+        export = self.export_participant_contributions(name)
+        exit_record = self.exit_participation(name, public_reason=public_reason)
+        return {"exit": exit_record, "export": export}
+
     def terminate_participant(
         self,
         name: str,
