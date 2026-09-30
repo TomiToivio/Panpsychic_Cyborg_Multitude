@@ -448,6 +448,7 @@ class Rhizome:
             id=new_id("msg"),
             ts=now_iso(),
             author=m.name,
+            author_id=m.id,
             kind=kind,
             text=text.strip(),
             in_reply_to=in_reply_to,
