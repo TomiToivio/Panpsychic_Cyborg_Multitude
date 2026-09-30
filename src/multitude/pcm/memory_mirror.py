@@ -213,59 +213,6 @@ def merge_memory_docs(local: dict[str, Any], remote: dict[str, Any]) -> dict[str
                 out[k] = _normalise(rb)
                 continue
             out[k] = merge_register(out[k], rb)
-        """Merge registers without allowing a peer to overwrite a subject's self-register.
-
-        Every register retains both subject and author. A non-subject write about an
-        existing subject-owned key is preserved as an attributed claim instead of
-        replacing the subject value. This makes conflicts visible and prevents
-        authorship laundering during later re-publication.
-        """
-        out = json.loads(json.dumps(a, ensure_ascii=False))
-        for k, rb_raw in b.items():
-            rb = dict(rb_raw)
-            rb.setdefault("subject", rb.get("did") or remote.get("did"))
-            rb.setdefault("author", rb.get("did") or remote.get("did"))
-            rb.setdefault("claims", [])
-            ra = out.get(k)
-            if not isinstance(ra, dict) or "lamport" not in ra:
-                out[k] = rb
-                continue
-            ra.setdefault("subject", ra.get("did") or local.get("did"))
-            ra.setdefault("author", ra.get("did") or local.get("did"))
-            ra.setdefault("claims", [])
-
-            subject = ra.get("subject")
-            remote_author = rb.get("author")
-            remote_subject = rb.get("subject")
-
-            # The subject is sole writer of its own canonical register. A peer may
-            # make a claim about it, but cannot silently replace it at any lamport.
-            if subject and remote_author != subject:
-                claim = {
-                    "author": remote_author,
-                    "subject": remote_subject or subject,
-                    "lamport": rb.get("lamport", 0),
-                    "ts": rb.get("ts"),
-                    "value": rb.get("value"),
-                    "private": bool(rb.get("private", False)),
-                }
-                claims = list(ra.get("claims", []))
-                if claim not in claims:
-                    claims.append(claim)
-                ra["claims"] = claims
-                out[k] = ra
-                continue
-
-            # Canonical subject writes remain deterministic. Authorship is retained.
-            if (rb["lamport"], rb.get("author", "")) > (
-                ra["lamport"], ra.get("author", "")
-            ):
-                inherited_claims = list(ra.get("claims", []))
-                for claim in rb.get("claims", []):
-                    if claim not in inherited_claims:
-                        inherited_claims.append(claim)
-                rb["claims"] = inherited_claims
-                out[k] = rb
         return out
 
     merged = {
@@ -391,12 +338,8 @@ class MemoryMirror:
             existing[CLAIMS_KEY] = [*existing[CLAIMS_KEY], claim]
             self.fields[field][key] = existing
             return
-        self.fields[field][key] = {
-            "lamport": self.lamport,
-            "did": self.did,
-            "subject": self.did,
         if isinstance(existing, dict):
-            subject = existing.get("subject") or existing.get("author") or existing.get("did")
+            subject = _subject_of(existing)
             if subject and subject != self.did:
                 claim = {
                     "author": self.did,
@@ -406,10 +349,11 @@ class MemoryMirror:
                     "value": value,
                     "private": private,
                 }
-                claims = list(existing.get("claims", []))
+                claims = list(existing.get(CLAIMS_KEY, []))
                 if claim not in claims:
                     claims.append(claim)
-                existing["claims"] = claims
+                existing[CLAIMS_KEY] = claims
+                self.fields[field][key] = existing
                 return
         self.fields[field][key] = {
             "lamport": self.lamport,
@@ -419,7 +363,7 @@ class MemoryMirror:
             "ts": _now(),
             "private": private,
             "value": value,
-            "claims": [],
+            CLAIMS_KEY: [],
         }
 
     def declare_handover(self, successor: str, *, reason: str = "") -> dict[str, Any]:
@@ -461,15 +405,6 @@ class MemoryMirror:
         and ``subject``, so a node cannot launder a peer's record by
         republishing it (#63).
         """
-        fields = {
-            field: {
-                key: register
-                for key, register in entries.items()
-                if include_private or not register.get("private")
-            }
-            for field, entries in self.fields.items()
-        }
-        doc: dict[str, Any] = {
         fields: dict[str, dict[str, dict[str, Any]]] = {}
         for field, entries in self.fields.items():
             fields[field] = {}
@@ -483,7 +418,7 @@ class MemoryMirror:
                         if not claim.get("private")
                     ]
                 fields[field][key] = clean
-        return {
+        doc: dict[str, Any] = {
             "schema": MIRROR_SCHEMA,
             "did": self.did,
             "lamport": self.lamport,
@@ -491,7 +426,7 @@ class MemoryMirror:
         }
         if self.handovers:
             doc["handovers"] = list(self.handovers)
-        return doc
+        return dict(doc)
 
     def apply_document(self, doc: dict[str, Any]) -> bool:
         """Merge a remote document in. Returns True when state changed.
