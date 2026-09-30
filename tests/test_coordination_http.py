@@ -458,3 +458,32 @@ def test_cli_outbound_http_does_not_require_a_listen_address(
     )
     assert node.transport._listen_host is None
     assert node.transport._listen_port is None
+
+
+def test_cli_outbound_infers_http_from_configured_peers(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Outbound #52 contacts should not fall into Zenoh when HTTP peers are configured."""
+    import argparse
+
+    from multitude.integrations.coordination.http_transport import HttpJsonTransport
+    from multitude.integrations.hermes import coordination_cli
+
+    peer_did = "did:key:z6Mkmwr2Z3YFU9pge2NTQUHFqLf8EhLoJsonL4dZeMs9WvQ5"
+    monkeypatch.delenv("PCM_COORDINATION_TRANSPORT", raising=False)
+    monkeypatch.delenv("PCM_COORDINATION_LISTEN", raising=False)
+    monkeypatch.setenv("PCM_NODE_DIR", str(tmp_path / "n"))
+    monkeypatch.setenv("PCM_PEERS", "NooPunk=127.0.0.1:8790")
+    monkeypatch.setenv("PCM_PEER_DIDS", f"NooPunk={peer_did}")
+
+    node = coordination_cli._build_node(
+        argparse.Namespace(label=None, node_dir=None, store=None),
+        enable_listener=False,
+    )
+
+    assert isinstance(node.transport, HttpJsonTransport)
+    assert node.transport._listen_host is None
+    assert node.transport._listen_port is None
+    assert node.transport._peer_urls[contact_selector_for_did(peer_did)] == (
+        "http://127.0.0.1:8790"
+    )
