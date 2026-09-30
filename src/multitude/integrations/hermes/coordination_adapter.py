@@ -81,6 +81,8 @@ class CoordinationNode:
         # Evidence seen from peers' reports, merged for a whole-experiment view.
         self._peer_evidence: list[ContactEvidence] = []
         self._learned_peer_dids_path = self.node_dir / "coordination" / "peer_dids.json"
+        #: peer label -> conflicting did:keys seen and refused (kept for status()).
+        self.rejected_dids: dict[str, set[str]] = {}
         self._apply_learned_peer_dids()
 
     # -- identity -----------------------------------------------------------
@@ -157,6 +159,25 @@ class CoordinationNode:
             for p in self.config.peers
         ]
 
+    def _known_did_for(self, label: str) -> str:
+        """The did:key this node already trusts for ``label``, or an empty string.
+
+        Checks live configuration first, then the learned cache on disk, so a
+        value learned in an earlier run still counts as known after a restart.
+        """
+        peer = self.config.peer(label)
+        if peer is not None and peer.did:
+            return peer.did
+        try:
+            if self._learned_peer_dids_path.exists():
+                raw = json.loads(self._learned_peer_dids_path.read_text(encoding="utf-8"))
+                cached = raw.get("peers", {}).get(label, "")
+                if isinstance(cached, str):
+                    return cached
+        except (OSError, json.JSONDecodeError, AttributeError):
+            pass
+        return ""
+
     def _remember_verified_peer_identity(self, event: Any, envelope: Any) -> bool:
         """Persist the public DID carried by an already-verified inbound contact.
 
@@ -193,7 +214,21 @@ class CoordinationNode:
             existing = loaded
 
         existing.setdefault("schema", "pcm.learned-peer-dids/1")
-        existing.setdefault("peers", {})[label] = did
+        peers = existing.setdefault("peers", {})
+
+        # A label with two live DIDs is the ambiguity ADR-001 and the runbook warn
+        # about, and it is reachable here: any identity that can sign a contact with
+        # the right label and agent name can present a different did:key. Adopting
+        # it would let a later contact silently re-point this node at a different
+        # identity -- and, because the cache is read at construction, the swap would
+        # survive a restart. The first verified DID for a label therefore wins, and a
+        # conflicting one is recorded for the operator rather than written.
+        prior = self._known_did_for(label)
+        if prior and prior != did:
+            self.rejected_dids.setdefault(label, set()).add(did)
+            return False
+
+        peers[label] = did
         path.parent.mkdir(parents=True, exist_ok=True)
         tmp = path.with_suffix(path.suffix + ".tmp")
         tmp.write_text(
@@ -288,6 +323,7 @@ class CoordinationNode:
                 {"label": p.label, "host": p.host, "did_known": bool(p.did)}
                 for p in self.config.peers
             ],
+            "rejected_dids": {k: sorted(v) for k, v in self.rejected_dids.items()},
             "inbound_contacts": len(self.inbound),
             "outbound_confirmed": self.store.load() and
             [f"{e.sender_label}->{e.recipient_label}" for e in self.store.load()],
