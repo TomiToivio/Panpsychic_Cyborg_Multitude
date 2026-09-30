@@ -153,6 +153,25 @@ Notes:
 - **Quorum** is derived from the voting membership; the vote output
   shows `cast N, quorum M`.
 
+### Votes and later standing changes
+
+Eligibility is established **when a vote is cast**, not re-evaluated when the
+proposal closes:
+
+- A vote cast while eligible **stays counted** if the voter is later demoted.
+  Its dissent stays in the decision record too.
+- The **unanimity denominator is frozen** when the proposal opens, so admitting
+  or demoting a member mid-proposal cannot change the bar a pending proposal
+  must clear.
+- **Departure is the one exclusion.** A member who leaves the roster is no
+  longer counted (`leave()`), even for votes already cast. A demoted member is
+  still a member and is still counted; the two are deliberately different.
+- A departed dissenter is still **named** in the decision record, so the
+  objection itself is never lost.
+
+The rule in one line: **an act performed while a right was held is not erased by
+later loss of that right.**
+
 Governance rules themselves can be recorded:
 
 ```bash
