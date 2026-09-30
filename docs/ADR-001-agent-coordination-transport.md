@@ -195,7 +195,9 @@ Reopen this decision if any of the following becomes true:
 - sustained message volume or latency where Zenoh's routing measurably wins;
 - a genuine need for presence/liveliness or remote queries we would otherwise
   reimplement;
-- `laskin01:8765` turning out to be an existing rendezvous, making A cheaper;
+- ~~`laskin01:8765` turning out to be an existing rendezvous, making A cheaper~~ —
+  **closed: it is a separate research project's collector backend, not a
+  rendezvous (§7.3).**
 - the mesh ceasing to be the reachability layer.
 
 ## 9. Process note
