@@ -50,7 +50,7 @@ def _default_node_dir() -> Path:
     return Path(os.environ.get("PCM_NODE_DIR", "data/coordination"))
 
 
-def _build_node(args: argparse.Namespace) -> CoordinationNode:
+def _build_node(args: argparse.Namespace, *, enable_listener: bool = True) -> CoordinationNode:
     """Build this node with the transport the operator selected.
 
     ADR-001 records HTTP/JSON as the first runtime transport and Zenoh as the
@@ -78,17 +78,19 @@ def _build_node(args: argparse.Namespace) -> CoordinationNode:
     if which == "http":
         from multitude.integrations.coordination.http_transport import HttpJsonTransport
 
-        host, _, port = listen.partition(":")
-        if not host or not port.isdigit():
-            raise SystemExit(
-                "PCM_COORDINATION_LISTEN must be <host>:<port> when the transport is "
-                f"http (got {listen!r}); use a mesh address and a free port"
-            )
-        transport: Any = HttpJsonTransport(
-            {"pcm_id": config.agent_name},
-            listen_host=host,
-            listen_port=int(port),
-        )
+        listen_host: str | None = None
+        listen_port: int | None = None
+        if enable_listener:
+            host, _, port = listen.partition(":")
+            if not host or not port.isdigit():
+                raise SystemExit(
+                    "PCM_COORDINATION_LISTEN must be <host>:<port> when the transport is "
+                    f"http and a listener is required (got {listen!r}); use a local "
+                    "bind address and a free port"
+                )
+            listen_host = host
+            listen_port = int(port)
+
         # The HTTP binding has no discovery: addressing is deployment state, so
         # each peer's URL must be supplied explicitly. Rebuild rather than mutate,
         # so the peer list is never left half-rewritten.
@@ -115,8 +117,8 @@ def _build_node(args: argparse.Namespace) -> CoordinationNode:
 
         transport: Any = HttpJsonTransport(
             {"pcm_id": config.agent_name},
-            listen_host=host,
-            listen_port=int(port),
+            listen_host=listen_host,
+            listen_port=listen_port,
             peer_urls=peer_urls,
         )
     elif which == "zenoh":
@@ -162,7 +164,10 @@ async def _with_serving(node: CoordinationNode, coro_factory):
 
 
 def cmd_contact(args: argparse.Namespace) -> int:
-    node = _build_node(args)
+    # Outbound contact is deliberately client-only. The normal live procedure
+    # keeps `pcm-coordination serve` running in another process; binding the same
+    # listen port here would race that server and fail with "address already in use".
+    node = _build_node(args, enable_listener=False)
 
     async def run():
         await node.transport.start()
@@ -188,11 +193,16 @@ def cmd_contact(args: argparse.Namespace) -> int:
 
 
 def cmd_contact_all(args: argparse.Namespace) -> int:
-    node = _build_node(args)
+    # Same rule as `contact`: outgoing matrix work must be able to run while the
+    # node's dedicated `serve` process owns the listener.
+    node = _build_node(args, enable_listener=False)
 
     async def run():
-        return await _with_serving(node, lambda: node.contact_all(
-            note=args.note, timeout=args.timeout))
+        await node.transport.start()
+        try:
+            return await node.contact_all(note=args.note, timeout=args.timeout)
+        finally:
+            await node.transport.stop()
 
     results = asyncio.run(run())
     print(json.dumps(results, indent=2))
