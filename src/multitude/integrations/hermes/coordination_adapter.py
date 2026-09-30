@@ -29,6 +29,8 @@ adapter introduces no second identity store and no new key handling.
 from __future__ import annotations
 
 import asyncio
+import json
+import os
 from pathlib import Path
 from typing import Any, Callable
 
@@ -78,6 +80,8 @@ class CoordinationNode:
         self.inbound: list[dict[str, Any]] = []
         # Evidence seen from peers' reports, merged for a whole-experiment view.
         self._peer_evidence: list[ContactEvidence] = []
+        self._learned_peer_dids_path = self.node_dir / "coordination" / "peer_dids.json"
+        self._apply_learned_peer_dids()
 
     # -- identity -----------------------------------------------------------
 
@@ -112,14 +116,101 @@ class CoordinationNode:
         )
 
     def _record_inbound(self, event: Any, envelope: Any) -> None:
+        learned = self._remember_verified_peer_identity(event, envelope)
         self.inbound.append({
             "from": event.author,
+            "from_did": envelope.from_did,
+            "peer_did_learned": learned,
             "request_id": envelope.id,
             "kind": event.payload.get("action", ""),
             "ts": envelope.ts,
         })
         if self._on_contact is not None:
             self._on_contact(event)
+
+    def _apply_learned_peer_dids(self) -> None:
+        """Fill missing peer DIDs from identities learned on verified inbound contacts.
+
+        Explicit environment-configured DIDs remain authoritative. The local cache
+        is only a bootstrap aid for peers that have already authenticated themselves
+        through the signed contact protocol.
+        """
+        path = self._learned_peer_dids_path
+        if not path.exists():
+            return
+        try:
+            raw = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError) as exc:
+            raise CoordinationError(
+                f"cannot read learned peer identities from {path}: {exc}"
+            ) from exc
+        if not isinstance(raw, dict) or not isinstance(raw.get("peers", {}), dict):
+            raise CoordinationError(
+                f"learned peer identity cache {path} has invalid structure"
+            )
+        learned = raw.get("peers", {})
+        from multitude.integrations.hermes.coordination import PeerConfig
+        self.config.peers = [
+            p if p.did else PeerConfig(
+                label=p.label, host=p.host, did=str(learned.get(p.label, ""))
+            )
+            for p in self.config.peers
+        ]
+
+    def _remember_verified_peer_identity(self, event: Any, envelope: Any) -> bool:
+        """Persist the public DID carried by an already-verified inbound contact.
+
+        The contact handler invokes this only after signature and recipient checks
+        succeed. We additionally bind the advertised node label to the expected
+        Hermes agent name. Learning identity does not grant any new authority.
+        """
+        label = str(event.payload.get("node_label", "")).strip()
+        did = str(getattr(envelope, "from_did", "")).strip()
+        if not label or not did.startswith("did:key:"):
+            return False
+        peer = self.config.peer(label)
+        if peer is None:
+            return False
+        if event.author != _peer_agent_name(label, did):
+            return False
+
+        path = self._learned_peer_dids_path
+        existing: dict[str, Any] = {
+            "schema": "pcm.learned-peer-dids/1",
+            "peers": {},
+        }
+        if path.exists():
+            try:
+                loaded = json.loads(path.read_text(encoding="utf-8"))
+            except (OSError, json.JSONDecodeError) as exc:
+                raise CoordinationError(
+                    f"cannot update corrupt learned peer identity cache {path}: {exc}"
+                ) from exc
+            if not isinstance(loaded, dict) or not isinstance(loaded.get("peers", {}), dict):
+                raise CoordinationError(
+                    f"learned peer identity cache {path} has invalid structure"
+                )
+            existing = loaded
+
+        existing.setdefault("schema", "pcm.learned-peer-dids/1")
+        existing.setdefault("peers", {})[label] = did
+        path.parent.mkdir(parents=True, exist_ok=True)
+        tmp = path.with_suffix(path.suffix + ".tmp")
+        tmp.write_text(
+            json.dumps(existing, indent=2, sort_keys=True) + "\n",
+            encoding="utf-8",
+        )
+        os.replace(tmp, path)
+
+        if not peer.did:
+            from multitude.integrations.hermes.coordination import PeerConfig
+            self.config.peers = [
+                PeerConfig(label=p.label, host=p.host, did=did)
+                if p.label == label and not p.did
+                else p
+                for p in self.config.peers
+            ]
+        return True
 
     # -- contact ------------------------------------------------------------
 
