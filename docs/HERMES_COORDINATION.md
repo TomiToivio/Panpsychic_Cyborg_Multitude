@@ -152,6 +152,40 @@ does not know about URLs, so the transport remains swappable.
 
 Malformed listen specifications and unknown transport names fail loudly.
 
+### `PCM_PEERS` is required even when every DID is known
+
+A peer whose DID is still unknown may be listed **endpoint-only**, with no
+`PCM_PEER_DIDS` entry. That is the intended bootstrap: the peer proves its
+identity with a signed inbound contact, and the node learns its public did:key
+from the verified envelope.
+
+This only happens for a label that is **already in `PCM_PEERS`**. The learning
+path refuses any label it does not recognise, so that a stranger cannot enrol
+itself:
+
+```python
+peer = self.config.peer(label)
+if peer is None:
+    return False          # unconfigured label: the inbound contact is answered,
+                          # the DID is silently NOT learned
+```
+
+The failure is silent by design — the contact still verifies and is still
+acknowledged, so the node looks healthy while the reverse edge keeps failing
+with `no did:key known for '<peer>'`. A node started without `PCM_PEERS`
+therefore cannot be bootstrapped at all, however correct its listener is.
+
+Configure both labels on every node, with DIDs only where they are already known:
+
+```bash
+export PCM_PEERS='PeerA=<peerA-address>:<port>,PeerB=<peerB-address>:<port>'
+export PCM_PEER_DIDS='PeerA=did:key:z...'     # omit PeerB while it is unknown
+```
+
+Explicit `PCM_PEER_DIDS` values remain authoritative and are never overwritten by
+a learned value; a later contact advertising a *different* did:key for a known
+label is refused rather than silently accepted.
+
 ### WSL2 / Windows mesh exposure
 
 On a WSL2 node the Windows mesh interface may not exist inside the Linux
