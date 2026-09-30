@@ -408,3 +408,53 @@ def test_cli_rejects_an_unknown_transport(tmp_path: Path, monkeypatch: pytest.Mo
         coordination_cli._build_node(
             argparse.Namespace(label=None, node_dir=None, store=None)
         )
+
+
+def test_cli_outbound_mode_does_not_bind_the_listener(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A contact process can run while the dedicated serve process owns the port."""
+    import argparse
+
+    from multitude.integrations.hermes import coordination_cli
+
+    peer_did = "did:key:z6Mkmwr2Z3YFU9pge2NTQUHFqLf8EhLoJsonL4dZeMs9WvQ5"
+    monkeypatch.setenv("PCM_COORDINATION_TRANSPORT", "http")
+    monkeypatch.setenv("PCM_COORDINATION_LISTEN", "127.0.0.1:8789")
+    monkeypatch.setenv("PCM_NODE_LABEL", "Laskin")
+    monkeypatch.setenv("PCM_AGENT_NAME", "agent:hermes-laskin")
+    monkeypatch.setenv("PCM_NODE_DIR", str(tmp_path / "laskin"))
+    monkeypatch.setenv("PCM_PEERS", "NooPunk=127.0.0.1:8790")
+    monkeypatch.setenv("PCM_PEER_DIDS", f"NooPunk={peer_did}")
+
+    node = coordination_cli._build_node(
+        argparse.Namespace(label=None, node_dir=None, store=None),
+        enable_listener=False,
+    )
+
+    assert node.transport._listen_host is None
+    assert node.transport._listen_port is None
+    assert node.transport.bound_address is None
+    assert node.transport._peer_urls[contact_selector_for_did(peer_did)] == (
+        "http://127.0.0.1:8790"
+    )
+
+
+def test_cli_outbound_http_does_not_require_a_listen_address(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Explicit HTTP outbound use needs peer addresses, not a local server socket."""
+    import argparse
+
+    from multitude.integrations.hermes import coordination_cli
+
+    monkeypatch.setenv("PCM_COORDINATION_TRANSPORT", "http")
+    monkeypatch.delenv("PCM_COORDINATION_LISTEN", raising=False)
+    monkeypatch.setenv("PCM_NODE_DIR", str(tmp_path / "n"))
+
+    node = coordination_cli._build_node(
+        argparse.Namespace(label=None, node_dir=None, store=None),
+        enable_listener=False,
+    )
+    assert node.transport._listen_host is None
+    assert node.transport._listen_port is None

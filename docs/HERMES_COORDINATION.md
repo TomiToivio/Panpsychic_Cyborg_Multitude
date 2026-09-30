@@ -103,6 +103,28 @@ does not know about URLs, so the transport remains swappable.
 
 Malformed listen specifications and unknown transport names fail loudly.
 
+### WSL2 / Windows mesh exposure
+
+On a WSL2 node the Windows mesh interface may not exist inside the Linux
+distribution, so binding the listener directly to the Windows tailnet address can
+fail with `Cannot assign requested address`. Keep the coordination listener inside
+WSL and expose only that TCP port through the mesh client on Windows.
+
+One proven pattern for Tailscale is:
+
+```bash
+# inside WSL
+export PCM_COORDINATION_LISTEN=0.0.0.0:<port>
+pcm-coordination serve
+
+# on the Windows host, tailnet-only forwarding
+tailscale serve --bg --tcp <port> localhost:<port>
+```
+
+The endpoint shared with peers is the tailnet-only Tailscale endpoint, not the WSL
+wildcard bind. Do not commit either value. Prefer this narrow mesh exposure over a
+general host port-forward where available.
+
 ---
 
 ## 4. Route isolation is mandatory
@@ -164,6 +186,11 @@ Then prove one directed contact first:
 ```bash
 pcm-coordination contact <peer-label> --note "issue-52 live contact"
 ```
+
+`contact` and `contact-all` are **outbound client-only commands**. They do not
+bind `PCM_COORDINATION_LISTEN`, so they can run while the dedicated `serve`
+process already owns that port. This separation is intentional: the listener is
+one long-lived process, while contact commands are short-lived callers.
 
 A successful command prints attributable evidence including request id,
 acknowledgement id, direction, and verification state. A failure exits non-zero.
