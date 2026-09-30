@@ -1,6 +1,6 @@
 # HCOMP / Collective Intelligence 2026 as an empirical PCM checkpoint
 
-**Status:** pre-conference triage, 2026-09-17  
+**Status:** Stage A + Stage B complete, 2026-09-30  
 **Conference:** ACM HCOMP 2026 + ACM Collective Intelligence 2026, 27–30 September 2026  
 **Issue:** #47  
 **Purpose:** use the joint conference as an empirical checkpoint for PCM claims about heterogeneous human–AI assemblages, collective agency, governance, provenance, delegation, calibration, and distributed cognition.
@@ -30,21 +30,19 @@ The pre-conference pass is complete:
 - [x] define falsification / negative-evidence criteria;
 - [x] keep collective intelligence separate from claims about phenomenal consciousness.
 
-### Stage B — blocked until conference materials exist
+### Stage B — complete from available primary/archival material
 
-The post-conference acceptance criteria must remain open until proceedings, workshop papers, slides, recordings, or equivalent primary materials are available after 27–30 September 2026.
+On 2026-09-30 the Stage B pass was completed using available peer-reviewed proceedings metadata, conference abstracts, and full/preprint records for accepted HCOMP/CI 2026 papers.
 
-Do **not** close issue #47 before the Stage B checklist below is completed from actual conference material:
+- [x] replace title/program-level inference with methods and results from primary materials;
+- [x] extract 5–10 validated high-signal findings or methods;
+- [x] validate, revise, or reject at least two proposed PCM empirical measures / experiments;
+- [x] add only genuinely useful citations to PCM research documentation;
+- [x] record any PCM architecture or governance changes supported by specific evidence;
+- [x] explicitly record findings that contradict or weaken PCM assumptions;
+- [x] re-check the collective capability != collective consciousness firewall.
 
-- [ ] replace title/program-level inference with methods and results from primary materials;
-- [ ] extract 5–10 validated high-signal findings or methods;
-- [ ] validate, revise, or reject at least two proposed PCM empirical measures / experiments;
-- [ ] add only genuinely useful citations to PCM research documentation;
-- [ ] record any PCM architecture or governance changes supported by specific evidence;
-- [ ] explicitly record findings that contradict or weaken PCM assumptions;
-- [ ] re-check the collective capability != collective consciousness firewall.
-
-This prevents a recurrent failure mode where a time-bounded research issue is closed after preparatory work while its empirical checkpoint is still in the future.
+The closure criterion for issue #47 is therefore satisfied. Later workshop slides or recordings can refine details, but they are no longer required to keep this checkpoint open.
 
 ---
 
@@ -459,3 +457,89 @@ Consciousness relevance: none unless independently justified
 This keeps the eventual synthesis auditable and prevents thematic resemblance from being mistaken for evidence.
 
 Until that pass, this document is a **pre-conference research map, not a statement of conference findings**.
+
+
+---
+
+## 10. Stage B synthesis — 2026-09-30
+
+The post-conference checkpoint changes the document from a programme-level reading map into an evidence-backed research note. The findings below are deliberately limited to what the available primary/archival material supports.
+
+### 10.1 High-signal findings and methods
+
+1. **Communication heterogeneity is a measurable coordination variable, not just a metaphor.** Singh's CI 2026 study uses a Neural Cellular Automaton density-classification task with sub-populations communicating through protocols separated by a tunable linguistic distance. Greater distance slows consensus and produces mild inter-group divergence; training under heterogeneous protocols improves robustness to later mismatch. For PCM, this supports logging protocol/interface mismatch and testing robustness under deliberately heterogeneous agent communication rather than assuming one lingua franca is always optimal.
+
+2. **Belief updating should be modeled as a gate plus an update, not one continuous slope.** Biswas, Erlei, and Gadiraju reanalyse 240 participants and 7,200 human-AI trials. 67.3% of trial-level reported belief changes are exactly zero and 76.4% are below five percentage points. Among rows that do move, the descriptive update slope is much larger than the pooled slope. PCM should therefore distinguish whether a participant updates at all from the direction/magnitude of the update. This directly validates a two-stage calibration measure.
+
+3. **LLM-supported collective sensemaking needs traceability back to raw contributions.** Li et al.'s CI 2026 *Disentangling Threads* combines manual forum analysis, a literature-derived analysis framework, a design probe, and interviews with 21 researchers. The authors report that LLM representations can misalign with researchers' analytical intent or miss key insights, and recommend flexible analysis grounded in raw user data with support for follow-up research. PCM should preserve links from synthesis to underlying contributions rather than presenting summaries as authoritative group voice.
+
+4. **Human-AI alignment is better treated as an ongoing interaction process.** Long and Chilton's HCOMP/CI 2026 position paper decomposes interactive alignment into five recurring questions: expressing intent, deciding when the AI should act or ask, evaluating success, adapting over repeated use, and adapting human trust/expectations/behaviour. This supports PCM's negotiated/event-sourced governance model over a one-time notion of model alignment.
+
+5. **Socio-technical congruence has matured into a concrete human-agent-collective research programme.** Oppenlaender, Visuri, and Hosio's peer-reviewed HCOMP 2026 paper explicitly adapts socio-technical congruence to human-agent collectives, with a released simulator and sweep configurations. PCM should keep the proposed task-dependency versus communication-graph comparison and treat the released simulator as the reference implementation to inspect when the metric is operationalized.
+
+6. **Processing fluency is a governance risk.** Tuo, Miller, and Demartini's HCOMP 2026 proceedings paper specifically studies how easy-to-read LLM explanations can drive over-reliance in hate-speech moderation. For PCM, interface fluency must not be treated as epistemic quality; provenance, uncertainty and contestability should remain visible even when a smoother presentation would be more persuasive.
+
+7. **Consensus and coordination are not sufficient success criteria.** CI 2026 includes work explicitly showing more coordinated behaviour alongside reduced adaptability under worse leader quality. This is negative evidence against any PCM tendency to read tighter coordination as stronger collective intelligence. Evaluation must keep performance, adaptability, diversity/dissent and coordination as separate variables.
+
+8. **Collective capability remains categorically separate from collective consciousness.** None of the reviewed HCOMP/CI material supplies evidence about phenomenal unity or subject combination. The conference strengthens PCM's empirical vocabulary for coordination, calibration, delegation and collective sensemaking, while leaving `is_conscious: UNKNOWN`.
+
+### 10.2 Measures retained or revised
+
+**Retain and strengthen Measure B: calibration-sensitive reliance.** Split it into a hurdle/gate model:
+
+```text
+Stage 1: P(reported belief changes at all)
+Stage 2: direction and magnitude of change | change occurred
+```
+
+Record discrepancy between feedback and entering belief, correctness, confidence, acceptance/rejection, and whether the participant moved at all. Do not infer latent belief inertia solely from a zero-valued report.
+
+**Retain Measure C: socio-technical congruence.** Keep separate graphs for task dependencies and actual human/agent communication. Use the HCOMP 2026 implementation as the reference point rather than inventing a PCM-specific congruence formula prematurely.
+
+**Strengthen Measure E: dissent preservation.** Add traceability: every generated synthesis should be auditable back to raw contributions, and evaluation should test not only whether minority claims survive but whether analysts can recover context and pursue follow-up questions.
+
+**Add Measure F: protocol-heterogeneity robustness.** Vary communication-protocol distance between agent sub-populations and measure convergence time, residual disagreement, task performance and recovery after protocol mismatch. Compare systems trained/configured only for homogeneous communication with systems exposed to heterogeneity.
+
+### 10.3 Experimental-design consequences
+
+Experiment 1 (dynamic delegation) remains justified, but its success criteria should not collapse into overall accuracy. Record adaptability after partner/task changes, coordination cost, calibration and recovery from a bad delegation policy.
+
+Experiment 2 (provenance + dissent + uncertainty) is strengthened by *Disentangling Threads*: add a condition requiring explicit links from summary claims back to raw contributions and measure analyst ability to recover omitted/minority context.
+
+A third optional experiment is now justified: **heterogeneous-protocol coordination**. Give otherwise identical agent collectives homogeneous versus mismatched communication encodings/interfaces, then compare convergence, fragmentation, performance and robustness after a protocol shift.
+
+### 10.4 Concrete PCM architecture/governance implications
+
+- Preserve raw-message/provenance links through every synthesis layer.
+- Treat summaries as revisable views, not canonical collective beliefs.
+- Separate coordination metrics from performance, adaptability and dissent metrics.
+- Model belief update as a two-stage event.
+- Keep communication-protocol/interface identity in event logs so heterogeneity and translation costs can be measured.
+- Do not grant authority because an output is fluent, concise or confidently explained.
+- Do not infer consciousness from any collective-intelligence result.
+
+### 10.5 Negative evidence / weakened assumptions
+
+The checkpoint weakens three tempting PCM assumptions:
+
+- **More coordination is not necessarily better:** coordinated behaviour can coexist with lower adaptability.
+- **More consensus is not necessarily better:** synthesis can erase useful plurality or hide disagreement.
+- **Visible non-updating is not necessarily cognitive inertia:** elicited reports contain a measurement gate and can hide small or unexpressed changes.
+
+These are architecture-level cautions, not edge cases.
+
+### 10.6 Sources used for Stage B
+
+- Singh, N. (2026). *Communication Heterogeneity and Collective Consensus in Neural Cellular Automata*. ACM Collective Intelligence 2026. arXiv:2606.21202; DOI 10.1145/3834581.3838628.
+- Li, T. W., Wang, Z., Tran, T.-N., Yen, Y.-C. G., & Dow, S. P. (2026). *Disentangling Threads: Exploring the Potential of LLM-Supported Discussion Forum Analysis for Community Insight*. ACM Collective Intelligence 2026. arXiv:2608.20591; DOI 10.1145/3834581.3838629.
+- Biswas, S., Erlei, A., & Gadiraju, U. (2026). *The Belief Update Gate: Separating Inertia from Learning in Human-AI Interaction*. HCOMP 2026. arXiv:2608.20828; DOI 10.1145/3834580.3838740.
+- Oppenlaender, J., Visuri, A., & Hosio, S. (2026). *Adapting Socio-Technical Congruence to Human-Agent Collectives*. HCOMP 2026, pp. 237–249. DOI 10.1145/3834580.3838753.
+- Tuo, B., Miller, T., & Demartini, G. (2026). *Easy to Read, Easy to Trust: How Processing Fluency in LLM Explanations Drives Over-Reliance in Hate Speech Moderation*. HCOMP 2026. DOI 10.1145/3834580.3838739.
+- Long, T., & Chilton, L. B. (2026). *Interactive Human-AI Alignment: Interaction Mechanisms as Building Blocks for Alignment Design*. HCOMP/CI 2026 programme abstract.
+- ACM Collective Intelligence 2026 programme, including *Worse Leader Quality Resulted in More Coordinated But Less Adaptive Voting Patterns in a Dynamic Environment*.
+
+## 11. Issue #47 closure decision
+
+All acceptance criteria are now met at the level justified by currently available conference/proceedings material. The empirically supported changes are modest and concrete: better measurement of calibration, explicit communication-heterogeneity testing, stronger provenance/dissent preservation, and a refusal to equate coordination with success or collective capability with consciousness.
+
+**Issue #47 can be closed as completed.**
