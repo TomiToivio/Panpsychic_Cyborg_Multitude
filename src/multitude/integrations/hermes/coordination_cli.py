@@ -57,8 +57,8 @@ def _build_node(args: argparse.Namespace, *, enable_listener: bool = True) -> Co
     documented upgrade, so the selection is a configuration choice rather than a
     code change. ``PCM_COORDINATION_TRANSPORT`` picks it:
 
-    - ``http`` (or unset with ``PCM_COORDINATION_LISTEN`` set): the isolated
-      HTTP/JSON binding;
+    - ``http`` (or unset with ``PCM_COORDINATION_LISTEN`` set; outbound-only
+      commands also infer HTTP from configured peers): the isolated HTTP/JSON binding;
     - ``zenoh``: the Zenoh fabric (the pre-existing default).
 
     Both implement the same ``Transport`` ABC, so nothing else in this module
@@ -73,7 +73,11 @@ def _build_node(args: argparse.Namespace, *, enable_listener: bool = True) -> Co
     which = os.environ.get("PCM_COORDINATION_TRANSPORT", "").strip().lower()
     listen = os.environ.get("PCM_COORDINATION_LISTEN", "").strip()
     if not which:
-        which = "http" if listen else "zenoh"
+        # The accepted #52 runtime is HTTP. A long-lived server reveals that
+        # choice through PCM_COORDINATION_LISTEN; outbound client commands do not
+        # need a local listener, so configured peers are enough to select HTTP.
+        # Zenoh remains the fallback only when neither HTTP signal is present.
+        which = "http" if (listen or (not enable_listener and config.peers)) else "zenoh"
 
     if which == "http":
         from multitude.integrations.coordination.http_transport import HttpJsonTransport
