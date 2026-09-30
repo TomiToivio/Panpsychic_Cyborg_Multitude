@@ -95,11 +95,18 @@ class MultitudeHermesAdapter:
         roles = list(member.meta.get("roles", []))
         if self.role not in roles:
             roles.append(self.role)
-        desired_vote = member.voting if self.permissions.vote else False
+        # A runtime may GRANT the vote it is permitted to cast; it may never
+        # REVOKE standing the rhizome has conferred (issue #66). The old line was
+        # ``member.voting if self.permissions.vote else False``, which silently
+        # demoted a promoted member on its next ordinary call -- and subtracted a
+        # vote already cast from the tally.
+        desired_vote = True if (member.voting and self.permissions.vote) else None
         updated = self.rhizome.update_member(
             member.name,
             model=self.model,
             voting=desired_vote,
+            changed_by=member.name,
+            reason="runtime start-up metadata (never revokes standing)",
             meta={
                 "roles": roles,
                 "runtime": self.runtime_name,

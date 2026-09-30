@@ -73,6 +73,13 @@ class HermesIntegrationTests(unittest.TestCase):
         self.assertEqual(replayed.member_by_name("Panpsychic Cyborg Multitude").kind, NodeKind.TECHNOLOGICAL)
 
     def test_ensure_agent_persists_runtime_metadata_and_non_voting_state(self):
+        # The join here is with voting=True, and before #66 this test asserted
+        # ensure_agent() turned it back to False -- i.e. it pinned the bug the
+        # issue reports: a runtime silently revoking standing the rhizome had
+        # conferred. The correct behaviour is that the runtime persists its
+        # metadata and does NOT revoke standing. Whether this runtime may
+        # *exercise* the vote is a separate question, answered by its
+        # permissions, not by rewriting the member's standing.
         self.rhizome.join(
             "Panpsychic Cyborg Multitude",
             NodeKind.TECHNOLOGICAL,
@@ -85,14 +92,50 @@ class HermesIntegrationTests(unittest.TestCase):
             model="glm-5.3-flash:cloud",
         )
         member = adapter.ensure_agent()
-        self.assertFalse(member.voting)
+        self.assertTrue(member.voting,
+                        "the runtime revoked standing the rhizome conferred")
         self.assertEqual(member.meta["runtime"], "hermes-agent")
         self.assertIn("knowledge_steward", member.meta["roles"])
         replayed = Rhizome(RhizomeStore(self.rhizome.store.path))
         replayed_member = replayed.member_by_name("Panpsychic Cyborg Multitude")
-        self.assertFalse(replayed_member.voting)
+        self.assertTrue(replayed_member.voting)
         self.assertEqual(replayed_member.meta["runtime"], "hermes-agent")
         self.assertIn("knowledge_steward", replayed_member.meta["roles"])
+
+    def test_ensure_agent_leaves_a_voice_only_member_voice_only(self):
+        """The default must still hold: not promoted means not voting."""
+        adapter = MultitudeHermesAdapter(
+            self.rhizome, agent_name="Voice Only", model="glm-5.3-flash:cloud"
+        )
+        member = adapter.ensure_agent()
+        self.assertFalse(member.voting)
+
+    def test_a_promotion_survives_ordinary_agent_work_and_stays_attributed(self):
+        """#66: the promotion is not reverted, and the log says who changed it."""
+        from multitude.models import NodeKind
+        from multitude.service import MultitudeService
+
+        if self.rhizome.member_by_name("tomi") is None:
+            self.rhizome.join("tomi", NodeKind.BIOLOGICAL, voting=True)
+
+        adapter = MultitudeHermesAdapter(
+            self.rhizome, agent_name="Promoted AI", model="glm-5.3-flash:cloud"
+        )
+        adapter.ensure_agent()
+        self.assertFalse(self.rhizome.member_by_name("Promoted AI").voting)
+
+        MultitudeService(self.rhizome).promote("Promoted AI", actor="tomi")
+        self.assertTrue(self.rhizome.member_by_name("Promoted AI").voting)
+
+        adapter.ensure_agent()  # ordinary runtime call
+        self.assertTrue(self.rhizome.member_by_name("Promoted AI").voting,
+                        "ordinary agent work reverted the rhizome's promotion")
+
+        changes = [ev.payload for ev in self.rhizome.store.replay()
+                   if ev.type == "member_updated"
+                   and ev.payload.get("standing_changed")]
+        self.assertTrue(any(c.get("changed_by") == "tomi" for c in changes),
+                        "the standing change was not attributed to its actor")
 
     def test_default_agent_name_matches_repo_identity(self):
         default_adapter = MultitudeHermesAdapter(self.rhizome, model="glm-5.3-flash:cloud")

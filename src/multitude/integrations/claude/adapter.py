@@ -73,7 +73,10 @@ class ClaudeCodeAdapter(MultitudeHermesAdapter):
         return self.rhizome.update_member(
             member.name,
             model=self.model,
-            voting=(member.voting if self.permissions.vote else False),
+            # Same rule as the Hermes adapter: grant, never revoke (issue #66).
+            voting=True if (member.voting and self.permissions.vote) else None,
+            changed_by=member.name,
+            reason="runtime start-up metadata (never revokes standing)",
             meta={
                 "roles": roles,
                 "runtime": "claude-code",
