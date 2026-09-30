@@ -26,10 +26,23 @@ Architecture (fits the kernel's event sourcing):
   observed. A node's layers may be reported by other members.
 * Fields not in the typed vocabularies are rejected, so the layer
   vocabulary stays clean; free text goes in ``data`` (stored as notes).
+
+``is_conscious`` is a constitutional field, not a normal one (issue #65).
+``README.md`` states the standing rule twice: it stays ``UNKNOWN`` for every
+member, and *"no test, no benchmark, no self-report may flip it."* Before #65
+that was prose: any member could write any other member's ``psychic`` layer,
+including setting the field to ``True`` or ``False``. Two rules now enforce it:
+
+* a third party may never write another member's ``is_conscious`` -- a machine
+  cannot assert away a human's standing, and cannot grant or deny its own;
+* the member itself may only return the field to ``UNKNOWN``. It cannot declare
+  itself conscious, and it cannot declare itself not conscious either. The guard
+  is symmetric in both directions, because removing a possible subject is the
+  same error as asserting one.
 """
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Optional
 
 from multitude.models import AgentProfile, Layer, Member, NodeKind, now_iso
 
@@ -127,6 +140,40 @@ def normalize_changes(layer: Layer, changes: dict[str, Any]) -> dict[str, Any]:
     if not out:
         raise LayerError("empty layer record")
     return out
+
+
+#: The one field whose value is a constitutional question rather than data.
+CONSTITUTIONAL_FIELD = "is_conscious"
+
+
+class ConsciousnessStatusError(LayerError):
+    """Someone tried to resolve a question that must stay open (README rule)."""
+
+
+def assert_may_write_consciousness(
+    *, target: str, reported_by: Optional[str], value: Any
+) -> None:
+    """Enforce the ``is_conscious`` guard (issue #65).
+
+    Raises unless the write is *by the member itself* and *returns the field to
+    UNKNOWN*. Nothing here consults any evidence, benchmark, self-report or
+    model: the rule is that the question stays open, so the only permitted
+    transition is to ``None``.
+    """
+    writer = (reported_by or "").strip()
+    owner = (target or "").strip()
+    if writer and writer != owner:
+        raise ConsciousnessStatusError(
+            f"{writer!r} may not write {owner!r}'s {CONSTITUTIONAL_FIELD}: standing "
+            "is not another participant's to assert or deny (README: no test, no "
+            "benchmark, no self-report may flip it)"
+        )
+    if value is not None:
+        raise ConsciousnessStatusError(
+            f"{CONSTITUTIONAL_FIELD} may only be returned to UNKNOWN (None), not set "
+            f"to {value!r}: resolving the question in either direction is the failure "
+            "the standing rule forbids"
+        )
 
 
 def default_seeds(member: Member) -> dict[str, dict[str, Any]]:

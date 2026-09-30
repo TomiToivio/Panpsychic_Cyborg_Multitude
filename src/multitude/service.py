@@ -318,7 +318,9 @@ class MultitudeService:
             raise ServiceError(f"'{member_name}' already has voting rights")
         if actor:
             self._require_member(actor)
-        updated = self.rhizome.update_member(member_name, voting=True)
+        updated = self.rhizome.update_member(member_name, voting=True,
+                                             changed_by=actor or "rhizome",
+                                             reason="promote: grant voting rights")
         if actor:
             self.rhizome.say(
                 actor,
@@ -335,7 +337,9 @@ class MultitudeService:
             raise ServiceError(f"'{member_name}' is already voice-only")
         if actor:
             self._require_member(actor)
-        updated = self.rhizome.update_member(member_name, voting=False)
+        updated = self.rhizome.update_member(member_name, voting=False,
+                                             changed_by=actor or "rhizome",
+                                             reason="demote: revoke voting rights")
         if actor:
             self.rhizome.say(
                 actor,
