@@ -968,19 +968,46 @@ class Rhizome:
         reporter_name = reporter.name if reporter else m.name
         from multitude.layers import (
             CONSTITUTIONAL_FIELD,
+            ConsciousnessStatusError,
             assert_may_write_consciousness,
             layer_recorded_payload,
         )
 
-        # The constitutional guard (issue #65): is_conscious stays UNKNOWN for
-        # every member. Enforced here, on the single public write path, so the
-        # rule cannot be bypassed by calling the layer API directly.
+        # The constitutional guard (issue #65): is_conscious is seed-only.
+        # Enforced here, on the single public write path, so the rule cannot be
+        # bypassed by calling the layer API directly.
+        #
+        # Order matters. The refusal is TRACED FIRST, then raised: issue #65 item
+        # 4 asks that a refused write "leave an auditable trace -- the attempt
+        # itself is evidence" (its right-to-contest tie-in), and the trace cannot
+        # be written from an exception handler in the caller. Tracing before
+        # raising also means a refused attempt is never lost, while `_apply` is
+        # deliberately absent from `_apply`'s reducer, so the event records the
+        # attempt WITHOUT changing any member state. That keeps the earlier
+        # guarantee intact -- a refused write still mutates nothing.
         if layer_enum == Layer.PSYCHIC and CONSTITUTIONAL_FIELD in data:
-            assert_may_write_consciousness(
-                target=m.name,
-                reported_by=reported_by or m.name,
-                value=data[CONSTITUTIONAL_FIELD],
-            )
+            try:
+                assert_may_write_consciousness(
+                    target=m.name,
+                    reported_by=reported_by or m.name,
+                    value=data[CONSTITUTIONAL_FIELD],
+                    current=m.profile.psychic.is_conscious,
+                )
+            except ConsciousnessStatusError as exc:
+                self._emit(
+                    "layer_write_refused",
+                    reporter_name,
+                    {
+                        "member_id": m.id,
+                        "member_name": m.name,
+                        "layer": layer_enum.value,
+                        "field": CONSTITUTIONAL_FIELD,
+                        "attempted_value": data[CONSTITUTIONAL_FIELD],
+                        "requested_by": reporter_name,
+                        "reason": str(exc),
+                    },
+                )
+                raise
 
         payload = layer_recorded_payload(
             m, layer_enum, dict(data), reporter_name, visible=visible
