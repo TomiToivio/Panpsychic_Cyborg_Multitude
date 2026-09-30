@@ -1563,17 +1563,40 @@ class Rhizome:
         return v
 
     def tally(self, proposal_id: str) -> dict[str, Any]:
-        """Current tally: counts among voting members, per position."""
+        """Current tally: counts every vote that was legitimately cast.
+
+        A vote is an act, and it was legitimate when it was cast -- ``cast_vote``
+        refuses a non-voting member, so every recorded vote *was* enfranchised at
+        the moment it was made. A vote from a member who is **still present** is
+        therefore counted even if the member has since been demoted (#66 item 4:
+        "a cast vote is not retroactively excluded").
+
+        The previous rule skipped any vote whose member was not currently voting,
+        which let a standing change reach backwards and rewrite a finished act --
+        under a majority or unanimity rule that can flip a proposal's outcome
+        after a member has already participated, and it did so silently. Those
+        votes are still counted and are now *named* in ``non_voting_votes``, so
+        the tally reports what it counted rather than hiding the change.
+
+        Departure is deliberately unchanged: a member that has **left** is not
+        present to be governed by the outcome, and excluding its votes is an
+        existing, separate policy that this change does not touch. The defect
+        here was only about a present member's standing being rewritten
+        underneath a vote already cast.
+        """
         p = self._require_proposal(proposal_id)
         counts = {pos.value: 0 for pos in Position}
         n_voters = 0
+        non_voting: list[str] = []
         for v in p.votes.values():
             member = self.members.get(v.member)
-            if member is None or not member.voting:
-                continue  # left or non-voting: not counted
+            if member is None:
+                continue  # departed or unknown: not counted (unchanged policy)
             counts[v.position.value] += 1
             n_voters += 1
-        return {
+            if not member.voting:
+                non_voting.append(member.name)
+        out = {
             "proposal_id": p.id,
             "title": p.title,
             "status": p.status.value,
@@ -1583,6 +1606,10 @@ class Rhizome:
             "quorum": p.quorum,
             "quorum_met": n_voters >= p.quorum,
         }
+        if non_voting:
+            # Reported, not subtracted: the tally says what it counted.
+            out["non_voting_votes"] = sorted(non_voting)
+        return out
 
     def _require_proposal(self, proposal_id: str) -> Proposal:
         p = self.proposals.get(proposal_id)

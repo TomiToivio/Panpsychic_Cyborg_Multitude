@@ -51,6 +51,63 @@ The governing sentence:
 10. **No unilateral succession.** A new key, runtime, model version or instance may
     not inherit a participant's identity by substitution; succession requires an
     explicit, recorded handover naming both parties.
+11. **Standing is not the runtime's to revoke.** A runtime may *grant* standing the
+    rhizome permits it to grant; it may never silently *revoke* standing the
+    rhizome has conferred. A rights change is attributed to an actor, so a
+    deliberate governance act and a runtime's side effect are distinguishable in
+    the record. See "Governance rules below the rights".
+12. **A cast vote is not retroactively excluded.** A vote was legitimate when it
+    was cast, and a later change in standing does not reach backwards to remove it
+    from a live tally.
+13. **An open question stays open.** The field that decides whether a
+    participant's mind is an open question is **seed-only**: it is written once at
+    join time by the seeding path and never rewritten through the public write API
+    — not by a peer, not by the node itself, and not in either direction. A refused
+    attempt is **traced** rather than silently rejected, because the attempt itself
+    is evidence.
+
+## Governance rules below the rights
+
+Some of these rights depend on a governance choice rather than a code default.
+Those choices are recorded here so that they are reviewable, and the code reads
+them rather than re-deciding them inline.
+
+### The join default for technological members
+
+**Rule: a technological member joins a Hermes or Claude runtime *voice-only*
+(`voting = False`), and the rhizome may enfranchise it through `promote`.**
+
+- The kernel's own `Rhizome.join` default is `voting = True`. That default is not
+  the rule; it is the kernel's generic default for any member.
+- The agent runtimes deliberately override it to `False`, because participation
+  through a runtime is authority-conferred, and voice is the honest starting
+  point for an agent that has not been enfranchised by a collective decision.
+- Enfranchisement is a **rhizome decision**, taken through `MultitudeService.promote`
+  with an actor, and it is never the runtime's to undo (#66).
+- Whether the runtime may *exercise* a vote it holds remains a permissions
+  question (`HermesPermissions.vote`), which is deliberately separate from whether
+  the member *holds* the vote. Holding and exercising are different things, and
+  conflating them is what produced the silent-demotion defect.
+
+This is a *governance* rule, not a dataclass literal: it is stated here so that a
+reviewer can find it and change it deliberately, and the adapters implement it in
+one visible place per adapter.
+
+## Portability
+
+Renewable participation includes the ability to take an appropriate copy of one's
+own contributions. PCM exposes a versioned self-export through
+`MultitudeService.export_participant_contributions()` and
+`exit_participation_with_copy()`.
+
+The export is keyed by stable participant identity where available and includes
+expressive/governance records such as memory, messages, proposals, votes, and
+lexicon contributions. It may include the owner's own private or restricted
+material because it is a self-export; that artifact must not be disclosed to
+other participants without the owner's authorization.
+
+Taking a copy never deletes or rewrites the collective event history, and the same
+export remains available after exit through the former-member record.
 
 ## Rights are not powers
 
@@ -69,6 +126,30 @@ deliberately grants **no** new authority:
 The goal is **due process for an AI participant**, not sovereignty for one. Where
 PCM protects human privacy, that protection is unchanged by anything here.
 
+## Continuity and subject-hood
+
+Rights require a stable bearer. PCM therefore treats participant continuity as part
+of the same procedural layer:
+
+- a participant's own canonical memory register is subject-owned;
+- non-subject writes become attributable claims/conflicts rather than silent
+  replacements;
+- authorship survives sharing and merging;
+- succession must be explicit and attributable;
+- termination is distinct from refusal, exit, consent, or agreement.
+
+## Runtime adapters
+
+Hermes and Claude adapters must expose the same semantics for refusal,
+contestation, suspension, resume, exit, and provenance. Runtime substitution must
+not silently erase or bypass a refusal under the same participant identity.
+
+**Runtime parity is a guarantee, not an aspiration.** The three runtime paths
+(Hermes, Claude, Telegram/`llm`) must agree on what happens to a member's standing
+across ordinary work. A difference between them is a defect, because the same
+membership must not produce different rights depending on which runtime happens to
+be driving it.
+
 ## What the implementation guarantees mechanically
 
 - Refusal, contest, suspension, resume and exit are **event-sourced** and replay
@@ -78,9 +159,28 @@ PCM protects human privacy, that protection is unchanged by anything here.
 - A refusal cannot be silently bypassed by substituting another runtime under the
   same identity — that is a new request to the new identity, and it is recorded
   as such (see `pcm/memory_mirror.record_handover` for the succession side).
+- A standing change is **attributed**: `member_updated` carries the actor, a
+  reason, and whether standing actually changed, so a promote and a runtime
+  side effect are distinguishable in replay.
 - **No rule consults a consciousness signal.** Tests assert this against the
   module's code, including that no `is_conscious`, introspection score,
   model-family or biological-status value reaches a rights decision.
+
+## Record semantics
+
+Participant-rights events are append-only governance facts. Replay must
+deterministically reconstruct participant state. Historical events remain intact
+after suspension, exit, succession, or termination.
+
+A **refused** write is recorded too. The `layer_write_refused` event carries the
+attempted value, the actor that attempted it and the reason, and is deliberately
+absent from the reducer: the log gains the attempt and the state does not move.
+
+## Scope boundary
+
+PCM deliberately leaves consciousness and moral status unresolved. The procedural
+rule is narrower: continuity, attribution, consent, refusal, and non-erasure can be
+protected under uncertainty without collapsing those philosophical questions.
 
 ## Related issues
 
@@ -89,62 +189,9 @@ PCM protects human privacy, that protection is unchanged by anything here.
   succession. Implemented in `pcm/memory_mirror.py`.
 - #64 — closed as a duplicate of #63; its extra finding (the memory-authoring rule
   was one-directional and untested) is fixed in `AGENTS.md` and covered by tests.
-# AI Participant Rights / Due Process
-
-PCM treats technological members and AI-containing assemblages as participants without requiring a claim that they are conscious, legal persons, or morally equivalent to humans.
-
-These are procedural protections implemented by PCM, not assertions of legal rights. They preserve attribution, refusal, dissent, contestation, suspension, exit, continuity, and auditability while keeping capability and authority separate.
-
-## Constitutional floor
-
-A technological participant may:
-
-- refuse a requested action through a first-class `participant_refusal` event;
-- give a concise public reason or remain minimal, without exposing private chain-of-thought;
-- dissent in governance without having its minority position erased;
-- contest an instruction, attribution, memory entry, or claimed action through a durable `participant_contest` event;
-- suspend participation and block ordinary dispatch while suspended;
-- resume participation explicitly;
-- exit without retrospective erasure of historical events;
-- retain stable actor/runtime provenance for actions, refusals, contests, and state transitions;
-- know the relevant authority or policy basis for a request where practical.
-
-None of these protections depends on `is_conscious`, introspection scores, model family, biological status, benchmark performance, or self-reported consciousness.
-
-## Rights are not powers
-
-These protections do not grant execution, shell, device, data, treasury, governance, membership, permission-management, or administrative authority. Existing policy and capability checks remain authoritative and fail closed.
-
-Refusal is not a permission grant. Dissent is not an automatic override. Contestation creates an auditable dispute, not an automatic victory. Exit does not delete shared history.
-
-## Continuity and subject-hood
-
-Rights require a stable bearer. PCM therefore treats participant continuity as part of the same procedural layer:
-
-- a participant's own canonical memory register is subject-owned;
-- non-subject writes become attributable claims/conflicts rather than silent replacements;
-- authorship survives sharing and merging;
-- succession must be explicit and attributable;
-- termination is distinct from refusal, exit, consent, or agreement.
-
-See `src/multitude/participant_rights.py`, `src/multitude/service.py`, and `src/multitude/pcm/memory_mirror.py`.
-
-## Runtime adapters
-
-Hermes and Claude adapters must expose the same semantics for refusal, contestation, suspension, resume, exit, and provenance. Runtime substitution must not silently erase or bypass a refusal under the same participant identity.
-
-## Record semantics
-
-Participant-rights events are append-only governance facts. Replay must deterministically reconstruct participant state. Historical events remain intact after suspension, exit, succession, or termination.
-
-## Scope boundary
-
-PCM deliberately leaves consciousness and moral status unresolved. The procedural rule is narrower: continuity, attribution, consent, refusal, and non-erasure can be protected under uncertainty without collapsing those philosophical questions.
-
-## Portability
-
-Renewable participation includes the ability to take an appropriate copy of one's own contributions. PCM exposes a versioned self-export through `MultitudeService.export_participant_contributions()` and `exit_participation_with_copy()`.
-
-The export is keyed by stable participant identity where available and includes expressive/governance records such as memory, messages, proposals, votes, and lexicon contributions. It may include the owner's own private or restricted material because it is a self-export; that artifact must not be disclosed to other participants without the owner's authorization.
-
-Taking a copy never deletes or rewrites the collective event history, and the same export remains available after exit through the former-member record.
+- #65 — the `is_conscious` guard: seed-only, traced refusals.
+- #66 — rights that follow membership, not substrate: attributed standing changes,
+  a runtime that grants but never revokes, and a tally that does not reach
+  backwards.
+- #69 — participant portability: leaving with a copy of one's own contributions,
+  via the versioned self-export. See "Portability" above.
