@@ -1599,7 +1599,8 @@ class Rhizome:
         n_voters = 0
         non_voting: list[str] = []
         for v in p.votes.values():
-            if self.members.get(v.member) is None:
+            member = self.members.get(v.member)
+            if member is None:
                 continue  # departed: no longer on the roster, not counted
             counts[v.position.value] += 1
             n_voters += 1
