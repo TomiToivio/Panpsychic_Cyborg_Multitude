@@ -1,7 +1,7 @@
 # Panpsychic Cyborg Multitude — Master Sources
 
 **Status:** canonical research bibliography for the Panpsychic Cyborg Multitude (PCM) project  
-**Last consolidated:** 2026-09-15  
+**Last consolidated:** 2026-09-30  
 **Scope:** philosophy, consciousness science, cyborg and extended cognition, distributed and collective intelligence, Multitude/rhizome/assemblage theory, Active Inference, machine consciousness, singularity/AGI, and the political theory of AI.
 
 This file replaces the former topic-specific source lists. The thematic research notes remain useful for argument and interpretation, but **new scholarly sources should be added here first** so the repository has one canonical bibliography.
