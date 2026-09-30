@@ -99,6 +99,7 @@ def register_builtin_domains() -> None:
     """Bind the domains that ship with the kernel (idempotent)."""
     from multitude import goals
     from multitude import economy_vf as vf
+    from multitude import participant_rights as rights
 
     if "goals" not in _REGISTRY:
         register_domain(
@@ -114,6 +115,8 @@ def register_builtin_domains() -> None:
         )
     if "valueflows" not in _REGISTRY:
         register_domain("valueflows", vf.VF_EVENT_TYPES, vf.replay)
+    if "participant_rights" not in _REGISTRY:
+        register_domain("participant_rights", rights.EVENT_TYPES, rights.replay)
 
 
 __all__ = [
