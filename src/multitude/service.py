@@ -166,6 +166,29 @@ class MultitudeService:
         self.rhizome._emit("participant_contest", member.name, {"record": record})
         return record
 
+    def record_participant_claim(
+        self,
+        name: str,
+        *,
+        about: str,
+        value: Any,
+        public_reason: str = "",
+    ) -> dict[str, Any]:
+        """Record an attributed claim about a participant without replacing its own record."""
+        member_name = self._require_member(name)
+        member = self.rhizome.member_by_name(member_name)
+        record = {
+            "id": new_id("claim"),
+            "ts": now_iso(),
+            "subject": member.id,
+            "actor": member.name,
+            "about": about,
+            "value": value,
+            "public_reason": public_reason,
+        }
+        self.rhizome._emit("participant_claim", member.name, {"record": record})
+        return record
+
     def suspend_participation(self, name: str, *, public_reason: str = "") -> dict[str, Any]:
         member_name = self._require_member(name)
         member = self.rhizome.member_by_name(member_name)
@@ -247,8 +270,12 @@ class MultitudeService:
         """
         pred_name = self._require_member(predecessor)
         succ_name = self._require_member(successor)
-        if not handover_proof.strip():
-            raise ServiceError("succession requires an explicit handover proof")
+        proof = handover_proof.strip()
+        if not proof.startswith("verified-envelope:"):
+            raise ServiceError(
+                "succession requires proof from a verified signed PCM envelope "
+                "(verified-envelope:<id-or-digest>)"
+            )
         pred = self.rhizome.member_by_name(pred_name)
         succ = self.rhizome.member_by_name(succ_name)
         record = {
@@ -260,7 +287,7 @@ class MultitudeService:
             "successor": succ.id,
             "predecessor_name": pred.name,
             "successor_name": succ.name,
-            "handover_proof": handover_proof,
+            "handover_proof": proof,
             "public_reason": public_reason,
         }
         self.rhizome._emit("participant_succession", pred.name, {"record": record})
