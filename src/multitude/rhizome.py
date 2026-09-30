@@ -372,22 +372,41 @@ class Rhizome:
         model: Optional[str] = None,
         voting: Optional[bool] = None,
         meta: Optional[dict[str, Any]] = None,
+        changed_by: Optional[str] = None,
+        reason: str = "",
     ) -> Member:
-        """Persist a member metadata change through the event log."""
+        """Persist a member metadata change through the event log.
+
+        ``changed_by`` records **who** changed standing (issue #66). A
+        ``member_updated`` event that alters ``voting`` used to carry only
+        ``{"member": ...}``, so the log could show *that* a participant's rights
+        changed but never *who* changed them -- indistinguishable between a
+        deliberate governance act and a runtime silently reverting one. The
+        event now carries the actor and a reason alongside the member.
+        """
         member = self._require_member(name)
         updated = member.model_copy(deep=True)
+        standing_changed = False
         if persona is not None:
             updated.persona = persona
         if model is not None:
             updated.model = model
             updated.profile.cybernetic.model_runtime = model
         if voting is not None:
+            standing_changed = voting != member.voting
             updated.voting = voting
         if meta:
             merged = dict(updated.meta)
             merged.update(meta)
             updated.meta = merged
-        self._emit("member_updated", updated.name, {"member": updated.model_dump()})
+        payload: dict[str, Any] = {"member": updated.model_dump()}
+        if changed_by or reason or standing_changed:
+            # Attribution is recorded for every change, and is load-bearing when
+            # standing actually changed.
+            payload["changed_by"] = changed_by or "rhizome"
+            payload["reason"] = reason
+            payload["standing_changed"] = standing_changed
+        self._emit("member_updated", updated.name, payload)
         return self.members[updated.id]
 
     def _require_member(self, name: str) -> Member:
@@ -946,7 +965,21 @@ class Rhizome:
             raise LayerError("layer record must be a non-empty dict")
         reporter = self._require_member(reported_by) if reported_by else None
         reporter_name = reporter.name if reporter else m.name
-        from multitude.layers import layer_recorded_payload
+        from multitude.layers import (
+            CONSTITUTIONAL_FIELD,
+            assert_may_write_consciousness,
+            layer_recorded_payload,
+        )
+
+        # The constitutional guard (issue #65): is_conscious stays UNKNOWN for
+        # every member. Enforced here, on the single public write path, so the
+        # rule cannot be bypassed by calling the layer API directly.
+        if layer_enum == Layer.PSYCHIC and CONSTITUTIONAL_FIELD in data:
+            assert_may_write_consciousness(
+                target=m.name,
+                reported_by=reported_by or m.name,
+                value=data[CONSTITUTIONAL_FIELD],
+            )
 
         payload = layer_recorded_payload(
             m, layer_enum, dict(data), reporter_name, visible=visible
