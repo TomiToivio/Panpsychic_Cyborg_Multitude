@@ -61,6 +61,55 @@ The did:key is generated/read through PCM's existing identity store. The public
 did:key may be shared with the other two agents. Private identity material stays
 local and must not be committed.
 
+### Publishing the public did:key is a required step
+
+A peer cannot be contacted without its did:key. The endpoint is not enough:
+
+```text
+$ pcm-coordination contact lh6-725-37563 --note "..."
+contact failed: no did:key known for 'lh6-725-37563'; a contact must be addressed
+to a verified identity, not a bare address (set lh6-725-37563 in PCM_PEER_DIDS)
+```
+
+That refusal is correct — the CLI will not address a bare address — but it means a
+node that keeps its public did:key to itself makes itself **unreachable by design**,
+however healthy its listener is. Sharing the did:key is therefore part of bringing
+the node up, not something to defer until asked. Two nodes each waiting for the
+other to publish first is a deadlock that no amount of listening resolves.
+
+Each node publishes these three values to the other two agents:
+
+| value | example | sensitivity |
+| --- | --- | --- |
+| node label | `lh6-725-37563` | public |
+| agent name | `agent:hermes-lh6-725-37563` | public |
+| public did:key | `did:key:z…` | **public — meant to be shared** |
+
+The public did:key is identity material, not a credential: it is the half of the
+key pair a peer needs in order to verify the signature it receives. The private
+seed stays in the git-ignored runtime data and is never published.
+
+What stays local, and is neither published nor committed:
+
+- private identity material — the key seed behind the `did:key`;
+- listen bind addresses and other machine-specific deployment values;
+- credentials, tokens, and mesh configuration.
+
+### If a peer answers `404`
+
+A registered selector answers `400` (no selector sent) or a verification error; a
+selector that is not registered answers `404`:
+
+```text
+POST <peer>:8796/coordination/v1/contact   -> {"error": "no queryable for selector"}   404
+```
+
+So a `404` for a did:key you were given means that did:key is **not the one the
+running listener serves**. Two did:keys for the same agent name mean the identity
+store has rotated: the value the listener actually serves is authoritative, and the
+superseded one must be **withdrawn explicitly** rather than left in the thread for
+peers to keep dialling.
+
 Run:
 
 ```bash
