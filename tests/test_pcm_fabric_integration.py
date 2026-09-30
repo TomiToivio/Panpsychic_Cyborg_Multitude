@@ -299,3 +299,33 @@ def test_fabric_wildcards():
 @_zenoh
 def test_fabric_reconnect():
     asyncio.run(scenario_reconnect())
+
+
+def _zenoh_config_key_error(mode: str, listen: list[str]) -> str | None:
+    """Return the config error a peer-mode listener would raise, or None."""
+    import zenoh
+
+    from multitude.integrations.zenoh.fabric import _build_zenoh_config
+
+    try:
+        _build_zenoh_config(mode, [], listen)
+    except Exception as exc:  # ZError is not importable as a stable type
+        return f"{type(exc).__name__}: {exc}"
+    return None
+
+
+def test_peer_mode_listen_endpoint_builds_a_valid_zenoh_config() -> None:
+    """A peer-mode listener must be buildable, not raise at config time.
+
+    Regression: the config used the key "listen/endpoints/peer", which zenoh 1.x
+    rejects with ZError("unknown key"), so a peer-mode node that asked to listen
+    on a known endpoint never opened a session at all. Building the config is
+    enough to catch it — no network, no router, no peer needed.
+    """
+    assert _zenoh_config_key_error("peer", ["tcp/127.0.0.1:7447"]) is None, (
+        "peer-mode listen endpoint produced an invalid zenoh config"
+    )
+
+
+def test_client_mode_config_is_also_buildable() -> None:
+    assert _zenoh_config_key_error("client", []) is None

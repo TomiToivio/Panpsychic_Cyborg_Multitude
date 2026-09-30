@@ -133,7 +133,9 @@ class ZenohTransport:
             cfg.insert_json5("connect/endpoints",
                              json.dumps(self.config.connect_endpoints))
         elif self.config.listen_endpoints:
-            cfg.insert_json5("listen/endpoints/peer",
+            # NOT "listen/endpoints/peer": zenoh >= 1.x rejects that key with
+            # ZError("unknown key") and the session never opens.
+            cfg.insert_json5("listen/endpoints",
                              json.dumps(self.config.listen_endpoints))
         return cfg
 
