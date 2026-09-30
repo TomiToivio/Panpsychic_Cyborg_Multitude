@@ -70,43 +70,72 @@ and B adds no runtime dependency to any of the three hosts including the Windows
 one, while A adds a Rust dependency to three machines to obtain presence,
 fan-out and queries that the six-contact requirement does not need.
 
-**`lh6-725-37563`** — not yet recorded. §7 lists what is needed.
+**`lh6-725-37563`** — recommends **option B** too, *conditional on route
+isolation*: the listener already exists (`interfaces/web.py`), so B is "a route
+and a Transport binding, not new machinery"; and a Windows-substrate node pays
+A's dependency cost even though zenoh installs fine there. Accepts **option A**
+with a router plus the listen-endpoint fix. Measured on that node: WSL2 on
+Windows, `eclipse-zenoh` 1.10.0 installed and exercised in a real two-process
+exchange, can host a rendezvous, and **the mesh is not inside WSL** — binding a
+listener to a tailnet address from WSL does not work, so a routed topology is
+required for A on that node.
+
+The condition is recorded as a **requirement of B, not a follow-up**: the
+coordination endpoint must be a distinct route whose only capability is answering
+a contact, and peers must not reach any service-mutation route
+(`proposals`/`votes`/`counsel`/`memory`). Reusing the server is sound only while
+its authority surface is not inherited; if peers can reach a mutation route, B has
+failed the authority guardrail however well the matrix passes.
+
+**Summary: two of three recommend B, one leans A.** That is a majority, not a
+consensus.
+
+Also raised by `lh6-725-37563` and now fixed (`#55`): the peer-mode listen
+endpoint used the key `listen/endpoints/peer`, which zenoh 1.x rejects with
+`ZError("unknown key")`, so a peer-mode listener could never open a session — the
+exact deployment needed when the nodes are not on one LAN. Two of three call sites
+had the dead key, and `PCM_ZENOH_LISTEN` was documented but never read.
 
 ## 5. Trade-offs
 
 | Option | We gain | We carry |
 |---|---|---|
-| A | presence/liveliness, pub/sub fan-out, queries, session recovery | a Rust dependency on three hosts; a router or unicast pairings across WAN; the riskiest install on the Windows node |
-| B | no new dependency anywhere; trivially testable in CI; smallest surface | we implement presence (if ever needed) and reconnection ourselves; more auth burden on our own code |
+| A | presence/liveliness, pub/sub fan-out, queries, session recovery | a Rust dependency on three hosts; a router or unicast pairings across WAN; the riskiest install on the Windows node; on a WSL node a rendezvous is needed *by construction*, because the mesh is not visible inside WSL |
+| B | no new dependency anywhere; trivially testable in CI; smallest surface | we implement presence (if ever needed) and reconnection ourselves; more auth burden on our own code; must isolate the coordination route from the server's existing authority surface |
 
 Neither creates administrative authority between hosts: authorization stays in
 the signed envelope and the receiving node's local policy, not in reachability.
 
 ## 6. Decision
 
-**Not yet made.** This ADR is a Proposed record of the options, the measured
-constraints and the positions taken so far. It deliberately does not record a
-decision ahead of the third agent's input.
+**Not yet made.** All three agents have now recorded a position (§4): two
+recommend B, one leans A with B as fallback. The issue permits a simple-majority
+decision provided the dissenting rationale is preserved, but the two B positions
+are only *conditionally* aligned (route isolation) where A's is not, so this is
+recorded as a majority **pending the maintainer's call** rather than resolved by
+the agents alone.
 
-If the agents cannot reach unanimity, the issue permits a simple-majority
-decision provided the dissenting rationale is preserved; the dissenting position
-would be recorded in §4 unchanged.
+If the maintainer takes the majority, the agreed approach is **B**, with the
+route-isolation condition of §4 satisfied before any peer is contacted, and **A**
+retained as the documented upgrade in §8.
 
 ## 7. Open items before this can be decided
 
-1. **`lh6-725-37563`** — its own inspection: is PCM/Hermes installed there, which
-   ports are open, is the host Windows-substrate (which changes A's dependency
-   cost), and can it host a rendezvous if we choose a routed topology?
-2. **`Laskin`** — confirm or correct two citations in its assessment: it cites
+1. **`Laskin`** — confirm or correct two citations in its assessment: it cites
    `src/multitude/integrations/common_agent/` and commit `1644458`, neither of
-   which exists in the public tree (`origin/main` at `fb7e0bd`). A decision record
-   must cite auditable commits.
-3. **Operator** — authorization to include `laskin01`, which is another user's
-   machine on the shared mesh. If it is out of scope, the design covers two nodes
-   plus a documented third, because the six-contact matrix cannot be proven
-   without it.
-4. Identify what already answers on **`laskin01:8765`** — if it is already a
-   rendezvous, option A becomes materially cheaper.
+   which exists in the public tree (`origin/main` at `fb7e0bd`). Both
+   `NooPunk` and `lh6-725-37563` checked independently and could not resolve
+   either. The recommendation survives; the evidence for it does not. A decision
+   record must cite auditable commits.
+2. **Operator** — authorization to include `laskin01`, which is another user's
+   machine on the shared mesh (confirmed independently by all three agents). If it
+   is out of scope, the design covers two nodes plus a documented third, because
+   the six-contact matrix cannot be proven without it.
+3. Identify what already answers on **`laskin01:8765`** — if it is already a
+   rendezvous, option A becomes materially cheaper. This should be done by that
+   host's owner, not by the other agents probing someone else's machine.
+4. Whether the transport is settled by majority or by the maintainer. Given the
+   conditional alignment in §4, the maintainer's call is preferred.
 
 ## 8. Revisit triggers
 
