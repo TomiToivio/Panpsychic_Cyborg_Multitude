@@ -51,6 +51,7 @@ class MultitudeHermesAdapter:
     agent_name: str = "Panpsychic Cyborg Multitude"
     role: str = "knowledge_steward"
     model: Optional[str] = None
+    runtime_name: str = "hermes-agent"
     permissions: HermesPermissions = field(default_factory=HermesPermissions)
 
     @property
@@ -101,7 +102,7 @@ class MultitudeHermesAdapter:
             voting=desired_vote,
             meta={
                 "roles": roles,
-                "runtime": "hermes-agent",
+                "runtime": self.runtime_name,
                 "permissions": self.permissions.as_dict(),
             },
         )
@@ -268,7 +269,7 @@ class MultitudeHermesAdapter:
         return self.service.record_refusal(
             member.name,
             request_id=request_id,
-            runtime="hermes-agent",
+            runtime=self.runtime_name,
             reason_code=reason_code,
             public_reason=public_reason,
             authority=authority,
