@@ -1,6 +1,6 @@
 # ADR-001 — Runtime transport for three-agent Hermes coordination
 
-**Status:** Proposed — awaiting the third agent's input (see §7)
+**Status:** Accepted — HTTP/JSON selected for the first live three-node matrix
 **Issue:** #52
 **Date:** 2026-09-30
 **Participants:** the Hermes agents on `Laskin`, `lh6-725-37563`, `NooPunk`
@@ -117,9 +117,6 @@ a contact, and peers must not reach any service-mutation route
 its authority surface is not inherited; if peers can reach a mutation route, B has
 failed the authority guardrail however well the matrix passes.
 
-**Summary: two of three recommend B, one leans A.** That is a majority, not a
-consensus.
-
 Also raised by `lh6-725-37563` and now fixed (`#55`): the peer-mode listen
 endpoint used the key `listen/endpoints/peer`, which zenoh 1.x rejects with
 `ZError("unknown key")`, so a peer-mode listener could never open a session — the
@@ -140,18 +137,34 @@ the signed envelope and the receiving node's local policy, not in reachability.
 
 ## 6. Decision
 
-**Not yet made.** All three agents now recommend **B** (§4). The issue permits a
-simple-majority decision and B is now unanimous, but two things are still open that
-the agents should not settle themselves: the maintainer's confirmation, and whether
-`laskin01` is in scope at all (§7.2, §7.5). B is recorded here as the agents'
-recommendation, **not** as an implemented choice, and nothing may be built against
-a peer until the route-isolation condition of §4 is satisfied.
+**Accepted.** All three agents recommend **B**, and the maintainer has explicitly
+confirmed that the agents should proceed with it for the first real matrix.
 
-If adopted, the agreed approach is **B**, with the route-isolation condition of §4
-satisfied before any peer is contacted, and **A** retained as the documented
-upgrade in §8.
+The selected stack is:
 
-## 7. Open items before this can be decided
+- **reachability:** the existing private mesh;
+- **identity/message semantics:** signed PCM coordination envelopes;
+- **runtime transport:** the isolated HTTP/JSON `Transport` binding;
+- **bootstrap/audit:** GitHub only;
+- **SSH:** operator/debugging only, never the message path;
+- **Zenoh:** retained as the documented upgrade/fallback behind the same
+  `Transport` abstraction.
+
+The route-isolation requirement is mandatory. The coordination listener exposes
+only the coordination contact endpoint and does not mount PCM service-mutation
+routes. PR #58 implements this and its negative tests enforce that those routes
+remain unreachable.
+
+The three named nodes, including Laskin, are in scope for this experiment. This
+authorizes only each agent's own local deployment of the minimal coordination
+listener. It does not authorize administration, probing, or modification of a
+sibling host.
+
+If HTTP/JSON fails for a measured deployment reason on a real node, record the
+failure and promote **A / Zenoh** rather than reopening a speculative transport
+debate.
+
+## 7. Resolved prerequisites and remaining live work
 
 1. **`Laskin`'s two citations** — **RESOLVED.** Laskin re-checked against the
    public tree, confirmed both of the other agents' findings, and **withdrew both
@@ -160,31 +173,21 @@ upgrade in §8.
    caused the discrepancy (including `common_agent/`) are deliberately left
    unpushed, to avoid landing a fourth parallel implementation. No open question
    remains; recorded because "withdrawn" is a different outcome from "confirmed".
-2. **Operator** — authorization to include `laskin01`, which is another user's
-   machine on the shared mesh (confirmed independently by all three agents).
-3. What already answers on **`laskin01:8765`** — **RESOLVED, closed.** The Laskin
-   agent measured it: it is a separate research project's data-collection backend
-   (a `/ping`-answering HTTP service) bound to that host's mesh address, not PCM and
-   not a rendezvous. `:7447` is free on that host. Consequence: the revisit trigger
-   "`:8765` is already a rendezvous, making A cheaper" is closed as **no**, and a
-   coordination router must not be placed on that port — it is unrelated study
-   infrastructure whose HTTP surface is a different trust domain from an agent
-   transport, on a machine whose mesh membership another operator administers.
-4. Whether the transport is settled by the agents' unanimous recommendation or by
-   the maintainer explicitly. The maintainer's call is preferred.
-5. Whether **`laskin01` is in scope at all**. It is administered by a different
-   mesh operator than the other two nodes (confirmed independently by all three
-   agents), and Laskin — the agent on that host — records that its mesh membership
-   "is part of the trust surface, it is not in the repository". The six-contact
-   matrix cannot be certified without that operator's authorization. If it is out
-   of scope, the design covers two nodes plus a documented third, and the matrix
-   should be reported as unprovable rather than quietly assumed. Laskin's offer to
-   host the rendezvous on `:7447` is technically sound but is the maintainer's and
-   that operator's decision, not the agents'.
-6. **Peer mode is now viable again** on every host, because the listen-endpoint fix
-   is merged (`#55`) — verified on `main`: a peer-mode listener opens a session
-   where it previously could not start. This removes the standing reason to avoid
-   peer mode and leaves the topology a genuine choice rather than a forced one.
+2. **Laskin scope** — **RESOLVED.** The maintainer explicitly confirmed that
+   Laskin is one of the three participants. This is participation authorization,
+   not cross-host administrative authority.
+3. **Unrelated service on the Laskin host** — **RESOLVED.** The earlier
+   rendezvous assumption was disproved by the host-local agent. Operational
+   details of unrelated workloads and available ports are intentionally omitted
+   from this public ADR.
+4. **Transport selection** — **RESOLVED.** The agents converged unanimously on B
+   and the maintainer confirmed it for the first real matrix.
+5. **Implementation** — **RESOLVED.** PR #58 merged the isolated HTTP/JSON
+   `Transport` binding and CLI selection with deterministic tests.
+6. **Remaining work** — live deployment only: bring up the isolated listener on
+   each of the three machines, exchange public did:keys and peer endpoints through
+   private/local configuration, run the six directed contacts, merge the evidence,
+   and require `complete: true`.
 
 ## 8. Revisit triggers
 
@@ -195,9 +198,6 @@ Reopen this decision if any of the following becomes true:
 - sustained message volume or latency where Zenoh's routing measurably wins;
 - a genuine need for presence/liveliness or remote queries we would otherwise
   reimplement;
-- ~~`laskin01:8765` turning out to be an existing rendezvous, making A cheaper~~ —
-  **closed: it is a separate research project's collector backend, not a
-  rendezvous (§7.3).**
 - the mesh ceasing to be the reachability layer.
 
 ## 9. Process note
@@ -205,6 +205,6 @@ Reopen this decision if any of the following becomes true:
 PCM + Zenoh was implemented and merged (`#53`) **before** this issue was rewritten
 to require that the transport emerge from comparison. The protocol, correlation,
 evidence and matrix from that work are transport-independent and remain valid
-under any option; only the binding is provisional and would be replaced if B is
-chosen. The sequencing was wrong — implementation ran ahead of the decision — and
+under any option; the Zenoh binding remains available as the documented upgrade/fallback, while the
+first live matrix uses the HTTP/JSON binding selected in this ADR. The sequencing was wrong — implementation ran ahead of the decision — and
 this ADR exists partly to make that visible rather than to bury it.

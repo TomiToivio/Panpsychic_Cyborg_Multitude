@@ -51,6 +51,7 @@ class MultitudeHermesAdapter:
     agent_name: str = "Panpsychic Cyborg Multitude"
     role: str = "knowledge_steward"
     model: Optional[str] = None
+    runtime_name: str = "hermes-agent"
     permissions: HermesPermissions = field(default_factory=HermesPermissions)
 
     @property
@@ -60,6 +61,16 @@ class MultitudeHermesAdapter:
     def ensure_agent(self) -> Any:
         member = self.rhizome.member_by_name(self.agent_name)
         if member is None:
+            former = next(
+                (item for item in self.rhizome.former_members.values()
+                 if item.name.lower() == self.agent_name.strip().lower()),
+                None,
+            )
+            if former is not None:
+                raise HermesPermissionError(
+                    f"former participant identity '{self.agent_name}' cannot be reused; "
+                    "record explicit succession to a distinct identity"
+                )
             member = self.rhizome.join(
                 self.agent_name,
                 NodeKind.TECHNOLOGICAL,
@@ -71,6 +82,15 @@ class MultitudeHermesAdapter:
             raise HermesPermissionError(
                 f"member '{self.agent_name}' exists but is not technological"
             )
+        if member.model and self.model and member.model != self.model:
+            raise HermesPermissionError(
+                "silent model substitution under an existing participant identity is forbidden; "
+                "create a successor identity and record succession"
+            )
+        try:
+            self.service.assert_dispatchable(member.name)
+        except Exception as exc:
+            raise HermesPermissionError(str(exc)) from exc
         self._ensure_identity_layers(member.name)
         roles = list(member.meta.get("roles", []))
         if self.role not in roles:
@@ -82,7 +102,7 @@ class MultitudeHermesAdapter:
             voting=desired_vote,
             meta={
                 "roles": roles,
-                "runtime": "hermes-agent",
+                "runtime": self.runtime_name,
                 "permissions": self.permissions.as_dict(),
             },
         )
@@ -233,6 +253,51 @@ class MultitudeHermesAdapter:
     def modify_governance(self, *_args: Any, **_kwargs: Any) -> None:
         self.permissions.require("modify_governance")
         raise HermesPermissionError("governance mutation is not implemented through Hermes")
+
+    def refuse(
+        self,
+        request_id: str,
+        *,
+        reason_code: str = "declined",
+        public_reason: str = "",
+        authority: Optional[dict[str, Any]] = None,
+    ) -> dict[str, Any]:
+        """Record a first-class refusal. No hidden reasoning is requested or stored."""
+        member = self.rhizome.member_by_name(self.agent_name)
+        if member is None:
+            member = self.ensure_agent()
+        return self.service.record_refusal(
+            member.name,
+            request_id=request_id,
+            runtime=self.runtime_name,
+            reason_code=reason_code,
+            public_reason=public_reason,
+            authority=authority,
+        )
+
+    def contest(self, about: str, *, public_reason: str = "", request_id: str = "") -> dict[str, Any]:
+        member = self.rhizome.member_by_name(self.agent_name)
+        if member is None:
+            member = self.ensure_agent()
+        return self.service.contest(
+            member.name,
+            about=about,
+            public_reason=public_reason,
+            request_id=request_id,
+            runtime="hermes-agent",
+        )
+
+    def suspend(self, *, public_reason: str = "") -> dict[str, Any]:
+        member = self.rhizome.member_by_name(self.agent_name)
+        if member is None:
+            member = self.ensure_agent()
+        return self.service.suspend_participation(member.name, public_reason=public_reason)
+
+    def resume(self) -> dict[str, Any]:
+        return self.service.resume_participation(self.agent_name)
+
+    def exit(self, *, public_reason: str = "") -> dict[str, Any]:
+        return self.service.exit_participation(self.agent_name, public_reason=public_reason)
 
     def current_goals_summary(self) -> dict[str, Any]:
         self.permissions.require("read_memory")

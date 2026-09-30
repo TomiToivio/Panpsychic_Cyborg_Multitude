@@ -838,6 +838,16 @@ class Rhizome:
                 model=model,
                 voting=voting,
             )
+        former = next(
+            (item for item in self.former_members.values()
+             if item.name.lower() == name.strip().lower()),
+            None,
+        )
+        if former is not None:
+            raise RhizomeError(
+                f"former participant identity '{name}' cannot be silently reused; "
+                "create a distinct successor and record explicit succession"
+            )
         m = Member(
             id=new_id("node"),
             name=name,

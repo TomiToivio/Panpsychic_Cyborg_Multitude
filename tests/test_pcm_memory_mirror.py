@@ -2,12 +2,12 @@
 """Phase 3 tests — memory mirror over the PCM Transport ABC.
 
 docs/NETWORKING_STACK.md §12 Phase 3 line: "automerge memory mirror".
-Implementation: pcm/memory_mirror.py — per-field LWW merge document
-(Automerge-compatible semantics, stdlib codec) synced as signed
-memory_share envelopes over the Transport ABC.
+Implementation: pcm/memory_mirror.py — per-field subject-aware merge document
+with retained authorship/claims, synced as signed memory_share envelopes
+over the Transport ABC.
 
 Test criteria:
-1. LWW merge is deterministic on both sides (lamport, did order).
+1. A subject's self-register cannot be silently overwritten by a peer; peer claims are retained.
 2. Existing IndividualMemoryStore-shaped data imports cleanly.
 3. Sync: node A pushes a signed memory_share envelope; node B's mirror
    updates ONLY via verified envelope; tampered envelope is rejected.
@@ -45,6 +45,7 @@ def main() -> int:
     # not a reason to own someone else's register. Two independent writers of
     # the same key each own what they wrote, so A's own write survives and B's
     # is preserved as an attributed claim rather than silently replacing it.
+    # ---- 1. subject-owned register + explicit peer claim ----
     a = MemoryMirror("did:key:A")
     a.set("facts", "language", "fi")
     b = MemoryMirror("did:key:B")
@@ -64,6 +65,16 @@ def main() -> int:
         failures.append(f"non-subject write was not preserved as a claim: {reg_ab!r}")
     print(f"[merge] subject-owned and deterministic: {reg_ab['value']!r} "
           f"(+{len(claims)} attributed claim(s))")
+    reg_a = m_ab["fields"]["facts"]["language"]
+    reg_b = m_ba["fields"]["facts"]["language"]
+    if reg_a["value"] != "fi" or reg_a["author"] != "did:key:A":
+        failures.append(f"A self-register overwritten: {reg_a!r}")
+    if not any(claim.get("author") == "did:key:B" and claim.get("value") == "en"
+               for claim in reg_a.get("claims", [])):
+        failures.append(f"B claim not retained beside A register: {reg_a!r}")
+    if reg_b["value"] != "en" or reg_b["author"] != "did:key:B":
+        failures.append(f"B self-register overwritten: {reg_b!r}")
+    print("[merge] each subject keeps its self-register; peer claim is explicit")
 
     # ---- 2. import from IndividualMemoryStore shape ----
     store = {"facts": {"name": "rhizome"}, "notes": ["note one", "note two"],
@@ -105,7 +116,11 @@ def main() -> int:
         got = mirror_b.as_memory_dict()["facts"].get("home_base")
         if got != "the commons":
             failures.append(f"B did not receive A's fact: {got!r}")
-        print(f"[sync] A -> B via signed memory_share: {got!r}")
+        shared_by_b = mirror_b.to_document(include_private=False)
+        shared_reg = shared_by_b["fields"]["facts"]["home_base"]
+        if shared_reg.get("author") != id_a["did"] or shared_reg.get("subject") != id_a["did"]:
+            failures.append(f"absorbed memory was re-attributed by B: {shared_reg!r}")
+        print(f"[sync] A -> B via signed memory_share: {got!r}; authorship retained")
 
         # tampered envelope rejected
         env = await _captured_envelope(sync_a, mirror_a)

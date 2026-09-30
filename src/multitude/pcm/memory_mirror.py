@@ -70,7 +70,7 @@ from typing import Any
 from multitude.pcm.envelope import Envelope, EnvelopeError, authorize_sender
 from multitude.pcm.identity import Ed25519PrivateKey
 
-MIRROR_SCHEMA = "pcm.memory-mirror/1"
+MIRROR_SCHEMA = "pcm.memory-mirror/2"
 DEFAULT_RHIZOME_SQUARE = "pcm/memory/shared/event"
 
 #: A non-subject write is never a replacement; it is an attributed claim.
@@ -146,9 +146,10 @@ def merge_memory_docs(local: dict[str, Any], remote: dict[str, Any]) -> dict[str
     Handover records are unioned, because a succession record is itself a fact
     that must not be lost in a merge.
     """
-    if local.get("schema") != remote.get("schema"):
+    supported = {"pcm.memory-mirror/1", MIRROR_SCHEMA}
+    if local.get("schema") not in supported or remote.get("schema") not in supported:
         raise ValueError(
-            f"schema mismatch: {local.get('schema')!r} vs {remote.get('schema')!r}")
+            f"unsupported schema: {local.get('schema')!r} vs {remote.get('schema')!r}")
 
     def merge_register(ra: dict, rb: dict) -> dict:
         if not isinstance(ra, dict) or "lamport" not in ra:
@@ -212,6 +213,59 @@ def merge_memory_docs(local: dict[str, Any], remote: dict[str, Any]) -> dict[str
                 out[k] = _normalise(rb)
                 continue
             out[k] = merge_register(out[k], rb)
+        """Merge registers without allowing a peer to overwrite a subject's self-register.
+
+        Every register retains both subject and author. A non-subject write about an
+        existing subject-owned key is preserved as an attributed claim instead of
+        replacing the subject value. This makes conflicts visible and prevents
+        authorship laundering during later re-publication.
+        """
+        out = json.loads(json.dumps(a, ensure_ascii=False))
+        for k, rb_raw in b.items():
+            rb = dict(rb_raw)
+            rb.setdefault("subject", rb.get("did") or remote.get("did"))
+            rb.setdefault("author", rb.get("did") or remote.get("did"))
+            rb.setdefault("claims", [])
+            ra = out.get(k)
+            if not isinstance(ra, dict) or "lamport" not in ra:
+                out[k] = rb
+                continue
+            ra.setdefault("subject", ra.get("did") or local.get("did"))
+            ra.setdefault("author", ra.get("did") or local.get("did"))
+            ra.setdefault("claims", [])
+
+            subject = ra.get("subject")
+            remote_author = rb.get("author")
+            remote_subject = rb.get("subject")
+
+            # The subject is sole writer of its own canonical register. A peer may
+            # make a claim about it, but cannot silently replace it at any lamport.
+            if subject and remote_author != subject:
+                claim = {
+                    "author": remote_author,
+                    "subject": remote_subject or subject,
+                    "lamport": rb.get("lamport", 0),
+                    "ts": rb.get("ts"),
+                    "value": rb.get("value"),
+                    "private": bool(rb.get("private", False)),
+                }
+                claims = list(ra.get("claims", []))
+                if claim not in claims:
+                    claims.append(claim)
+                ra["claims"] = claims
+                out[k] = ra
+                continue
+
+            # Canonical subject writes remain deterministic. Authorship is retained.
+            if (rb["lamport"], rb.get("author", "")) > (
+                ra["lamport"], ra.get("author", "")
+            ):
+                inherited_claims = list(ra.get("claims", []))
+                for claim in rb.get("claims", []):
+                    if claim not in inherited_claims:
+                        inherited_claims.append(claim)
+                rb["claims"] = inherited_claims
+                out[k] = rb
         return out
 
     merged = {
@@ -341,9 +395,31 @@ class MemoryMirror:
             "lamport": self.lamport,
             "did": self.did,
             "subject": self.did,
+        if isinstance(existing, dict):
+            subject = existing.get("subject") or existing.get("author") or existing.get("did")
+            if subject and subject != self.did:
+                claim = {
+                    "author": self.did,
+                    "subject": subject,
+                    "lamport": self.lamport,
+                    "ts": _now(),
+                    "value": value,
+                    "private": private,
+                }
+                claims = list(existing.get("claims", []))
+                if claim not in claims:
+                    claims.append(claim)
+                existing["claims"] = claims
+                return
+        self.fields[field][key] = {
+            "lamport": self.lamport,
+            "did": self.did,          # compatibility alias for old readers
+            "subject": self.did,
+            "author": self.did,
             "ts": _now(),
             "private": private,
             "value": value,
+            "claims": [],
         }
 
     def declare_handover(self, successor: str, *, reason: str = "") -> dict[str, Any]:
@@ -394,6 +470,20 @@ class MemoryMirror:
             for field, entries in self.fields.items()
         }
         doc: dict[str, Any] = {
+        fields: dict[str, dict[str, dict[str, Any]]] = {}
+        for field, entries in self.fields.items():
+            fields[field] = {}
+            for key, register in entries.items():
+                if not include_private and register.get("private"):
+                    continue
+                clean = json.loads(json.dumps(register, ensure_ascii=False))
+                if not include_private:
+                    clean["claims"] = [
+                        claim for claim in clean.get("claims", [])
+                        if not claim.get("private")
+                    ]
+                fields[field][key] = clean
+        return {
             "schema": MIRROR_SCHEMA,
             "did": self.did,
             "lamport": self.lamport,

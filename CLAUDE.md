@@ -16,4 +16,6 @@ Never commit credentials, private operational configuration, or unrestricted com
 
 Consciousness is a research question, not an authorization bit. Do not turn self-report, J-Space readings, IIT Phi, relational metrics, or other speculative theory into implementation facts or permission grants.
 
+Claude Code follows the same participant-rights semantics as Hermes: refusal, contestation, suspension, resume, and exit are first-class attributable outcomes through the canonical service layer. Do not silently substitute another runtime under the same identity to bypass a refusal or continuity rule.
+
 Run the relevant offline tests before proposing architectural changes. Keep runtime-specific code thin and place generic PCM semantics in the canonical kernel/service layers.

@@ -28,6 +28,7 @@ class ClaudeCodeAdapter(MultitudeHermesAdapter):
     agent_name: str = "agent:claude-code"
     role: str = "developer_research_assistant"
     model: Optional[str] = None
+    runtime_name: str = "claude-code"
 
     def _default_profile(self) -> AgentProfile:
         return AgentProfile(

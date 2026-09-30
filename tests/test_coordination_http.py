@@ -229,7 +229,12 @@ def test_coordination_route_requires_the_selector_header(tmp_path: Path) -> None
 
 
 def test_a_misaddressed_contact_gets_silence_not_an_ack(tmp_path: Path) -> None:
-    """contact_handler fails closed: wrong recipient -> no queryable reply."""
+    """contact_handler fails closed: wrong recipient -> no ack, and a reason.
+
+    The refusal must not look like a wrong address. A 404 means "no queryable
+    here"; a declined-but-registered selector is a distinct outcome, because
+    conflating them once sent a peer agent chasing the wrong cause.
+    """
     node = _http_node(tmp_path, "Laskin", [], port=0)
 
     async def start() -> None:
@@ -252,7 +257,44 @@ def test_a_misaddressed_contact_gets_silence_not_an_ack(tmp_path: Path) -> None:
         )
         with pytest.raises(urllib_error.HTTPError) as excinfo:
             urllib_request.urlopen(req, timeout=3)
+        # an unregistered selector really is a 404
         assert excinfo.value.code == 404
+    finally:
+        asyncio.run(node.transport.stop())
+
+
+def test_a_registered_selector_that_declines_is_distinguishable(tmp_path: Path) -> None:
+    """A registered selector with a bad envelope must NOT report 'wrong address'.
+
+    This is the regression for the diagnostic conflation: both cases returned
+    `no queryable for selector` / 404, so a caller could not tell a correct
+    fail-closed refusal from a misconfigured address.
+    """
+    node = _http_node(tmp_path, "Laskin", [], port=0)
+
+    async def start() -> None:
+        await node.transport.start()
+        await node.start_serving()
+
+    asyncio.run(start())
+    try:
+        host, port = node.transport.bound_address
+        own_selector = contact_selector_for_did(node.did)
+        req = urllib_request.Request(
+            f"http://{host}:{port}{COORDINATION_PATH}",
+            data=json.dumps({"not": "a valid envelope"}).encode(),
+            method="POST",
+            headers={
+                "Content-Type": "application/json",
+                SELECTOR_HEADER: own_selector,
+            },
+        )
+        with pytest.raises(urllib_error.HTTPError) as excinfo:
+            urllib_request.urlopen(req, timeout=3)
+        # registered, so it is not "no queryable"; it declined
+        assert excinfo.value.code == 403
+        body = json.loads(excinfo.value.read().decode())
+        assert "refused" in body.get("error", "")
     finally:
         asyncio.run(node.transport.stop())
 

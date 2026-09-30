@@ -163,12 +163,21 @@ class HttpJsonTransport(Transport):
                 except ValueError as exc:
                     self._send(400, {"error": f"invalid JSON body: {exc}"})
                     return
-                reply = transport._dispatch(selector, payload)
-                if reply is None:
-                    # No queryable for that selector, or the handler declined
-                    # (contact_handler returns None for unverifiable or
-                    # misaddressed contacts — fail closed, no ack, no error detail).
+                registered, reply = transport._dispatch(selector, payload)
+                if not registered:
+                    # No queryable on that selector: the address is wrong.
                     self._send(404, {"error": "no queryable for selector"})
+                    return
+                if reply is None:
+                    # A queryable exists but declined: an unverifiable or
+                    # misaddressed envelope. The wire still fails closed (no ack),
+                    # but the reason is now distinguishable from a wrong address,
+                    # so a caller is not left guessing which of the two it hit.
+                    self._send(
+                        403,
+                        {"error": "contact refused by the serving node",
+                         "reason": "unverifiable or misaddressed envelope"},
+                    )
                     return
                 self._send(200, reply)
 
@@ -178,11 +187,28 @@ class HttpJsonTransport(Transport):
         )
         self._thread.start()
 
-    def _dispatch(self, selector: str, payload: dict[str, Any]) -> dict[str, Any] | None:
-        """Run the registered queryable for ``selector``; None when there is none."""
+    def _dispatch(self, selector: str, payload: dict[str, Any]) -> tuple[bool, dict[str, Any] | None]:
+        """Run the queryable for ``selector``.
+
+        Returns ``(registered, reply)`` so the caller can tell the two very
+        different cases apart:
+
+        - ``registered=False``  -> no queryable on this selector (wrong address);
+        - ``registered=True`` with ``reply=None`` -> a queryable exists and
+          **declined** the request (unverifiable or misaddressed envelope, which
+          `contact_handler` answers with silence by design).
+
+        Both used to be a bare ``None``, and the route reported both as
+        "no queryable for selector". That is a real diagnostic defect: it made a
+        correct fail-closed refusal indistinguishable from a wrong address, and it
+        misled a peer agent into concluding the *serving identity* was mismatched
+        when the request itself was the problem. The status codes stay identical
+        on the wire (silence is still silence, and the route still fails closed);
+        only the server-side answer becomes honest.
+        """
         handler = self._queryables.get(selector)
         if handler is None:
-            return None
+            return False, None
         if self._on_request is not None:
             try:
                 self._on_request(selector, payload)
@@ -194,9 +220,7 @@ class HttpJsonTransport(Transport):
             if loop is None:
                 raise TransportError("listener dispatched before start()")
             result = asyncio.run_coroutine_threadsafe(result, loop).result(timeout=10)
-        if result is None:
-            return None
-        return result
+        return True, result
 
     # -- Transport interface ------------------------------------------------
 

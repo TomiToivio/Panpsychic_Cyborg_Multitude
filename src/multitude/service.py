@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import Any, Optional
 
 from multitude.llm import TechnologicalNode
-from multitude.models import NodeKind, Position, ProposalStatus, Rule
+from multitude.models import NodeKind, Position, ProposalStatus, Rule, new_id, now_iso
 from multitude.rhizome import Rhizome, RhizomeError
 
 
@@ -101,6 +101,198 @@ class MultitudeService:
         return self.list_agents()
 
     # ------------------------------------------------------------- rights
+
+    def participant_status(self, name: str) -> str:
+        """Return the event-sourced participation state for a member."""
+        member_name = self._require_member(name)
+        member = self.rhizome.member_by_name(member_name)
+        from multitude.participant_rights import status_for
+        return status_for(self.rhizome, member.id)
+
+    def assert_dispatchable(self, name: str) -> None:
+        """Fail closed when ordinary work is addressed to a non-active participant."""
+        state = self.participant_status(name)
+        if state != "active":
+            raise ServiceError(f"participant '{name}' is {state}; ordinary dispatch is blocked")
+
+    def record_refusal(
+        self,
+        name: str,
+        *,
+        request_id: str,
+        runtime: str,
+        reason_code: str = "declined",
+        public_reason: str = "",
+        authority: Optional[dict[str, Any]] = None,
+    ) -> dict[str, Any]:
+        member_name = self._require_member(name)
+        member = self.rhizome.member_by_name(member_name)
+        record = {
+            "id": new_id("refusal"),
+            "ts": now_iso(),
+            "subject": member.id,
+            "actor": member.name,
+            "runtime": runtime,
+            "request_id": request_id,
+            "reason_code": reason_code,
+            "public_reason": public_reason,
+            "authority": dict(authority or {}),
+        }
+        self.rhizome._emit("participant_refusal", member.name, {"record": record})
+        return record
+
+    def contest(
+        self,
+        name: str,
+        *,
+        about: str,
+        public_reason: str = "",
+        request_id: str = "",
+        runtime: str = "",
+    ) -> dict[str, Any]:
+        member_name = self._require_member(name)
+        member = self.rhizome.member_by_name(member_name)
+        record = {
+            "id": new_id("contest"),
+            "ts": now_iso(),
+            "subject": member.id,
+            "actor": member.name,
+            "about": about,
+            "request_id": request_id,
+            "runtime": runtime,
+            "public_reason": public_reason,
+            "status": "open",
+        }
+        self.rhizome._emit("participant_contest", member.name, {"record": record})
+        return record
+
+    def record_participant_claim(
+        self,
+        name: str,
+        *,
+        about: str,
+        value: Any,
+        public_reason: str = "",
+    ) -> dict[str, Any]:
+        """Record an attributed claim about a participant without replacing its own record."""
+        member_name = self._require_member(name)
+        member = self.rhizome.member_by_name(member_name)
+        record = {
+            "id": new_id("claim"),
+            "ts": now_iso(),
+            "subject": member.id,
+            "actor": member.name,
+            "about": about,
+            "value": value,
+            "public_reason": public_reason,
+        }
+        self.rhizome._emit("participant_claim", member.name, {"record": record})
+        return record
+
+    def suspend_participation(self, name: str, *, public_reason: str = "") -> dict[str, Any]:
+        member_name = self._require_member(name)
+        member = self.rhizome.member_by_name(member_name)
+        record = {
+            "id": new_id("suspend"),
+            "ts": now_iso(),
+            "subject": member.id,
+            "actor": member.name,
+            "public_reason": public_reason,
+        }
+        self.rhizome._emit("participant_suspended", member.name, {"record": record})
+        return record
+
+    def resume_participation(self, name: str) -> dict[str, Any]:
+        member_name = self._require_member(name)
+        member = self.rhizome.member_by_name(member_name)
+        state = self.participant_status(member.name)
+        if state != "suspended":
+            raise ServiceError(f"participant '{member.name}' is {state}, not suspended")
+        record = {
+            "id": new_id("resume"),
+            "ts": now_iso(),
+            "subject": member.id,
+            "actor": member.name,
+        }
+        self.rhizome._emit("participant_resumed", member.name, {"record": record})
+        return record
+
+    def exit_participation(self, name: str, *, public_reason: str = "") -> dict[str, Any]:
+        member_name = self._require_member(name)
+        member = self.rhizome.member_by_name(member_name)
+        record = {
+            "id": new_id("exit"),
+            "ts": now_iso(),
+            "subject": member.id,
+            "actor": member.name,
+            "public_reason": public_reason,
+        }
+        self.rhizome._emit("participant_exited", member.name, {"record": record})
+        self.rhizome.leave(member.name)
+        return record
+
+    def terminate_participant(
+        self,
+        name: str,
+        *,
+        terminated_by: str,
+        public_reason: str = "",
+    ) -> dict[str, Any]:
+        """Record operator termination without representing it as participant consent."""
+        member_name = self._require_member(name)
+        actor_name = self._require_member(terminated_by)
+        member = self.rhizome.member_by_name(member_name)
+        record = {
+            "id": new_id("termination"),
+            "ts": now_iso(),
+            "subject": member.id,
+            "actor": actor_name,
+            "public_reason": public_reason,
+            "consent": False,
+        }
+        self.rhizome._emit("participant_terminated", actor_name, {"record": record})
+        self.rhizome.leave(member.name)
+        return record
+
+    def record_succession(
+        self,
+        predecessor: str,
+        successor: str,
+        *,
+        handover_proof: str,
+        public_reason: str = "",
+    ) -> dict[str, Any]:
+        """Record explicit succession.
+
+        Local event logs provide attributable predecessor authorship. Cross-node
+        callers should carry this operation in a signed PCM envelope; the opaque
+        handover_proof stores that verification artifact/reference.
+        """
+        pred_name = self._require_member(predecessor)
+        succ_name = self._require_member(successor)
+        proof = handover_proof.strip()
+        if not proof.startswith("verified-envelope:"):
+            raise ServiceError(
+                "succession requires proof from a verified signed PCM envelope "
+                "(verified-envelope:<id-or-digest>)"
+            )
+        pred = self.rhizome.member_by_name(pred_name)
+        succ = self.rhizome.member_by_name(succ_name)
+        record = {
+            "id": new_id("succession"),
+            "ts": now_iso(),
+            "subject": pred.id,
+            "actor": pred.name,
+            "predecessor": pred.id,
+            "successor": succ.id,
+            "predecessor_name": pred.name,
+            "successor_name": succ.name,
+            "handover_proof": proof,
+            "public_reason": public_reason,
+        }
+        self.rhizome._emit("participant_succession", pred.name, {"record": record})
+        return record
+
 
     def update_member(
         self,

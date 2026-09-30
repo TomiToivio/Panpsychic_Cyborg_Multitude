@@ -1,7 +1,7 @@
 # Panpsychic Cyborg Multitude — Master Sources
 
 **Status:** canonical research bibliography for the Panpsychic Cyborg Multitude (PCM) project  
-**Last consolidated:** 2026-09-15  
+**Last consolidated:** 2026-09-30  
 **Scope:** philosophy, consciousness science, cyborg and extended cognition, distributed and collective intelligence, Multitude/rhizome/assemblage theory, Active Inference, machine consciousness, singularity/AGI, and the political theory of AI.
 
 This file replaces the former topic-specific source lists. The thematic research notes remain useful for argument and interpretation, but **new scholarly sources should be added here first** so the repository has one canonical bibliography.
@@ -60,6 +60,23 @@ These are recent overlaps with PCM as an integrated research programme. The summ
 
 - **Zhao, H., & Han, Z. (2026). “Understanding the mechanism of human–AI interaction: a distributed cognition perspective.” _Journal of Documentation_ 82(4), 1042–1063.** https://doi.org/10.1108/JD-01-2026-0003 **[peer-reviewed journal article]**  
   Models GenAI interaction as a coupled cognitive cycle spanning user, interface, AI, and external representations. It identifies capability, instruction, and intentionality gaps that can produce either cognitive enhancement or cognitive atrophy. This is a distributed-cognition framework, not a consciousness claim.
+
+### HCOMP / Collective Intelligence 2026 checkpoint
+
+- **Singh, N. (2026). “Communication Heterogeneity and Collective Consensus in Neural Cellular Automata.” ACM Collective Intelligence 2026.** https://doi.org/10.1145/3834581.3838628; arXiv:2606.21202 **[peer-reviewed conference paper / archival preprint]**  
+  Models collective consensus under heterogeneous communication protocols. Communication distance slows consensus and creates mild divergence, while training under diverse protocols improves robustness to mismatch. Relevant to PCM coordination topology and protocol-heterogeneity measures, not consciousness.
+
+- **Li, T. W., Wang, Z., Tran, T.-N., Yen, Y.-C. G., & Dow, S. P. (2026). “Disentangling Threads: Exploring the Potential of LLM-Supported Discussion Forum Analysis for Community Insight.” ACM Collective Intelligence 2026.** https://doi.org/10.1145/3834581.3838629; arXiv:2608.20591 **[peer-reviewed conference paper / archival preprint]**  
+  Combines manual analysis, an exploratory framework, a design probe, and interviews with 21 researchers. Supports traceable, flexible collective-sensemaking tools grounded in raw contributions rather than treating LLM summaries as authoritative group voice.
+
+- **Biswas, S., Erlei, A., & Gadiraju, U. (2026). “The Belief Update Gate: Separating Inertia from Learning in Human-AI Interaction.” HCOMP 2026.** https://doi.org/10.1145/3834580.3838740; arXiv:2608.20828 **[peer-reviewed conference paper / archival preprint]**  
+  Reanalyses 240 participants and 7,200 trials and shows that belief-update measurement should separate whether a reported belief moves at all from the magnitude/direction conditional on movement. Relevant to PCM calibration and reliance metrics.
+
+- **Oppenlaender, J., Visuri, A., & Hosio, S. (2026). “Adapting Socio-Technical Congruence to Human-Agent Collectives.” In _HCOMP '26: Proceedings of the 2026 ACM Conference on Human-AI Complementarity and Alignment_, 237–249.** https://doi.org/10.1145/3834580.3838753 **[peer-reviewed conference paper]**  
+  Extends socio-technical congruence to human-agent collectives and provides a released simulator/configurations. Relevant to comparing task-dependency graphs with communication/coordination graphs.
+
+- **Tuo, B., Miller, T., & Demartini, G. (2026). “Easy to Read, Easy to Trust: How Processing Fluency in LLM Explanations Drives Over-Reliance in Hate Speech Moderation.” HCOMP 2026.** https://doi.org/10.1145/3834580.3838739 **[peer-reviewed conference paper]**  
+  Treats explanation fluency as a potential driver of over-reliance. Relevant to PCM cognitive security: readable or persuasive presentation must not be confused with epistemic quality, authority, or correctness.
 
 ### Collective intelligence, social machines, and the Common
 
