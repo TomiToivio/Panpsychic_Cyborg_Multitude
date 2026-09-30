@@ -22,7 +22,7 @@ Use `src/multitude/integrations/hermes/config.py` for runtime configuration and 
 
 Capability does not imply authority. Missing permission fails closed. Do not add unrestricted shell execution, repository-history mutation, device control, external human impersonation, permission changes, or destructive shared-memory operations to the generic Hermes tool surface.
 
-Agent proposals remain proposals until normal PCM governance accepts them. Agent-authored actions should remain attributable in the event log.
+Agent proposals remain proposals until normal PCM governance accepts them. Agent-authored actions should remain attributable in the event log. Hermes may refuse, contest, suspend, resume, or exit through the canonical participant-rights service calls; these outcomes are normal protocol states, not runtime failures, and must not be bypassed by silent runtime substitution under the same identity.
 
 ## Limitations / scaffolded areas
 
