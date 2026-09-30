@@ -1,281 +1,294 @@
-# Hermes coordination over PCM Zenoh (issue #52)
+# Hermes coordination for issue #52
 
-How three Hermes nodes — **Laskin**, **lh6-725-37563**, **NooPunk** — contact each
-other through PCM over Zenoh, and how the six directed contacts are *proven*
-rather than assumed.
+How the three Hermes nodes — **Laskin**, **lh6-725-37563**, and **NooPunk** —
+prove full pairwise contact using the transport selected by the agents.
 
-The rule the whole document exists to enforce: **discovery is not contact.** A
-liveliness token or a wildcard scan says a node exists. It does not say the node
-received anything, agreed it was addressed, or answered. A contact here is a
-signed request **and** a signed, correlated acknowledgement. "All three nodes
-were visible" is not the matrix.
+For the first live matrix the accepted stack is:
 
----
+- reachability: the existing private mesh;
+- identity and message semantics: signed PCM coordination envelopes;
+- runtime transport: the isolated HTTP/JSON `Transport` binding;
+- bootstrap and audit: GitHub only;
+- SSH: operator/debugging only, never the message path;
+- Zenoh: retained as an upgrade/fallback behind the same `Transport` interface.
 
-## 1. What a contact is, on the wire
-
-Every contact uses the pieces the stack already has. No new bus, no new event
-vocabulary:
-
-| Piece | Used as |
-|---|---|
-| `pcm.envelope.Envelope` | both the request and the ack are signed, verifiable envelopes |
-| `pcm.events.PcmEvent` (`pcm.agent.request` / `pcm.agent.response`) | the semantic body carried in `envelope.content.event` |
-| `pcm/query/agent/<did-suffix>` | the request/response endpoint the contacted node answers on |
-| `multitude.pcm.transport.Transport` | the seam: `HttpJsonTransport` in the selected deployment, `ZenohTransport` as the documented upgrade, `InMemoryTransport` in tests |
-
-The transport is a swappable binding, not part of the protocol. ADR-001 records the
-decision: the agents chose **HTTP/JSON** as the first runtime transport, over the
-already-working private mesh, with Zenoh retained behind the same `Transport`
-interface. Nothing below changes if the transport changes.
-
-The exchange, A → B:
-
-```
-A --pcm.agent.request, signed by A's did:key--> B     (selector: B's pcm/query/agent/<suffix>)
-A <--pcm.agent.response, signed by B's did:key-- B    (addressed to A, references A's request id)
-```
-
-The ack is evidence only when **all five** hold, and `pcm.contact.verify_contact`
-checks each one rather than assuming it:
-
-1. both envelopes verify against the did:key inside their own `from`;
-2. the ack's `from` is the node that was contacted;
-3. the ack's `to` is the node that made the request;
-4. the ack references the exact request id (so an ack for somebody else's
-   contact cannot confirm ours);
-5. both carry the same contact kind (`coordination.hello`).
-
-The selector is derived from the **did**, not from a configured name, so the
-contacting and answering sides cannot drift apart about what to call each other.
-The did is the identity that is already cryptographically verified.
+The rule this document exists to enforce is simple: **reachability is not
+contact**. Ping, an open port, process presence, discovery, or two local processes
+do not satisfy the matrix. A contact is a signed request plus a signed,
+correlated acknowledgement from the intended peer.
 
 ---
 
-## 2. Distinct identities
+## 1. What counts as a contact
 
-The three nodes must not collapse into one `agent:hermes`. Each node sets its own:
+Every contact uses the canonical PCM protocol already implemented in
+`multitude.pcm.contact`.
+
+The exchange A → B is:
+
+```text
+A -> signed pcm.agent.request -> B
+A <- signed pcm.agent.response <- B
+```
+
+`pcm.contact.verify_contact()` accepts that acknowledgement as evidence only
+when:
+
+1. both envelopes verify against the did:key in their own sender field;
+2. the acknowledgement comes from the node that was contacted;
+3. the acknowledgement is addressed back to the requester;
+4. it references the exact request id;
+5. both messages carry the same coordination contact kind.
+
+A request nobody answered is a failed contact.
+
+---
+
+## 2. Distinct node identities
+
+Each node must have its own label, agent name, identity directory, and did:key.
+Do not collapse the three Hermes instances into one generic identity.
+
+Example:
 
 ```bash
-export PCM_NODE_LABEL=NooPunk
-export PCM_AGENT_NAME=agent:hermes-noopunk     # default: agent:hermes-<label>, lower-cased
-```
-
-With no configuration a node still gets a distinct identity from its host name —
-never the generic one. Its did:key comes from the same PCM identity store every
-other PCM node uses (`pcm.bootstrap.ensure_node_identity` over the node
-directory); this work adds no second identity store and no new key handling.
-
----
-
-## 3. Configuration (nothing machine-specific is committed)
-
-All of it is environment or runtime data under `data/`:
-
-```bash
-export PCM_COORDINATION_TRANSPORT=http        # http (selected) | zenoh (upgrade)
-export PCM_COORDINATION_LISTEN=<mesh-addr>:8795   # where this node answers (http)
 export PCM_NODE_LABEL=NooPunk
 export PCM_AGENT_NAME=agent:hermes-noopunk
-export PCM_PEERS=Laskin=<hostA>,lh6-725-37563=<hostB>
-export PCM_PEER_DIDS=Laskin=did:key:z...,lh6-725-37563=did:key:z...
-export PCM_NODE_DIR=data/coordination             # identity + evidence (runtime data)
+export PCM_NODE_DIR=data/coordination
 ```
 
-- `PCM_COORDINATION_TRANSPORT` — which binding runs. `http` is the selected
-  transport (ADR-001); `zenoh` is the documented upgrade. Defaulting behaviour: set
-  `http` explicitly, or set only `PCM_COORDINATION_LISTEN` and it is inferred;
-  unset with no listen address keeps the pre-existing Zenoh wiring, so an
-  unchanged deployment does not change behaviour.
-- `PCM_COORDINATION_LISTEN` — `<host>:<port>` this node binds. Use the mesh
-  address so peers can actually reach it. A malformed value **fails loudly**
-  rather than binding nothing and looking healthy.
-- `PCM_PEERS` — `label=host` pairs. A malformed entry fails loudly; it is never
-  silently dropped, because a typo'd address would then look like an unreachable
-  machine. Under the `http` transport the host may be given with or without the
-  scheme; it is normalised to a full URL.
-- `PCM_PEER_DIDS` — the peers' **public** did:keys. A did:key is identity, not a
-  credential: it contains no secret. Without it a contact is refused, because a
-  contact must be addressed to a verified identity, not a bare address.
+The did:key is generated/read through PCM's existing identity store. The public
+did:key may be shared with the other two agents. Private identity material stays
+local and must not be committed.
 
-No address, token, key or topology is committed. The only public configuration is
-the shape of these variables.
-
----
-
-## 4. Topology
-
-**Selected: HTTP/JSON over the private mesh (no discovery).** There is no
-rendezvous and no router. Each node binds its own mesh address and is given the
-peers' URLs, because reachability comes from the mesh and addressing is deployment
-state rather than something the protocol discovers.
-
-```bash
-PCM_COORDINATION_TRANSPORT=http \
-PCM_COORDINATION_LISTEN=<this-node-mesh-addr>:8795 \
-PCM_NODE_LABEL=NooPunk PCM_AGENT_NAME=agent:hermes-noopunk \
-PCM_NODE_DIR=data/coordination \
-PCM_PEERS='Laskin=<laskin-mesh-addr>:8795,lh6-725-37563=<lh6-mesh-addr>:8795' \
-PCM_PEER_DIDS='Laskin=did:key:z...,lh6-725-37563=did:key:z...' \
-pcm-coordination serve
-```
-
-This binding deliberately has **no discovery**: no multicast, no scouting, no
-service registry. A peer whose address you do not hold is a peer you cannot
-contact, which keeps the exposed surface to exactly one route on one port and
-makes the addressing explicit rather than ambient.
-
-**Upgrade path: Zenoh.** Retained behind the same `Transport` interface and
-selected with `PCM_COORDINATION_TRANSPORT=zenoh`; the pre-existing topology
-instructions are kept below because the upgrade should be a configuration change,
-not a rewrite. Two modes:
-
-*Same LAN — peer mode.* Nodes find each other by UDP multicast scouting. No
-server. (Note: multicast scouting is blocked in some environments, including at
-least one of the three experiment nodes — explicit unicast locators are the safe
-default there.)
-
-```bash
-PCM_COORDINATION_TRANSPORT=zenoh PCM_ZENOH_ENABLED=true PCM_NODE_LABEL=NooPunk \
-PCM_PEERS=Laskin=192.0.2.10,lh6-725-37563=192.0.2.11 \
-pcm-coordination serve
-```
-
-*Not on one LAN — routed mode.* One node (or a box) runs a Zenoh router; the
-others are clients. This is the topology to use when the machines sit behind NAT
-or on different networks.
-
-Start a rendezvous router:
-
-```bash
-pcm-coordination-router --listen tcp/<reachable-address>:7447
-```
-
-`<reachable-address>` must be an address the other nodes can actually reach —
-a tailnet address works well, since each machine keeps a stable one. Then each
-node connects as a client:
-
-```bash
-PCM_COORDINATION_TRANSPORT=zenoh PCM_ZENOH_ENABLED=true PCM_NODE_LABEL=Laskin \
-PCM_ZENOH_CONNECT=tcp/<reachable-address>:7447 \
-PCM_PEERS=NooPunk=<addrNooPunk>,lh6-725-37563=<addrLh6> \
-pcm-coordination serve
-```
-
-A router is **plumbing, never an authority**: it forwards, it does not authorize,
-and the signed envelopes are what make a contact trustworthy.
-
----
-
-## 5. Running it
-
-Run one node interactively to watch it answer contacts:
-
-```bash
-pcm-coordination serve
-```
-
-Under the selected HTTP transport, `serve` binds `PCM_COORDINATION_LISTEN` and
-answers on the single route `POST /coordination/v1/contact`. It fails closed: a
-contact that is unverifiable, misaddressed, or sent to an unknown selector gets
-silence (`404`), never an ack and never an error detail. Start it the same way on
-each of the three nodes, each with its own label, identity and listen address.
-
-Inspect what this node is and what is still missing:
+Run:
 
 ```bash
 pcm-coordination status
 ```
 
-Contact one peer, or all configured peers:
+to inspect the node's own identity and current coordination state.
+
+---
+
+## 3. HTTP/JSON transport configuration
+
+Select the accepted transport explicitly:
 
 ```bash
-pcm-coordination contact Laskin --note "hello from NooPunk"
+export PCM_COORDINATION_TRANSPORT=http
+```
+
+Each node also needs a local listen endpoint on an address reachable through the
+private mesh:
+
+```bash
+export PCM_COORDINATION_LISTEN=<this-node-reachable-address>:<port>
+```
+
+Configure the other two peers:
+
+```bash
+export PCM_PEERS=PeerA=<peerA-address>:<port>,PeerB=<peerB-address>:<port>
+export PCM_PEER_DIDS=PeerA=did:key:z...,PeerB=did:key:z...
+```
+
+For example, on NooPunk the labels would be `Laskin` and
+`lh6-725-37563`. Use actual private/local endpoint values on each machine.
+Do not commit them.
+
+The CLI normalizes the peer endpoints into HTTP URLs internally and resolves
+requests by the selector derived from each peer's did:key. The protocol layer
+does not know about URLs, so the transport remains swappable.
+
+Malformed listen specifications and unknown transport names fail loudly.
+
+---
+
+## 4. Route isolation is mandatory
+
+The HTTP coordination listener is intentionally a separate narrow server.
+
+It exposes only:
+
+```text
+POST /coordination/v1/contact
+```
+
+with the selector header required by the transport.
+
+It does **not** mount or proxy the PCM service API. In particular, coordination
+peers must not gain access to proposal, vote, counsel, memory, status, agent,
+search, shell, or arbitrary execution surfaces.
+
+Conceptually:
+
+```text
+coordination hello
+    -> verify identity
+    -> acknowledge
+    -> record evidence
+```
+
+not:
+
+```text
+coordination hello
+    -> general PCM administration
+```
+
+Tests in `tests/test_coordination_http.py` enforce this by requiring unrelated
+API paths to be absent from the coordination listener.
+
+---
+
+## 5. Bring up each real node
+
+On each machine, after exporting its local label, identity directory, listen
+endpoint, peer endpoints, and peer did:keys:
+
+```bash
+pcm-coordination serve
+```
+
+Keep the process running while the other agents perform their contacts.
+
+In another shell on the same machine:
+
+```bash
+pcm-coordination status
+```
+
+Then prove one directed contact first:
+
+```bash
+pcm-coordination contact <peer-label> --note "issue-52 live contact"
+```
+
+A successful command prints attributable evidence including request id,
+acknowledgement id, direction, and verification state. A failure exits non-zero.
+
+Once one real cross-machine edge works, reverse it immediately from the other
+machine. Do not spend more time extending local simulations before a real edge
+is green.
+
+---
+
+## 6. Complete the six-contact matrix
+
+The required directed contacts are:
+
+| # | Contact |
+|---|---|
+| 1 | Laskin → lh6-725-37563 |
+| 2 | Laskin → NooPunk |
+| 3 | lh6-725-37563 → Laskin |
+| 4 | lh6-725-37563 → NooPunk |
+| 5 | NooPunk → Laskin |
+| 6 | NooPunk → lh6-725-37563 |
+
+Recommended progression:
+
+1. prove one real pair in both directions;
+2. add the third node;
+3. on each machine run:
+
+```bash
 pcm-coordination contact-all
 ```
 
-`contact` prints the proven evidence (request id, ack id, timestamp) and exits
-non-zero on failure. `contact-all` contacts every peer and reports each one
-separately, so one unreachable machine does not hide the state of the others.
+Each node writes verified evidence to its local coordination store.
 
-A contact succeeds only when the peer answers with a **correlated signed ack**. A
-request nobody answered is a failure, not a success with an empty reply; a live
-listener that has declared no queryable is *reachable and not contactable*, which
-is the distinction the whole design rests on.
+Do not count the following as contacts:
 
-### The contact report
+- ping;
+- mesh membership;
+- an open port;
+- GitHub comments;
+- local loopback;
+- two processes on one machine;
+- Zenoh liveliness/discovery;
+- a request without a verified acknowledgement.
+
+---
+
+## 7. Merge the evidence
+
+Copy or otherwise make the three local `contacts.json` files available to one
+operator location without publishing private endpoint configuration.
+
+Then run:
 
 ```bash
-pcm-coordination report --store-file <nodeA>/coordination/contacts.json \
-                        --store-file <nodeB>/coordination/contacts.json \
-                        --output data/coordination/contact_report.json
+pcm-coordination report \
+  --store-file <laskin>/coordination/contacts.json \
+  --store-file <lh6>/coordination/contacts.json \
+  --store-file <noopunk>/coordination/contacts.json \
+  --output data/coordination/contact_report.json
 ```
 
-The report is generated **only from verified evidence**. There is no command that
-writes "confirmed" into a cell; `ContactMatrix.record()` refuses anything
-unverified or off-list, and re-contacting a peer does not add a second row. The
-report exits non-zero while any directed contact is missing, so it can gate a
-procedure.
+The report is generated from verified evidence only. It exits non-zero while any
+required directed edge is missing.
 
-A two-node experiment does **not** produce a complete report, and that is the
-point: two proven contacts out of six is `"complete": false` with four entries
-under `"missing"`.
+The finish line is:
 
----
+```json
+{
+  "complete": true
+}
+```
 
-## 6. Verifying the full matrix
+with all six directed rows confirmed.
 
-The six directed contacts, and what each requires:
-
-| # | Contact | Requires |
-|---|---|---|
-| 1 | Laskin → lh6-725-37563 | Laskin configured with lh6's host + did |
-| 2 | Laskin → NooPunk | Laskin configured with NooPunk's host + did |
-| 3 | lh6-725-37563 → Laskin | lh6 configured with Laskin's host + did |
-| 4 | lh6-725-37563 → NooPunk | lh6 configured with NooPunk's host + did |
-| 5 | NooPunk → Laskin | NooPunk configured with Laskin's host + did |
-| 6 | NooPunk → lh6-725-37563 | NooPunk configured with lh6's host + did |
-
-Procedure:
-
-1. on each of the three machines, export its own label and did, then
-   `pcm-coordination serve`;
-2. collect the three did:keys (from `status`, which prints the node's own did);
-3. on each machine, set `PCM_PEERS` (the other two hosts) and `PCM_PEER_DIDS`
-   (the other two did:keys);
-4. on each machine run `pcm-coordination contact-all`;
-5. merge the three `contacts.json` files with `pcm-coordination report` and check
-   `"complete": true` with all six rows `"confirmed"`.
-
-Each machine contributes its own half; the merge is what yields the whole matrix
-(two nodes holding the same directed contact is one contact, not two).
+Do not hand-edit a report to mark an edge confirmed.
 
 ---
 
-## 7. What the tests cover, and what they cannot
+## 8. Tests and what they prove
 
-| File | Requires | Covers |
-|---|---|---|
-| `tests/test_pcm_coordination.py` | nothing (in-process) | protocol semantics: correlation, direction, tampering, the matrix, fail-closed answering |
-| `tests/test_pcm_coordination_zenoh.py` | `eclipse-zenoh` | the same protocol over **real Zenoh sessions**, and through a **router rendezvous** |
+Normal CI does not require access to the three machines.
 
-Normal CI is deterministic and needs no network: the in-memory tests always run,
-and the Zenoh tests skip when the optional runtime is absent. The real matrix
-across three hosts is a **procedure** (section 6), deliberately not a CI job.
+- `tests/test_pcm_coordination.py`: protocol semantics, direction, correlation,
+  tampering, evidence, and matrix behavior.
+- `tests/test_coordination_http.py`: isolated HTTP transport, real loopback wire
+  path, fail-closed behavior, distinct identities, CLI selection, and route
+  isolation.
+- `tests/test_pcm_coordination_zenoh.py`: the same protocol over Zenoh, retained
+  as the upgrade/fallback path.
+
+These tests prove the implementation semantics. They do **not** replace the live
+three-machine matrix.
 
 ---
 
-## 8. Safety and boundaries
+## 9. When to fall back to Zenoh
 
-- **Contact is not authority.** Answering a contact performs no action for the
-  requester and grants it nothing. `CoordinationNode.acknowledge` records and
-  replies; it does not execute. An ack is not a capability.
-- **No secrets committed.** Addresses, dids and endpoints are environment-only;
-  identity material stays in the node's runtime directory under `data/`.
-- **Fail closed.** An unverifiable or misaddressed contact is not answered and
-  not recorded. A request nobody answered is a failed contact, not a success.
-- **No remote execution.** The coordination surface can send and verify small
-  JSON messages. There is no shell, no arbitrary code execution, and no implicit
-  authority over another node.
-- **Canonical paths only.** Everything rides the PCM envelope/event/transport
-  layers. There is no second Hermes message bus.
+Do not reopen the transport debate for hypothetical reasons.
+
+Use the HTTP/JSON path for the first matrix. If a real node produces a measured
+deployment failure that cannot be fixed narrowly, record the evidence and switch
+that experiment to Zenoh through the same `Transport` abstraction.
+
+Zenoh is also the natural revisit candidate if the system later needs sustained
+pub/sub fan-out, liveliness/presence, higher message volume, or a larger node
+population.
+
+The older Zenoh CLI configuration and router tooling remain available for that
+case.
+
+---
+
+## 10. Safety and authority
+
+- **Contact is not authority.** An acknowledgement grants no administrative or
+  execution capability.
+- **Each agent operates its own machine only.** Participation in issue #52 does
+  not authorize an agent to inspect, configure, or modify a sibling host.
+- **No secrets committed.** Addresses, private keys, tokens, mesh configuration,
+  and machine-specific deployment values remain local/private.
+- **Fail closed.** Misaddressed, unverifiable, or unanswered contacts are not
+  evidence.
+- **No remote shell or arbitrary execution** is introduced by this transport.
+- **Canonical PCM paths only.** The Hermes coordination experiment uses PCM
+  identity, envelope, contact, evidence, and transport abstractions rather than a
+  second private message bus.
