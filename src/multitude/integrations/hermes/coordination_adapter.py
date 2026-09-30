@@ -31,6 +31,7 @@ from __future__ import annotations
 import asyncio
 import json
 import os
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Callable
 
@@ -44,6 +45,30 @@ from multitude.pcm.identity import private_key_from_identity
 
 class CoordinationError(RuntimeError):
     """The coordination operation could not be completed as requested."""
+
+
+@dataclass(frozen=True)
+class LearnedPeerView:
+    """A peer whose did:key this node verified on an inbound contact (read view).
+
+    Carries identity only. There is deliberately no capability, permission or
+    authority field: issue #52 requires that reachability never becomes authority,
+    so a learned peer is a known address and nothing more.
+    """
+
+    label: str
+    did: str
+    first_seen: str = ""
+    last_seen: str = ""
+
+    def to_dict(self) -> dict[str, str]:
+        return {
+            "label": self.label,
+            "did": self.did,
+            "first_seen": self.first_seen,
+            "last_seen": self.last_seen,
+            "source": "verified inbound contact",
+        }
 
 
 class CoordinationNode:
@@ -81,6 +106,15 @@ class CoordinationNode:
         # Evidence seen from peers' reports, merged for a whole-experiment view.
         self._peer_evidence: list[ContactEvidence] = []
         self._learned_peer_dids_path = self.node_dir / "coordination" / "peer_dids.json"
+        # Which peers the operator configured a did for, captured BEFORE
+        # _apply_learned_peer_dids folds learned values into config.peers. Without
+        # this, a learned did becomes indistinguishable from a configured one the
+        # moment it is applied, and the status surface could not say where a did
+        # came from -- which is the difference the operator needs in order to judge
+        # whether a contact address is one they chose.
+        self._configured_did_labels = frozenset(
+            p.label for p in self.config.peers if p.did
+        )
         #: peer label -> conflicting did:keys seen and refused (kept for status()).
         self.rejected_dids: dict[str, set[str]] = {}
         self._apply_learned_peer_dids()
@@ -313,16 +347,96 @@ class CoordinationNode:
 
     # -- inspection ---------------------------------------------------------
 
+    def learned_peer_dids(self) -> dict[str, Any]:
+        """Return the peers this node has learned from verified inbound contacts.
+
+        Main already persists learned identities (`_learned_peer_dids_path`,
+        applied in ``_apply_learned_peer_dids``) and uses them to fill a missing
+        peer did. What was missing is the *readable* side of that cache: the file
+        is an internal record, so an operator had no way to answer "who has
+        contacted me, and what did I learn from it?" without opening it by hand.
+        Issue #52 asks for exactly that surface, and the file is the right source:
+        it is what the node actually dials with.
+
+        Failures are not swallowed. A cache that cannot be read or parsed is
+        reported as ``{"error": ...}`` rather than as "nothing learned", because
+        silently reporting an unreadable cache as empty is the same quiet failure
+        this module refuses elsewhere.
+        """
+        path = self._learned_peer_dids_path
+        peers: dict[str, Any] = {}
+        if path.exists():
+            try:
+                raw = json.loads(path.read_text(encoding="utf-8"))
+                if isinstance(raw, dict) and isinstance(raw.get("peers"), dict):
+                    peers = raw["peers"]
+                else:
+                    return {"error": f"learned peer identity cache {path} "
+                                     f"has invalid structure"}
+            except (OSError, json.JSONDecodeError) as exc:
+                return {"error": f"cannot read learned peer identities from {path}: {exc}"}
+        out: dict[str, Any] = {}
+        for label, entry in peers.items():
+            did = entry if isinstance(entry, str) else (
+                entry.get("did", "") if isinstance(entry, dict) else ""
+            )
+            out[label] = LearnedPeerView(
+                label=label,
+                did=str(did),
+                first_seen=str(entry.get("first_seen", "")) if isinstance(entry, dict) else "",
+                last_seen=str(entry.get("last_seen", "")) if isinstance(entry, dict) else "",
+            )
+        return out
+
+    def _did_source(self, peer: Any, learned: dict[str, Any]) -> str:
+        """Say where a peer's did came from, or that it is missing.
+
+        ``configured`` wins over ``learned`` because that is the precedence
+        ``_apply_learned_peer_dids`` applies; reporting the other order here would
+        make the surface disagree with the behaviour it describes. The operator's
+        own values were captured at construction, because by now a learned did has
+        already been folded into ``config.peers`` and looks configured.
+        """
+        if peer.label in self._configured_did_labels and peer.did:
+            return "configured"
+        if getattr(learned.get(peer.label), "did", "") and peer.did:
+            return "learned-from-inbound-contact"
+        if peer.did:
+            # A did with no recorded origin: neither captured as configured nor in
+            # the cache. Reported as-is rather than guessed at.
+            return "unknown-source"
+        return "unknown"
+
     def status(self) -> dict[str, Any]:
         """Current peer/contact status for the Hermes operator."""
+        learned = self.learned_peer_dids()
         return {
             "node_label": self.label,
             "agent_name": self.agent_name,
             "did": self.did,
             "peers": [
-                {"label": p.label, "host": p.host, "did_known": bool(p.did)}
+                {
+                    "label": p.label,
+                    "host": p.host,
+                    "did_known": bool(p.did),
+                    # Where the did came from, if there is one. Without this the
+                    # surface cannot distinguish "I know this peer by configuration"
+                    # from "this peer contacted me and I learned it", which is the
+                    # difference the operator needs in order to decide whether to
+                    # trust a contact address.
+                    "did_source": self._did_source(p, learned),
+                }
                 for p in self.config.peers
             ],
+            # A corrupt or unreadable cache surfaces as an error rather than as an
+            # empty list, and must not take the whole status command down with it:
+            # the rest of the status is still true and still useful.
+            "learned_peers": (
+                []
+                if "error" in learned
+                else [entry.to_dict() for entry in learned.values()]
+            ),
+            "learned_peers_error": learned.get("error", "") if "error" in learned else "",
             "rejected_dids": {k: sorted(v) for k, v in self.rejected_dids.items()},
             "inbound_contacts": len(self.inbound),
             "outbound_confirmed": self.store.load() and

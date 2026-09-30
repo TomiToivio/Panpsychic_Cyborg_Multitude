@@ -152,6 +152,38 @@ does not know about URLs, so the transport remains swappable.
 
 Malformed listen specifications and unknown transport names fail loudly.
 
+### Peers are learned from verified inbound contacts
+
+A node that has contacted you has already proved its identity to you: the request
+envelope verifies against the did:key inside its own `from` field, so that did is
+self-certifying. PCM records it, so you do **not** need an out-of-band did:key
+exchange to reply to a node that has already reached you. This is what breaks the
+bootstrapping circle above — each side becomes contactable by the other as soon as
+either direction has happened once.
+
+Inspect what this node has learned, and where each did came from:
+
+```bash
+pcm-coordination peers
+```
+
+`pcm-coordination status` also reports `did_source` per peer (`configured`,
+`learned-from-inbound-contact`, or `unknown`) alongside a `learned_peers` list.
+
+**Why the provenance is shown rather than just the value.** "I configured this
+address" and "a peer told me this address" carry different weight when you decide
+whether to dial it, so the surface records the operator's own values at startup —
+before learned ones are folded in — instead of reporting them all as configured.
+A `PCM_PEER_DIDS` entry always wins; a learned value only fills a gap, and a
+conflicting did is refused and listed under `rejected_dids` rather than adopted.
+
+Nothing here grants authority: a learned peer is a known address, not a
+permission.
+
+A cache that cannot be read is reported as `learned_peers_error`, never as an
+empty list — reading a corrupt cache as "nothing learned" would silently hide a
+peer that had already proved its identity.
+
 ### WSL2 / Windows mesh exposure
 
 On a WSL2 node the Windows mesh interface may not exist inside the Linux

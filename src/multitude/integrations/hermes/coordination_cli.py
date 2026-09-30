@@ -142,6 +142,34 @@ def _build_node(args: argparse.Namespace, *, enable_listener: bool = True) -> Co
     )
 
 
+def cmd_peers(args: argparse.Namespace) -> int:
+    """Show what this node learned about peers from verified inbound contacts.
+
+    A read-only view of the cache the node actually dials with (``peer_dids.json``).
+    Issue #52 asks that an operator be able to inspect peer/contact status, and
+    that identity and authority stay separable -- so this reports identity only and
+    contacts nobody.
+    """
+    node = _build_node(args, enable_listener=False)
+    status = node.status()
+    print(json.dumps({
+        "node_label": status["node_label"],
+        "agent_name": status["agent_name"],
+        "did": status["did"],
+        "peers": status["peers"],
+        "learned_peers": status["learned_peers"],
+        "rejected_dids": status["rejected_dids"],
+        "note": (
+            "A learned did comes from a verified inbound contact: the envelope is "
+            "checked against the did in its own 'from', and the advertised label is "
+            "bound to the expected agent name before it is stored. A configured "
+            "PCM_PEER_DIDS entry always wins; a conflicting did is refused and "
+            "listed under rejected_dids. Learning identity grants no authority."
+        ),
+    }, indent=2, ensure_ascii=False))
+    return 0
+
+
 def cmd_status(args: argparse.Namespace) -> int:
     node = _build_node(args)
     status = node.status()
@@ -267,6 +295,10 @@ def build_parser() -> argparse.ArgumentParser:
     sub = parser.add_subparsers(dest="command", required=True)
 
     sub.add_parser("status", help="show this node and the missing contacts")
+    sub.add_parser(
+        "peers",
+        help="show peers learned from verified inbound contacts (identity only)",
+    )
 
     contact = sub.add_parser("contact", help="contact one named peer")
     contact.add_argument("peer")
@@ -290,6 +322,8 @@ def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     if args.command == "status":
         return cmd_status(args)
+    if args.command == "peers":
+        return cmd_peers(args)
     if args.command == "contact":
         return cmd_contact(args)
     if args.command == "contact-all":
