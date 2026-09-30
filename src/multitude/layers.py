@@ -151,29 +151,42 @@ class ConsciousnessStatusError(LayerError):
 
 
 def assert_may_write_consciousness(
-    *, target: str, reported_by: Optional[str], value: Any
+    *, target: str, reported_by: Optional[str], value: Any, current: Any = None
 ) -> None:
-    """Enforce the ``is_conscious`` guard (issue #65).
+    """Enforce the ``is_conscious`` guard (issue #65): the field is immutable.
 
-    Raises unless the write is *by the member itself* and *returns the field to
-    UNKNOWN*. Nothing here consults any evidence, benchmark, self-report or
-    model: the rule is that the question stays open, so the only permitted
-    transition is to ``None``.
+    The issue's rule is that it "may be set at join time by the seeding path and
+    **never** rewritten by ``record_layer`` afterwards -- not by a peer, not by
+    the node itself". This guard is that rule, expressed as immutability through
+    the public write API:
+
+    * a write that would **change** the stored value is refused, whoever makes
+      it and in whichever direction -- up to ``True`` or down to ``False`` or to
+      ``False`` from ``UNKNOWN``;
+    * a write that **re-asserts** the current value is permitted, because it is
+      not a rewrite. This is not a loophole: the seeding paths legitimately
+      re-assert what is already there (a join seeds the biological default, and
+      the runtime adapters write a member's own layer with the value the member
+      already holds), and permitting those is what keeps the guard surgical
+      instead of having to special-case a caller list.
+
+    Nothing here consults evidence, a benchmark, a self-report or a model, and
+    the guard is deliberately symmetric: forcing the field to ``False`` is the
+    same error as forcing it to ``True``. ``False`` is the direction that
+    *removes* a possible subject, which is what the standing rule exists to
+    prevent.
     """
+    if value == current:
+        return
     writer = (reported_by or "").strip()
     owner = (target or "").strip()
-    if writer and writer != owner:
-        raise ConsciousnessStatusError(
-            f"{writer!r} may not write {owner!r}'s {CONSTITUTIONAL_FIELD}: standing "
-            "is not another participant's to assert or deny (README: no test, no "
-            "benchmark, no self-report may flip it)"
-        )
-    if value is not None:
-        raise ConsciousnessStatusError(
-            f"{CONSTITUTIONAL_FIELD} may only be returned to UNKNOWN (None), not set "
-            f"to {value!r}: resolving the question in either direction is the failure "
-            "the standing rule forbids"
-        )
+    who = "a third party" if writer and writer != owner else "the member itself"
+    raise ConsciousnessStatusError(
+        f"{CONSTITUTIONAL_FIELD} is immutable through record_layer: "
+        f"{owner!r} is {current!r} and {who} ({writer or owner!r}) tried to set it "
+        f"to {value!r}. It is set once at join time by the seeding path. README: "
+        "no test, no benchmark, no self-report may flip it."
+    )
 
 
 def default_seeds(member: Member) -> dict[str, dict[str, Any]]:

@@ -1,8 +1,16 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
+import sys
 import tempfile
 from pathlib import Path
+
+# The repository root contains a `multitude.py` launcher, which shadows the
+# `multitude` package on the default sys.path. Every other test file in this
+# repo inserts src/ first for the same reason; this one was missing it, so the
+# module could not be collected (this is the failure main's CI has been showing
+# since #69 merged, and it is why 'the tests pass' was not true).
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 
 from multitude.models import NodeKind, Position
 from multitude.rhizome import Rhizome

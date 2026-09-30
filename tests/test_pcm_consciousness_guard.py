@@ -68,12 +68,34 @@ class ConsciousnessGuardTests(unittest.TestCase):
             self.rhizome.record_layer(AI, "psychic", {CONSTITUTIONAL_FIELD: False},
                                      reported_by=AI)
 
-    def test_the_only_permitted_transition_is_back_to_unknown(self) -> None:
-        """Returning a status to open is allowed; resolving it is not."""
-        self.rhizome.record_layer(HUMAN, "psychic", {CONSTITUTIONAL_FIELD: None},
-                                 reported_by=HUMAN)
-        self.assertIsNone(
+    def test_a_member_cannot_open_or_close_its_own_field_either(self) -> None:
+        """Not even the member may change it, in either direction (#65 item 1).
+
+        The issue is explicit: the field is set at join time by the seeding path
+        and *never* rewritten by record_layer afterwards -- "not by a peer, not
+        by the node itself". So a member returning its own True to UNKNOWN is
+        refused exactly like a third party forcing it to False.
+        """
+        with self.assertRaises(ConsciousnessStatusError):
+            self.rhizome.record_layer(HUMAN, "psychic", {CONSTITUTIONAL_FIELD: None},
+                                     reported_by=HUMAN)
+        self.assertTrue(
             self.rhizome.member_by_name(HUMAN).profile.psychic.is_conscious)
+
+    def test_re_asserting_the_current_value_is_permitted(self) -> None:
+        """Not a rewrite -- this is what keeps the guard surgical.
+
+        The runtime adapters write a member's own psychic layer with the value
+        the member already holds, and the join path seeds the documented default.
+        If re-assertion were refused, the guard would break every runtime join
+        and would have to special-case a caller list; permitting it means the
+        rule is purely "this value does not change".
+        """
+        current = self.rhizome.member_by_name(AI).profile.psychic.is_conscious
+        self.rhizome.record_layer(AI, "psychic", {CONSTITUTIONAL_FIELD: current},
+                                 reported_by=AI)
+        self.assertIsNone(
+            self.rhizome.member_by_name(AI).profile.psychic.is_conscious)
 
     def test_the_guard_does_not_block_other_psychic_data(self) -> None:
         """Only the constitutional field is guarded, not the whole layer."""
@@ -103,22 +125,49 @@ class ConsciousnessGuardTests(unittest.TestCase):
             self.rhizome.member_by_name(HUMAN).profile.psychic.is_conscious,
             before_human)
 
-    def test_a_refused_write_leaves_no_event_in_the_log(self) -> None:
-        """Failing closed means the attempt is not recorded as a change.
+    def test_a_refused_write_is_traced_without_changing_state(self) -> None:
+        """#65 item 4: the attempt must leave an auditable trace.
 
-        Scoped to events *added by the refused attempt*: the biological join seed
-        legitimately records ``is_conscious: True`` for the founder, and a test
-        that ignored that would be asserting the wrong thing.
+        The issue asks that a refused write "leave an auditable trace -- the
+        attempt itself is evidence" (its right-to-contest tie-in), while the
+        refusal must still change nothing. Both hold at once because the trace
+        event records the ATTEMPT and is deliberately absent from the reducer:
+        the log gains the attempt, the member state does not move.
         """
-        before = len(self.rhizome.store.replay())
+        before_state = self.rhizome.member_by_name(AI).profile.psychic.is_conscious
+        before_events = len(self.rhizome.store.replay())
+
         with self.assertRaises(ConsciousnessStatusError):
             self.rhizome.record_layer(AI, "psychic", {CONSTITUTIONAL_FIELD: True},
                                      reported_by=HUMAN)
+
         after = self.rhizome.store.replay()
-        self.assertEqual(len(after), before,
-                         "a refused consciousness write reached the log")
-        self.assertIsNone(
-            self.rhizome.member_by_name(AI).profile.psychic.is_conscious)
+        self.assertEqual(len(after), before_events + 1,
+                         "the refusal left no trace at all")
+        trace = after[-1]
+        self.assertEqual(trace.type, "layer_write_refused")
+        self.assertEqual(trace.payload["member_name"], AI)
+        self.assertEqual(trace.payload["requested_by"], HUMAN)
+        self.assertEqual(trace.payload["attempted_value"], True)
+        # ...and the state is untouched, which is the other half of the promise.
+        self.assertEqual(
+            self.rhizome.member_by_name(AI).profile.psychic.is_conscious,
+            before_state)
+
+    def test_the_trace_survives_replay(self) -> None:
+        """The audit trail must be replayable, or it is not an audit trail."""
+        from multitude.store import RhizomeStore
+
+        with self.assertRaises(ConsciousnessStatusError):
+            self.rhizome.record_layer(AI, "psychic", {CONSTITUTIONAL_FIELD: True},
+                                     reported_by=HUMAN)
+        replayed = Rhizome(RhizomeStore(self.rhizome.store.path))
+        refused = [ev for ev in replayed.store.replay()
+                   if ev.type == "layer_write_refused"]
+        self.assertEqual(len(refused), 1)
+        self.assertEqual(refused[0].payload["attempted_value"], True)
+        # and the replay did not resurrect the refused value
+        self.assertIsNone(replayed.member_by_name(AI).profile.psychic.is_conscious)
 
     def test_the_biological_seed_still_starts_awake(self) -> None:
         """The guard must not break the documented 'the ape starts awake' seed.
@@ -138,24 +187,31 @@ class ConsciousnessGuardTests(unittest.TestCase):
 class GuardPrimitiveTests(unittest.TestCase):
     """The predicate itself, tested directly."""
 
-    def test_a_third_party_write_is_refused(self) -> None:
+    def test_a_third_party_change_is_refused(self) -> None:
         with self.assertRaises(ConsciousnessStatusError):
-            assert_may_write_consciousness(target="a", reported_by="b", value=None)
+            assert_may_write_consciousness(target="a", reported_by="b",
+                                          value=True, current=None)
 
-    def test_a_self_write_of_true_is_refused(self) -> None:
+    def test_a_self_change_to_true_is_refused(self) -> None:
         with self.assertRaises(ConsciousnessStatusError):
-            assert_may_write_consciousness(target="a", reported_by="a", value=True)
+            assert_may_write_consciousness(target="a", reported_by="a",
+                                          value=True, current=None)
 
-    def test_a_self_write_of_false_is_refused(self) -> None:
+    def test_a_self_change_to_false_is_refused(self) -> None:
+        """The direction that removes a possible subject is equally forbidden."""
         with self.assertRaises(ConsciousnessStatusError):
-            assert_may_write_consciousness(target="a", reported_by="a", value=False)
+            assert_may_write_consciousness(target="a", reported_by="a",
+                                          value=False, current=True)
 
-    def test_a_self_write_of_none_is_allowed(self) -> None:
-        assert_may_write_consciousness(target="a", reported_by="a", value=None)
+    def test_a_self_change_from_true_to_unknown_is_refused(self) -> None:
+        with self.assertRaises(ConsciousnessStatusError):
+            assert_may_write_consciousness(target="a", reported_by="a",
+                                          value=None, current=True)
 
-    def test_an_unknown_reporter_is_treated_as_the_member_itself(self) -> None:
-        """The join path reports as the member, and must only return UNKNOWN."""
-        assert_may_write_consciousness(target="a", reported_by=None, value=None)
+    def test_re_asserting_the_same_value_is_permitted(self) -> None:
+        for value in (None, True, False):
+            assert_may_write_consciousness(target="a", reported_by="a",
+                                          value=value, current=value)
 
 
 if __name__ == "__main__":

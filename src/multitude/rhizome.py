@@ -523,6 +523,13 @@ class Rhizome:
             text=text.strip(),
             tags=tags or [],
             author=author,
+            # Stable authorship id (#69). `member` was already resolved above for
+            # the author_kind decision; `author_id` was simply never populated,
+            # so a member's own memory could not be found by its stable id and
+            # the participant export returned none of it. Stays None for a name
+            # that is not a member, which is what makes a forged author
+            # unattributable rather than silently accepted.
+            author_id=member.id if member is not None else None,
             human=human,
             visibility=visibility_clean,
             source=source or merged_meta["source"],
@@ -971,19 +978,46 @@ class Rhizome:
         reporter_name = reporter.name if reporter else m.name
         from multitude.layers import (
             CONSTITUTIONAL_FIELD,
+            ConsciousnessStatusError,
             assert_may_write_consciousness,
             layer_recorded_payload,
         )
 
-        # The constitutional guard (issue #65): is_conscious stays UNKNOWN for
-        # every member. Enforced here, on the single public write path, so the
-        # rule cannot be bypassed by calling the layer API directly.
+        # The constitutional guard (issue #65): is_conscious is seed-only.
+        # Enforced here, on the single public write path, so the rule cannot be
+        # bypassed by calling the layer API directly.
+        #
+        # Order matters. The refusal is TRACED FIRST, then raised: issue #65 item
+        # 4 asks that a refused write "leave an auditable trace -- the attempt
+        # itself is evidence" (its right-to-contest tie-in), and the trace cannot
+        # be written from an exception handler in the caller. Tracing before
+        # raising also means a refused attempt is never lost, while `_apply` is
+        # deliberately absent from `_apply`'s reducer, so the event records the
+        # attempt WITHOUT changing any member state. That keeps the earlier
+        # guarantee intact -- a refused write still mutates nothing.
         if layer_enum == Layer.PSYCHIC and CONSTITUTIONAL_FIELD in data:
-            assert_may_write_consciousness(
-                target=m.name,
-                reported_by=reported_by or m.name,
-                value=data[CONSTITUTIONAL_FIELD],
-            )
+            try:
+                assert_may_write_consciousness(
+                    target=m.name,
+                    reported_by=reported_by or m.name,
+                    value=data[CONSTITUTIONAL_FIELD],
+                    current=m.profile.psychic.is_conscious,
+                )
+            except ConsciousnessStatusError as exc:
+                self._emit(
+                    "layer_write_refused",
+                    reporter_name,
+                    {
+                        "member_id": m.id,
+                        "member_name": m.name,
+                        "layer": layer_enum.value,
+                        "field": CONSTITUTIONAL_FIELD,
+                        "attempted_value": data[CONSTITUTIONAL_FIELD],
+                        "requested_by": reporter_name,
+                        "reason": str(exc),
+                    },
+                )
+                raise
 
         payload = layer_recorded_payload(
             m, layer_enum, dict(data), reporter_name, visible=visible
@@ -1205,6 +1239,10 @@ class Rhizome:
             aliases=[a.strip() for a in (aliases or []) if a.strip()],
             tags=[t.strip() for t in (tags or []) if t.strip()],
             added_by=author.name,
+            # Stable-id field for the participant export (#69); declared on the
+            # model but never populated, so lexicon contributions were only
+            # findable by name.
+            added_by_id=author.id,
             ts=now_iso(),
         )
         if not entry.term:
@@ -1508,6 +1546,7 @@ class Rhizome:
             rule=rule,
             quorum=quorum,
             opened_by=m.name,
+            opened_by_id=m.id,
             opened_ts=now_iso(),
             electorate=[member.id for member in self.voting_members()],
         )
@@ -1531,7 +1570,12 @@ class Rhizome:
             raise RhizomeError(f"'{m.name}' is a non-voting node")
         if m.id in p.votes:
             raise RhizomeError(f"'{m.name}' has already voted on this proposal")
-        v = Vote(member=m.id, position=position, reason=reason, ts=now_iso())
+        # Vote.member is the member id (kept for back-compat); member_id is the
+        # stable-id field the participant export keys on (#69). It was declared on
+        # the model but never populated here, so a member's own votes were only
+        # findable by a name fallback the export itself is not supposed to rely on.
+        v = Vote(member=m.id, member_id=m.id, position=position, reason=reason,
+                 ts=now_iso())
         self._emit(
             "vote_cast",
             m.name,
@@ -1553,12 +1597,15 @@ class Rhizome:
         p = self._require_proposal(proposal_id)
         counts = {pos.value: 0 for pos in Position}
         n_voters = 0
+        non_voting: list[str] = []
         for v in p.votes.values():
             if self.members.get(v.member) is None:
                 continue  # departed: no longer on the roster, not counted
             counts[v.position.value] += 1
             n_voters += 1
-        return {
+            if not member.voting:
+                non_voting.append(member.name)
+        out = {
             "proposal_id": p.id,
             "title": p.title,
             "status": p.status.value,
@@ -1568,6 +1615,10 @@ class Rhizome:
             "quorum": p.quorum,
             "quorum_met": n_voters >= p.quorum,
         }
+        if non_voting:
+            # Reported, not subtracted: the tally says what it counted.
+            out["non_voting_votes"] = sorted(non_voting)
+        return out
 
     def _vote_member_label(self, vote: Vote) -> str:
         """Resolve a vote's display name, including for departed members.
