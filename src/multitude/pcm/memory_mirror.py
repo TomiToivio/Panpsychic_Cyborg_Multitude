@@ -175,6 +175,23 @@ class MemoryMirror:
         if field not in self.fields:
             raise ValueError(f"unknown mirror field {field!r}")
         self.lamport += 1
+        existing = self.fields[field].get(key)
+        if isinstance(existing, dict):
+            subject = existing.get("subject") or existing.get("author") or existing.get("did")
+            if subject and subject != self.did:
+                claim = {
+                    "author": self.did,
+                    "subject": subject,
+                    "lamport": self.lamport,
+                    "ts": _now(),
+                    "value": value,
+                    "private": private,
+                }
+                claims = list(existing.get("claims", []))
+                if claim not in claims:
+                    claims.append(claim)
+                existing["claims"] = claims
+                return
         self.fields[field][key] = {
             "lamport": self.lamport,
             "did": self.did,          # compatibility alias for old readers
