@@ -82,6 +82,7 @@ class HttpJsonTransport(Transport):
         listen_host: str | None = None,
         listen_port: int | None = None,
         on_request: Callable[[str, dict[str, Any]], None] | None = None,
+        peer_urls: dict[str, str] | None = None,
     ) -> None:
         self._identity = identity or {"pcm_id": "agent:local"}
         self._listen_host = listen_host
@@ -89,6 +90,10 @@ class HttpJsonTransport(Transport):
         #: Optional observer called with (selector, payload) for every inbound
         #: request, so a node can log what it was asked without widening the route.
         self._on_request = on_request
+        #: selector -> peer base URL. The protocol layer calls
+        #: ``request(selector, ...)`` without knowing about URLs (it must not, or
+        #: the transport stops being swappable), so the address book lives here.
+        self._peer_urls: dict[str, str] = dict(peer_urls or {})
 
         self._subs: list[tuple[Any, str, SubscribeHandler]] = []
         self._queryables: dict[str, QueryableHandler] = {}
@@ -238,12 +243,17 @@ class HttpJsonTransport(Transport):
         """
         self._require_start()
         validate_key(selector, allow_wildcards=True)
-        if not peer_url:
+        # The protocol layer calls request(selector) without knowing about URLs,
+        # so resolve the address here; an explicit peer_url still wins (tests and
+        # one-off probes use it).
+        resolved = peer_url or self._peer_urls.get(selector)
+        if not resolved:
             raise TransportError(
-                "request() needs peer_url: the HTTP binding does not discover peers "
-                "(reachability is the mesh's job, per ADR-001)"
+                f"no address known for selector {selector!r}: the HTTP binding does "
+                "not discover peers (reachability is the mesh's job, per ADR-001). "
+                "Configure peer_urls or pass peer_url."
             )
-        url = peer_url.rstrip("/") + COORDINATION_PATH
+        url = resolved.rstrip("/") + COORDINATION_PATH
         body = json.dumps(payload or {}, ensure_ascii=False).encode("utf-8")
         req = urllib_request.Request(
             url,

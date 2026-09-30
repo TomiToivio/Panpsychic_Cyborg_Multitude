@@ -33,14 +33,15 @@ import asyncio
 import json
 import sys
 from pathlib import Path
+from typing import Any
 
 from multitude.integrations.hermes.contact_store import ContactLedger, ContactStore
-from multitude.integrations.hermes.coordination import load_node_config
+from multitude.integrations.hermes.coordination import PeerConfig, load_node_config
 from multitude.integrations.hermes.coordination_adapter import (
     CoordinationError,
     CoordinationNode,
 )
-from multitude.pcm.contact import default_required_nodes
+from multitude.pcm.contact import contact_selector_for_did, default_required_nodes
 
 
 def _default_node_dir() -> Path:
@@ -50,12 +51,83 @@ def _default_node_dir() -> Path:
 
 
 def _build_node(args: argparse.Namespace) -> CoordinationNode:
-    from multitude.integrations.zenoh.fabric import ZenohTransport
+    """Build this node with the transport the operator selected.
+
+    ADR-001 records HTTP/JSON as the first runtime transport and Zenoh as the
+    documented upgrade, so the selection is a configuration choice rather than a
+    code change. ``PCM_COORDINATION_TRANSPORT`` picks it:
+
+    - ``http`` (or unset with ``PCM_COORDINATION_LISTEN`` set): the isolated
+      HTTP/JSON binding;
+    - ``zenoh``: the Zenoh fabric (the pre-existing default).
+
+    Both implement the same ``Transport`` ABC, so nothing else in this module
+    knows which one is running.
+    """
+    import os
 
     config = load_node_config()
     if args.label:
         config.label = args.label
-    transport = ZenohTransport({"pcm_id": config.agent_name})
+
+    which = os.environ.get("PCM_COORDINATION_TRANSPORT", "").strip().lower()
+    listen = os.environ.get("PCM_COORDINATION_LISTEN", "").strip()
+    if not which:
+        which = "http" if listen else "zenoh"
+
+    if which == "http":
+        from multitude.integrations.coordination.http_transport import HttpJsonTransport
+
+        host, _, port = listen.partition(":")
+        if not host or not port.isdigit():
+            raise SystemExit(
+                "PCM_COORDINATION_LISTEN must be <host>:<port> when the transport is "
+                f"http (got {listen!r}); use a mesh address and a free port"
+            )
+        transport: Any = HttpJsonTransport(
+            {"pcm_id": config.agent_name},
+            listen_host=host,
+            listen_port=int(port),
+        )
+        # The HTTP binding has no discovery: addressing is deployment state, so
+        # each peer's URL must be supplied explicitly. Rebuild rather than mutate,
+        # so the peer list is never left half-rewritten.
+        peers = [
+            PeerConfig(
+                label=peer.label,
+                host=peer.host
+                if peer.host.startswith("http")
+                else f"http://{peer.host}",
+                did=peer.did,
+            )
+            for peer in config.peers
+        ]
+        config.peers = peers
+
+        # The protocol calls request(selector) with no URL — it must not know about
+        # transports. So hand the binding the address book it needs, keyed by the
+        # selector the contact layer will actually use.
+        peer_urls = {
+            contact_selector_for_did(peer.did): peer.host
+            for peer in peers
+            if peer.did and peer.host
+        }
+
+        transport: Any = HttpJsonTransport(
+            {"pcm_id": config.agent_name},
+            listen_host=host,
+            listen_port=int(port),
+            peer_urls=peer_urls,
+        )
+    elif which == "zenoh":
+        from multitude.integrations.zenoh.fabric import ZenohTransport
+
+        transport = ZenohTransport({"pcm_id": config.agent_name})
+    else:
+        raise SystemExit(
+            f"unknown PCM_COORDINATION_TRANSPORT {which!r}; expected 'http' or 'zenoh'"
+        )
+
     return CoordinationNode(
         transport,
         node_dir=Path(args.node_dir) if args.node_dir else _default_node_dir(),

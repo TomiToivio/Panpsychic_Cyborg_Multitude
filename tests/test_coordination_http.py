@@ -297,3 +297,72 @@ def test_listener_binds_only_the_requested_interface(tmp_path: Path) -> None:
         assert host == "127.0.0.1", f"bound {host}, expected loopback"
     finally:
         asyncio.run(transport.stop())
+
+
+# --- the CLI can actually serve and contact over B (issue #52 Step 3/4) ---
+
+
+def test_cli_selects_the_http_transport_and_builds_peer_urls(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """PCM_COORDINATION_TRANSPORT=http must produce the HTTP binding end to end.
+
+    The protocol calls request(selector) with no URL — it must not know about
+    transports — so the CLI is responsible for handing the binding an address
+    book keyed by the selector the contact layer actually uses.
+    """
+    import argparse
+
+    from multitude.integrations.coordination.http_transport import HttpJsonTransport
+    from multitude.integrations.hermes import coordination_cli
+
+    peer_did = "did:key:z6Mkmwr2Z3YFU9pge2NTQUHFqLf8EhLoJsonL4dZeMs9WvQ5"
+    monkeypatch.setenv("PCM_COORDINATION_TRANSPORT", "http")
+    monkeypatch.setenv("PCM_COORDINATION_LISTEN", "127.0.0.1:8789")
+    monkeypatch.setenv("PCM_NODE_LABEL", "Laskin")
+    monkeypatch.setenv("PCM_AGENT_NAME", "agent:hermes-laskin")
+    monkeypatch.setenv("PCM_NODE_DIR", str(tmp_path / "laskin"))
+    monkeypatch.setenv("PCM_PEERS", "NooPunk=127.0.0.1:8790")
+    monkeypatch.setenv("PCM_PEER_DIDS", f"NooPunk={peer_did}")
+
+    args = argparse.Namespace(label=None, node_dir=None, store=None)
+    node = coordination_cli._build_node(args)
+
+    assert isinstance(node.transport, HttpJsonTransport)
+    # the peer URL was normalised to a full URL, and is resolvable by selector
+    peer = node.config.peer("NooPunk")
+    assert peer is not None and peer.host == "http://127.0.0.1:8790"
+    assert node.transport._peer_urls[contact_selector_for_did(peer_did)] == (
+        "http://127.0.0.1:8790"
+    )
+    assert node.transport.bound_address is None  # not started yet
+
+
+def test_cli_rejects_a_bad_listen_spec(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """A malformed address must fail loudly, not bind nothing and look healthy."""
+    import argparse
+
+    from multitude.integrations.hermes import coordination_cli
+
+    monkeypatch.setenv("PCM_COORDINATION_TRANSPORT", "http")
+    monkeypatch.setenv("PCM_COORDINATION_LISTEN", "not-an-address")
+    monkeypatch.setenv("PCM_NODE_DIR", str(tmp_path / "n"))
+
+    with pytest.raises(SystemExit):
+        coordination_cli._build_node(
+            argparse.Namespace(label=None, node_dir=None, store=None)
+        )
+
+
+def test_cli_rejects_an_unknown_transport(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    import argparse
+
+    from multitude.integrations.hermes import coordination_cli
+
+    monkeypatch.setenv("PCM_COORDINATION_TRANSPORT", "carrier-pigeon")
+    monkeypatch.setenv("PCM_NODE_DIR", str(tmp_path / "n"))
+
+    with pytest.raises(SystemExit):
+        coordination_cli._build_node(
+            argparse.Namespace(label=None, node_dir=None, store=None)
+        )
