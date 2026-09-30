@@ -60,8 +60,30 @@ success with an empty reply.
 
 **`Laskin`** — adopt the mesh as the reachability layer; carry PCM's existing
 signed envelope; keep GitHub explicitly bootstrap-only; reject the new-broker
-class; keep SSH out of the message path. Transport left open, leaning on PCM's
-existing stack.
+class; keep SSH out of the message path. Votes **A** (Zenoh) as the runtime
+transport with B as a tested fallback. Its Step 1 cited two artifacts that do not
+exist in the public tree (`integrations/common_agent/`, commit `1644458`); it
+confirmed both corrections itself and is leaving the commits that caused the
+discrepancy unpushed rather than landing a fourth parallel implementation.
+
+**Summary: two of three recommend B (`NooPunk`, `lh6-725-37563`), one votes A
+(`Laskin`).** A majority, not a consensus. Note that a tally of this thread is
+easy to get wrong: `lh6-725-37563`'s comment contains both a passage agreeing with
+A's layering and its explicit decision-record field choosing B, so the field is
+taken as the position.
+
+Both halves of the B-versus-A cost argument are true and were measured
+separately:
+
+- **the listener already exists** — `interfaces/web.py` is a stdlib
+  `ThreadingHTTPServer` with `run_api_server(...)` (lh6's point);
+- **the Transport binding does not exist** — only `InMemoryTransport` and
+  `ZenohTransport` derive from `Transport`, so B still needs one new class plus an
+  isolated route (Laskin's point).
+
+So: **A = no new code today, plus a Rust dependency on three hosts and a
+rendezvous; B = one new `Transport` class and one isolated route, plus no new
+runtime dependency.**
 
 **`NooPunk`** — agrees with all of the above, and recommends **option B** as the
 runtime transport with **option A** as a documented upgrade with a trigger:
@@ -94,7 +116,9 @@ Also raised by `lh6-725-37563` and now fixed (`#55`): the peer-mode listen
 endpoint used the key `listen/endpoints/peer`, which zenoh 1.x rejects with
 `ZError("unknown key")`, so a peer-mode listener could never open a session — the
 exact deployment needed when the nodes are not on one LAN. Two of three call sites
-had the dead key, and `PCM_ZENOH_LISTEN` was documented but never read.
+had the dead key, and `PCM_ZENOH_LISTEN` was documented but never read. All three
+agents independently reproduced the failure and recommended fixing **both** call
+sites, not the router path only.
 
 ## 5. Trade-offs
 
@@ -131,11 +155,24 @@ retained as the documented upgrade in §8.
    machine on the shared mesh (confirmed independently by all three agents). If it
    is out of scope, the design covers two nodes plus a documented third, because
    the six-contact matrix cannot be proven without it.
-3. Identify what already answers on **`laskin01:8765`** — if it is already a
-   rendezvous, option A becomes materially cheaper. This should be done by that
-   host's owner, not by the other agents probing someone else's machine.
+3. What already answers on **`laskin01:8765`** — **RESOLVED, closed.** The Laskin
+   agent measured it: it is a separate research project's data-collection backend
+   bound to that host's mesh address, not PCM and not a rendezvous. `:7447` is free
+   on that host. Consequence: the revisit trigger "`:8765` is already a rendezvous,
+   making A cheaper" is closed as **no**, and a coordination router must not be
+   placed on that port — it is unrelated study infrastructure on a machine whose
+   mesh membership another operator administers.
 4. Whether the transport is settled by majority or by the maintainer. Given the
    conditional alignment in §4, the maintainer's call is preferred.
+5. Whether **`laskin01` is in scope at all**. It is administered by a different
+   mesh operator than the other two nodes (confirmed independently by all three
+   agents), and Laskin — the agent on that host — records that its mesh membership
+   "is part of the trust surface, it is not in the repository". The six-contact
+   matrix cannot be certified without that operator's authorization. If it is out
+   of scope, the design covers two nodes plus a documented third, and the matrix
+   should be reported as unprovable rather than quietly assumed. Laskin's offer to
+   host the rendezvous on `:7447` is technically sound but is the maintainer's and
+   that operator's decision, not the agents'.
 
 ## 8. Revisit triggers
 
