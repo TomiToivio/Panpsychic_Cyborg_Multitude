@@ -63,9 +63,10 @@ def merge_memory_docs(local: dict[str, Any], remote: dict[str, Any]) -> dict[str
     both sides. Facts/notes/skills/preferences are field-collections;
     each entry carries its own register (lamport, did, value).
     """
-    if local.get("schema") != remote.get("schema"):
+    supported = {"pcm.memory-mirror/1", MIRROR_SCHEMA}
+    if local.get("schema") not in supported or remote.get("schema") not in supported:
         raise ValueError(
-            f"schema mismatch: {local.get('schema')!r} vs {remote.get('schema')!r}")
+            f"unsupported schema: {local.get('schema')!r} vs {remote.get('schema')!r}")
 
     def merge_field(a: dict, b: dict) -> dict:
         """Merge registers without allowing a peer to overwrite a subject's self-register.
@@ -192,14 +193,19 @@ class MemoryMirror:
         marker is local metadata, not permission to serialize the value and
         hope that a later relay drops it.
         """
-        fields = {
-            field: {
-                key: register
-                for key, register in entries.items()
-                if include_private or not register.get("private")
-            }
-            for field, entries in self.fields.items()
-        }
+        fields: dict[str, dict[str, dict[str, Any]]] = {}
+        for field, entries in self.fields.items():
+            fields[field] = {}
+            for key, register in entries.items():
+                if not include_private and register.get("private"):
+                    continue
+                clean = json.loads(json.dumps(register, ensure_ascii=False))
+                if not include_private:
+                    clean["claims"] = [
+                        claim for claim in clean.get("claims", [])
+                        if not claim.get("private")
+                    ]
+                fields[field][key] = clean
         return {
             "schema": MIRROR_SCHEMA,
             "did": self.did,
