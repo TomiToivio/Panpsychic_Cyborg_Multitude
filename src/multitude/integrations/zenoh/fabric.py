@@ -48,7 +48,10 @@ def _build_zenoh_config(mode: str, connect: list[str], listen: list[str]):
         cfg.insert_json5("mode", json.dumps("peer"))
         cfg.insert_json5("scouting/multicast/enabled", json.dumps(True))
         if listen:
-            cfg.insert_json5("listen/endpoints/peer", json.dumps(listen))
+            # zenoh >= 1.x does not have a "listen/endpoints/peer" key: it raises
+            # ZError("unknown key") at config time, so a peer-mode listener would
+            # never open a session. The valid key is "listen/endpoints".
+            cfg.insert_json5("listen/endpoints", json.dumps(listen))
     return cfg
 
 
@@ -66,9 +69,14 @@ class ZenohTransport(Transport):
             connect = env_connect or None
             if connect:
                 mode = "client"
+        listen = listen_endpoints
+        if listen is None:
+            # PCM_ZENOH_LISTEN is documented for this module; wiring it here keeps
+            # the documented twin of PCM_ZENOH_CONNECT actually readable.
+            listen = [e for e in os.environ.get("PCM_ZENOH_LISTEN", "").split(",") if e.strip()]
         self._mode = mode
         self._connect = connect or []
-        self._listen = listen_endpoints or []
+        self._listen = listen or []
         self._session: Any = None
         self._tokens: list[Any] = []       # undeclarables (subs, tokens)
         self._started = False
