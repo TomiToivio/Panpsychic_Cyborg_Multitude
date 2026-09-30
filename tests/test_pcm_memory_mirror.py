@@ -39,20 +39,31 @@ from multitude.pcm.transport import InMemoryTransport
 def main() -> int:
     failures: list[str] = []
 
-    # ---- 1. deterministic LWW merge ----
+    # ---- 1. merge is deterministic on both sides (#63 subject rule) ----
+    # The old expectation here was "B has a higher (lamport, did) -> B wins".
+    # That is the arbitrary-legitimacy rule issue #63 removes: a higher did is
+    # not a reason to own someone else's register. Two independent writers of
+    # the same key each own what they wrote, so A's own write survives and B's
+    # is preserved as an attributed claim rather than silently replacing it.
     a = MemoryMirror("did:key:A")
     a.set("facts", "language", "fi")
     b = MemoryMirror("did:key:B")
     b.set("facts", "language", "en")
-    # B has higher lamport on the same key -> B wins, deterministically
     doc_a, doc_b = a.to_document(), b.to_document()
     m_ab = merge_memory_docs(doc_a, doc_b)
     m_ba = merge_memory_docs(doc_b, doc_a)
-    val_ab = m_ab["fields"]["facts"]["language"]["value"]
-    val_ba = m_ba["fields"]["facts"]["language"]["value"]
-    if val_ab != "en" or val_ba != "en":
-        failures.append(f"LWW nondeterministic: {val_ab!r} vs {val_ba!r}")
-    print(f"[merge] LWW tie-break deterministic: both sides -> {val_ab!r}")
+    reg_ab = m_ab["fields"]["facts"]["language"]
+    reg_ba = m_ba["fields"]["facts"]["language"]
+    if reg_ab["value"] != reg_ba["value"] or reg_ab["subject"] != reg_ba["subject"]:
+        failures.append(f"merge nondeterministic: {reg_ab!r} vs {reg_ba!r}")
+    if reg_ab["value"] != "fi" or reg_ab["subject"] != "did:key:A":
+        failures.append(
+            f"subject rule not applied: {reg_ab['value']!r} owned by {reg_ab['subject']!r}")
+    claims = reg_ab.get("claims") or []
+    if not any(c["did"] == "did:key:B" and c["value"] == "en" for c in claims):
+        failures.append(f"non-subject write was not preserved as a claim: {reg_ab!r}")
+    print(f"[merge] subject-owned and deterministic: {reg_ab['value']!r} "
+          f"(+{len(claims)} attributed claim(s))")
 
     # ---- 2. import from IndividualMemoryStore shape ----
     store = {"facts": {"name": "rhizome"}, "notes": ["note one", "note two"],
