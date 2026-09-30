@@ -98,7 +98,11 @@ def main() -> int:
         got = mirror_b.as_memory_dict()["facts"].get("home_base")
         if got != "the commons":
             failures.append(f"B did not receive A's fact: {got!r}")
-        print(f"[sync] A -> B via signed memory_share: {got!r}")
+        shared_by_b = mirror_b.to_document(include_private=False)
+        shared_reg = shared_by_b["fields"]["facts"]["home_base"]
+        if shared_reg.get("author") != id_a["did"] or shared_reg.get("subject") != id_a["did"]:
+            failures.append(f"absorbed memory was re-attributed by B: {shared_reg!r}")
+        print(f"[sync] A -> B via signed memory_share: {got!r}; authorship retained")
 
         # tampered envelope rejected
         env = await _captured_envelope(sync_a, mirror_a)
