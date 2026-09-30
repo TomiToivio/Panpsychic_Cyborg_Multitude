@@ -103,9 +103,21 @@ class MultitudeService:
     # ------------------------------------------------------------- rights
 
     def participant_status(self, name: str) -> str:
-        """Return the event-sourced participation state for a member."""
-        member_name = self._require_member(name)
-        member = self.rhizome.member_by_name(member_name)
+        """Return the event-sourced participation state for a member.
+
+        Resolves former members too. ``exit`` and ``termination`` remove a member
+        from the active roster, but the recorded state is exactly what callers
+        need to ask about afterwards: the exit is the first thing a departing
+        participant or an auditor wants to confirm, and querying it should not
+        raise ``UnknownMember`` for the very member that just left (#62, #69).
+        """
+        member = self.rhizome.member_by_name(name) or next(
+            (m for m in self.rhizome.former_members.values()
+             if m.name.lower() == name.strip().lower()),
+            None,
+        )
+        if member is None:
+            raise UnknownMember(f"unknown member '{name}'")
         from multitude.participant_rights import status_for
         return status_for(self.rhizome, member.id)
 

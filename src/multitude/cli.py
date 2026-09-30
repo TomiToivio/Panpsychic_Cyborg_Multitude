@@ -204,6 +204,48 @@ def cmd_demote(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_export_contributions(args: argparse.Namespace) -> int:
+    """Produce a participant's own copy (issue #69).
+
+    Design Principle #3 promises permission to "take an appropriate copy of
+    one's contributions". This is that operation: no other member has to
+    authorize it, and it works for a member that has already exited.
+    """
+    import json
+
+    rhizome = _load_rhizome(args)
+    export = MultitudeService(rhizome).export_participant_contributions(args.name)
+    text = json.dumps(export, indent=2, ensure_ascii=False)
+    if args.out:
+        with open(args.out, "w", encoding="utf-8") as handle:
+            handle.write(text + "\n")
+        counts = {k: len(v) for k, v in export["contributions"].items()}
+        print(f"wrote {args.out} ({export['schema']}; {counts})")
+    else:
+        print(text)
+    return 0
+
+
+def cmd_leave(args: argparse.Namespace) -> int:
+    """Leave the collective, optionally taking a copy of one's contributions."""
+    import json
+
+    rhizome = _load_rhizome(args)
+    service = MultitudeService(rhizome)
+    record = service.exit_participation(args.name, public_reason=args.reason or "")
+    print(f"{args.name} has left the collective")
+    if not args.no_copy:
+        export = service.export_participant_contributions(args.name)
+        text = json.dumps(export, indent=2, ensure_ascii=False)
+        if args.out:
+            with open(args.out, "w", encoding="utf-8") as handle:
+                handle.write(text + "\n")
+            print(f"copy of own contributions: {args.out}")
+        else:
+            print(text)
+    return 0
+
+
 # ---------------------------------------------------------------- layers
 
 
@@ -1221,6 +1263,22 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--name", required=True)
     p.add_argument("--by", default=None, help="actor recording the demotion")
     p.set_defaults(func=cmd_demote)
+
+    p = sub.add_parser(
+        "contributions", help="print a participant's own copy of its contributions"
+    )
+    p.add_argument("--name", required=True)
+    p.add_argument("--out", default=None, help="write the copy to this file")
+    p.set_defaults(func=cmd_export_contributions)
+
+    p = sub.add_parser("leave", help="leave the collective, keeping a copy of one's record")
+    p.add_argument("--name", required=True)
+    p.add_argument("--reason", default=None, help="public reason for leaving")
+    p.add_argument("--out", default=None, help="write the copy to this file")
+    p.add_argument(
+        "--no-copy", action="store_true", help="leave without printing or writing a copy"
+    )
+    p.set_defaults(func=cmd_leave)
 
     p = sub.add_parser("log", help="show raw event log")
     p.add_argument("--limit", type=int, default=30)

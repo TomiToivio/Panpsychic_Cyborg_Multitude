@@ -520,6 +520,9 @@ class Rhizome:
             text=text.strip(),
             tags=tags or [],
             author=author,
+            # Stable identity, alongside the display name (#69). Without this the
+            # export can only join on a name, and a name is free text.
+            author_id=member.id if member is not None else None,
             human=human,
             visibility=visibility_clean,
             source=source or merged_meta["source"],
@@ -1202,6 +1205,7 @@ class Rhizome:
             aliases=[a.strip() for a in (aliases or []) if a.strip()],
             tags=[t.strip() for t in (tags or []) if t.strip()],
             added_by=author.name,
+            added_by_id=author.id,  # stable identity alongside the name (#69)
             ts=now_iso(),
         )
         if not entry.term:
@@ -1505,6 +1509,7 @@ class Rhizome:
             rule=rule,
             quorum=quorum,
             opened_by=m.name,
+            opened_by_id=m.id,  # stable identity alongside the name (#69)
             opened_ts=now_iso(),
         )
         self._emit("proposal_opened", m.name, {"proposal": p.model_dump()})
@@ -1527,7 +1532,7 @@ class Rhizome:
             raise RhizomeError(f"'{m.name}' is a non-voting node")
         if m.id in p.votes:
             raise RhizomeError(f"'{m.name}' has already voted on this proposal")
-        v = Vote(member=m.id, position=position, reason=reason, ts=now_iso())
+        v = Vote(member=m.id, member_id=m.id, position=position, reason=reason, ts=now_iso())
         self._emit(
             "vote_cast",
             m.name,
