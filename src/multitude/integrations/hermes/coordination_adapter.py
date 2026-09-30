@@ -33,7 +33,7 @@ from pathlib import Path
 from typing import Any, Callable
 
 from multitude.integrations.hermes.contact_store import ContactLedger, ContactStore
-from multitude.integrations.hermes.coordination import NodeConfig, load_node_config
+from multitude.integrations.hermes.coordination import NodeConfig, agent_name_for, load_node_config
 from multitude.pcm import contact
 from multitude.pcm.bootstrap import ensure_node_identity
 from multitude.pcm.contact import ContactError, ContactEvidence, ContactMatrix
@@ -76,6 +76,10 @@ class CoordinationNode:
         self._queryable: Any = None
         # Inbound contacts this node has answered, for the status surface.
         self.inbound: list[dict[str, Any]] = []
+        #: did:keys learned from verified inbound envelopes, keyed by peer label.
+        self._learned_dids: dict[str, str] = {}
+        #: peer label -> did:keys seen that conflict with the adopted one.
+        self._did_conflicts: dict[str, set[str]] = {}
         # Evidence seen from peers' reports, merged for a whole-experiment view.
         self._peer_evidence: list[ContactEvidence] = []
 
@@ -112,14 +116,62 @@ class CoordinationNode:
         )
 
     def _record_inbound(self, event: Any, envelope: Any) -> None:
-        self.inbound.append({
+        """Record an answered contact, and learn the sender's did:key from it.
+
+        The did:key is already on the wire: ``contact_handler`` hands over the
+        signed request envelope, and ``accept_inbound_contact`` has verified that
+        envelope against its own ``from`` before this callback runs. The value is
+        therefore *verified identity material*, not a claim -- which is exactly
+        what ``contact()`` requires in order to address a reply.
+
+        Dropping it is what kept the three-node matrix stuck: a node could be
+        contacted by a peer it could not contact back, even though the value it
+        needed had just arrived. Retaining it makes one inbound contact enough to
+        open the return direction, so nodes no longer deadlock waiting for each
+        other to publish.
+        """
+        sender_did = getattr(envelope, "from_did", "") or ""
+        entry = {
             "from": event.author,
             "request_id": envelope.id,
             "kind": event.payload.get("action", ""),
             "ts": envelope.ts,
-        })
+        }
+        # Only a did:key is usable for addressing; anything else is a malformed
+        # sender identity and must not be recorded as if it were addressable.
+        if sender_did.startswith("did:key:"):
+            entry["from_did"] = sender_did
+            self._learn_peer_did(event.author, sender_did)
+        self.inbound.append(entry)
         if self._on_contact is not None:
             self._on_contact(event)
+
+    def _learn_peer_did(self, author: str, sender_did: str) -> None:
+        """Adopt a peer's verified did:key for a peer we are configured to reach.
+
+        Two guards, because learning an identity from network input is the kind
+        of thing that should not be able to widen a node's reach:
+
+        - **Only configured peers are learned.** An unknown sender is recorded in
+          ``inbound`` for inspection but does not become addressable, so a
+          stranger that contacts us cannot insert itself into our peer set.
+        - **The first verified did for a label wins.** A later envelope carrying
+          a different did for the same label is not adopted silently; it is
+          recorded as a rotation conflict, because two live dids for one node is
+          the ambiguity ADR-001 and the runbook warn about.
+        """
+        for peer in self.config.peers:
+            if agent_name_for(peer.label) != author:
+                continue
+            known = peer.did or self._learned_dids.get(peer.label, "")
+            if known and known != sender_did:
+                self._did_conflicts.setdefault(peer.label, set()).add(sender_did)
+                return
+            if not known:
+                # Recorded separately from PeerConfig.did so status() can report
+                # honestly whether a value was configured or learned on the wire.
+                self._learned_dids[peer.label] = sender_did
+            return
 
     # -- contact ------------------------------------------------------------
 
@@ -135,11 +187,14 @@ class CoordinationNode:
                 f"{peer_label!r} is not a configured peer; set PCM_PEERS "
                 f"(known: {self.config.peer_labels() or 'none'})"
             )
-        if not peer.did:
+        target_did = peer.did or self._learned_dids.get(peer_label, "")
+        if not target_did:
             raise CoordinationError(
                 f"no did:key known for {peer_label!r}; a contact must be addressed "
                 f"to a verified identity, not a bare address (set {peer_label} in "
-                "PCM_PEER_DIDS)"
+                "PCM_PEER_DIDS). A did:key is also learned automatically from a "
+                "verified inbound contact from that peer, so one contact from them "
+                "opens the return direction -- see docs/HERMES_COORDINATION.md"
             )
         try:
             evidence = await contact.contact_peer(
@@ -147,8 +202,8 @@ class CoordinationNode:
                 sender_name=self.agent_name,
                 sender_did=self.did,
                 sender_key=self._key,
-                target_name=_peer_agent_name(peer_label, peer.did),
-                target_did=peer.did,
+                target_name=_peer_agent_name(peer_label, target_did),
+                target_did=target_did,
                 node_label=self.label,
                 note=note,
                 timeout=timeout,
@@ -194,9 +249,20 @@ class CoordinationNode:
             "agent_name": self.agent_name,
             "did": self.did,
             "peers": [
-                {"label": p.label, "host": p.host, "did_known": bool(p.did)}
+                {
+                    "label": p.label,
+                    "host": p.host,
+                    "did_known": bool(p.did or self._learned_dids.get(p.label)),
+                    "did_source": (
+                        "configured" if p.did
+                        else "learned" if self._learned_dids.get(p.label)
+                        else ""
+                    ),
+                }
                 for p in self.config.peers
             ],
+            "learned_dids": dict(self._learned_dids),
+            "did_conflicts": {k: sorted(v) for k, v in self._did_conflicts.items()},
             "inbound_contacts": len(self.inbound),
             "outbound_confirmed": self.store.load() and
             [f"{e.sender_label}->{e.recipient_label}" for e in self.store.load()],

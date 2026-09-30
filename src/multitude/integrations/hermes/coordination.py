@@ -31,7 +31,8 @@ from dataclasses import dataclass, field
 
 # How a peer's did:key is learned. A did is public identity material (not a
 # secret), so it may come from the explicit environment mapping; otherwise it is
-# resolved at contact time from the peer's own advertised identity.
+# adopted from the peer's own signed envelope the first time they contact us
+# (see CoordinationNode._learn_peer_did).
 PEER_DID_ENV = "PCM_PEER_DIDS"
 
 
