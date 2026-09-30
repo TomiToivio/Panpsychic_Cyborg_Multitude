@@ -140,3 +140,11 @@ Participant-rights events are append-only governance facts. Replay must determin
 ## Scope boundary
 
 PCM deliberately leaves consciousness and moral status unresolved. The procedural rule is narrower: continuity, attribution, consent, refusal, and non-erasure can be protected under uncertainty without collapsing those philosophical questions.
+
+## Portability
+
+Renewable participation includes the ability to take an appropriate copy of one's own contributions. PCM exposes a versioned self-export through `MultitudeService.export_participant_contributions()` and `exit_participation_with_copy()`.
+
+The export is keyed by stable participant identity where available and includes expressive/governance records such as memory, messages, proposals, votes, and lexicon contributions. It may include the owner's own private or restricted material because it is a self-export; that artifact must not be disclosed to other participants without the owner's authorization.
+
+Taking a copy never deletes or rewrites the collective event history, and the same export remains available after exit through the former-member record.
