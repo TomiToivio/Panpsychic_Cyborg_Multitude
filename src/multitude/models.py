@@ -147,6 +147,7 @@ class LexiconEntry(BaseModel):
     aliases: list[str] = Field(default_factory=list)
     tags: list[str] = Field(default_factory=list)
     added_by: str = ""
+    added_by_id: Optional[str] = None
     ts: str = ""
 
 
@@ -511,6 +512,7 @@ class Message(BaseModel):
     id: str
     ts: str
     author: str
+    author_id: Optional[str] = None
     kind: str = "say"  # say | system | counsel
     text: str
     in_reply_to: Optional[str] = None
@@ -519,6 +521,7 @@ class Message(BaseModel):
 
 class Vote(BaseModel):
     member: str
+    member_id: Optional[str] = None
     position: Position
     reason: Optional[str] = None
     ts: str = ""
@@ -531,6 +534,7 @@ class Proposal(BaseModel):
     rule: Rule
     quorum: int
     opened_by: str
+    opened_by_id: Optional[str] = None
     opened_ts: str
     status: ProposalStatus = ProposalStatus.OPEN
     version: int = 1
@@ -561,6 +565,7 @@ class MemoryEntry(BaseModel):
     text: str
     tags: list[str] = Field(default_factory=list)
     author: str = ""
+    author_id: Optional[str] = None
     human: bool = True  # governance: human vs AI authorship stays visible
     visibility: str = "shared"  # shared | private | restricted
     source: str = ""  # provenance: self_report | imported | agent | decision | external
