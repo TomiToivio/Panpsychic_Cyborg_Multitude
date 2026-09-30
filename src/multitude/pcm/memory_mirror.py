@@ -48,7 +48,7 @@ from typing import Any
 from multitude.pcm.envelope import Envelope, EnvelopeError, authorize_sender
 from multitude.pcm.identity import Ed25519PrivateKey
 
-MIRROR_SCHEMA = "pcm.memory-mirror/1"
+MIRROR_SCHEMA = "pcm.memory-mirror/2"
 DEFAULT_RHIZOME_SQUARE = "pcm/memory/shared/event"
 
 
@@ -68,13 +68,58 @@ def merge_memory_docs(local: dict[str, Any], remote: dict[str, Any]) -> dict[str
             f"schema mismatch: {local.get('schema')!r} vs {remote.get('schema')!r}")
 
     def merge_field(a: dict, b: dict) -> dict:
-        out = dict(a)
-        for k, rb in b.items():
-            ra = a.get(k)
+        """Merge registers without allowing a peer to overwrite a subject's self-register.
+
+        Every register retains both subject and author. A non-subject write about an
+        existing subject-owned key is preserved as an attributed claim instead of
+        replacing the subject value. This makes conflicts visible and prevents
+        authorship laundering during later re-publication.
+        """
+        out = json.loads(json.dumps(a, ensure_ascii=False))
+        for k, rb_raw in b.items():
+            rb = dict(rb_raw)
+            rb.setdefault("subject", rb.get("did") or remote.get("did"))
+            rb.setdefault("author", rb.get("did") or remote.get("did"))
+            rb.setdefault("claims", [])
+            ra = out.get(k)
             if not isinstance(ra, dict) or "lamport" not in ra:
                 out[k] = rb
                 continue
-            if (rb["lamport"], rb.get("did", "")) > (ra["lamport"], ra.get("did", "")):
+            ra.setdefault("subject", ra.get("did") or local.get("did"))
+            ra.setdefault("author", ra.get("did") or local.get("did"))
+            ra.setdefault("claims", [])
+
+            subject = ra.get("subject")
+            remote_author = rb.get("author")
+            remote_subject = rb.get("subject")
+
+            # The subject is sole writer of its own canonical register. A peer may
+            # make a claim about it, but cannot silently replace it at any lamport.
+            if subject and remote_author != subject:
+                claim = {
+                    "author": remote_author,
+                    "subject": remote_subject or subject,
+                    "lamport": rb.get("lamport", 0),
+                    "ts": rb.get("ts"),
+                    "value": rb.get("value"),
+                    "private": bool(rb.get("private", False)),
+                }
+                claims = list(ra.get("claims", []))
+                if claim not in claims:
+                    claims.append(claim)
+                ra["claims"] = claims
+                out[k] = ra
+                continue
+
+            # Canonical subject writes remain deterministic. Authorship is retained.
+            if (rb["lamport"], rb.get("author", "")) > (
+                ra["lamport"], ra.get("author", "")
+            ):
+                inherited_claims = list(ra.get("claims", []))
+                for claim in rb.get("claims", []):
+                    if claim not in inherited_claims:
+                        inherited_claims.append(claim)
+                rb["claims"] = inherited_claims
                 out[k] = rb
         return out
 
@@ -131,10 +176,13 @@ class MemoryMirror:
         self.lamport += 1
         self.fields[field][key] = {
             "lamport": self.lamport,
-            "did": self.did,
+            "did": self.did,          # compatibility alias for old readers
+            "subject": self.did,
+            "author": self.did,
             "ts": _now(),
             "private": private,
             "value": value,
+            "claims": [],
         }
 
     def to_document(self, *, include_private: bool = True) -> dict[str, Any]:
