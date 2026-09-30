@@ -540,6 +540,13 @@ class Proposal(BaseModel):
     version: int = 1
     outcome: Optional[Outcome] = None
     votes: dict[str, Vote] = Field(default_factory=dict)  # member_id -> Vote
+    # Member ids eligible to vote when this proposal was opened. Frozen so a
+    # later membership change cannot rewrite a decided outcome: without it, a
+    # demotion between the votes and the close shrinks the unanimity
+    # denominator and can flip a rejected proposal to adopted (#72).
+    # Empty for proposals recorded before this field existed; closing then
+    # falls back to the members who actually voted.
+    electorate: list[str] = Field(default_factory=list)
 
 
 class Decision(BaseModel):
