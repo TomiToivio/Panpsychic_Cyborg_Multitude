@@ -42,6 +42,18 @@ class ParticipantRightsTests(unittest.TestCase):
         self.assertEqual(replayed.participant_rights["refusals"][0]["request_id"], "req-1")
         self.assertEqual(replayed.participant_rights["refusals"][0]["runtime"], "hermes-agent")
 
+    def test_participant_claim_is_attributed_and_replayable(self):
+        record = self.service.record_participant_claim(
+            "agent:a",
+            about="facts.my_role",
+            value="coordination node",
+            public_reason="Self-description claim.",
+        )
+        self.assertEqual(record["actor"], "agent:a")
+        replayed = self.replayed()
+        self.assertEqual(replayed.participant_rights["claims"][0]["about"], "facts.my_role")
+        self.assertEqual(replayed.participant_rights["claims"][0]["value"], "coordination node")
+
     def test_contest_suspend_resume_and_dispatch_gate(self):
         contest = self.service.contest(
             "agent:a", about="memory:claim-7", public_reason="Misattributed."
