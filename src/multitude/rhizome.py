@@ -520,6 +520,13 @@ class Rhizome:
             text=text.strip(),
             tags=tags or [],
             author=author,
+            # Stable authorship id (#69). `member` was already resolved above for
+            # the author_kind decision; `author_id` was simply never populated,
+            # so a member's own memory could not be found by its stable id and
+            # the participant export returned none of it. Stays None for a name
+            # that is not a member, which is what makes a forged author
+            # unattributable rather than silently accepted.
+            author_id=member.id if member is not None else None,
             human=human,
             visibility=visibility_clean,
             source=source or merged_meta["source"],
@@ -1229,6 +1236,10 @@ class Rhizome:
             aliases=[a.strip() for a in (aliases or []) if a.strip()],
             tags=[t.strip() for t in (tags or []) if t.strip()],
             added_by=author.name,
+            # Stable-id field for the participant export (#69); declared on the
+            # model but never populated, so lexicon contributions were only
+            # findable by name.
+            added_by_id=author.id,
             ts=now_iso(),
         )
         if not entry.term:
@@ -1532,6 +1543,7 @@ class Rhizome:
             rule=rule,
             quorum=quorum,
             opened_by=m.name,
+            opened_by_id=m.id,
             opened_ts=now_iso(),
         )
         self._emit("proposal_opened", m.name, {"proposal": p.model_dump()})
@@ -1554,7 +1566,12 @@ class Rhizome:
             raise RhizomeError(f"'{m.name}' is a non-voting node")
         if m.id in p.votes:
             raise RhizomeError(f"'{m.name}' has already voted on this proposal")
-        v = Vote(member=m.id, position=position, reason=reason, ts=now_iso())
+        # Vote.member is the member id (kept for back-compat); member_id is the
+        # stable-id field the participant export keys on (#69). It was declared on
+        # the model but never populated here, so a member's own votes were only
+        # findable by a name fallback the export itself is not supposed to rely on.
+        v = Vote(member=m.id, member_id=m.id, position=position, reason=reason,
+                 ts=now_iso())
         self._emit(
             "vote_cast",
             m.name,
