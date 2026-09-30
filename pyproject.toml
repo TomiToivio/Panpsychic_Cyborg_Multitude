@@ -36,6 +36,8 @@ all = [
 
 [project.scripts]
 multitude = "multitude.cli:main"
+pcm-coordination = "multitude.integrations.hermes.coordination_cli:main"
+pcm-coordination-router = "multitude.integrations.hermes.coordination_router:main"
 
 [tool.setuptools]
 package-dir = {"" = "src"}
