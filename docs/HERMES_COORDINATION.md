@@ -22,7 +22,12 @@ vocabulary:
 | `pcm.envelope.Envelope` | both the request and the ack are signed, verifiable envelopes |
 | `pcm.events.PcmEvent` (`pcm.agent.request` / `pcm.agent.response`) | the semantic body carried in `envelope.content.event` |
 | `pcm/query/agent/<did-suffix>` | the request/response endpoint the contacted node answers on |
-| `multitude.pcm.transport.Transport` | the seam: `ZenohTransport` in deployment, `InMemoryTransport` in tests |
+| `multitude.pcm.transport.Transport` | the seam: `HttpJsonTransport` in the selected deployment, `ZenohTransport` as the documented upgrade, `InMemoryTransport` in tests |
+
+The transport is a swappable binding, not part of the protocol. ADR-001 records the
+decision: the agents chose **HTTP/JSON** as the first runtime transport, over the
+already-working private mesh, with Zenoh retained behind the same `Transport`
+interface. Nothing below changes if the transport changes.
 
 The exchange, A → B:
 
@@ -68,23 +73,30 @@ directory); this work adds no second identity store and no new key handling.
 All of it is environment or runtime data under `data/`:
 
 ```bash
-export PCM_ZENOH_ENABLED=true              # the transport's existing dormancy guard
+export PCM_COORDINATION_TRANSPORT=http        # http (selected) | zenoh (upgrade)
+export PCM_COORDINATION_LISTEN=<mesh-addr>:8795   # where this node answers (http)
 export PCM_NODE_LABEL=NooPunk
 export PCM_AGENT_NAME=agent:hermes-noopunk
 export PCM_PEERS=Laskin=<hostA>,lh6-725-37563=<hostB>
 export PCM_PEER_DIDS=Laskin=did:key:z...,lh6-725-37563=did:key:z...
-export PCM_ZENOH_CONNECT=tcp/<rendezvous>:7447    # only for the routed topology
 export PCM_NODE_DIR=data/coordination             # identity + evidence (runtime data)
 ```
 
+- `PCM_COORDINATION_TRANSPORT` — which binding runs. `http` is the selected
+  transport (ADR-001); `zenoh` is the documented upgrade. Defaulting behaviour: set
+  `http` explicitly, or set only `PCM_COORDINATION_LISTEN` and it is inferred;
+  unset with no listen address keeps the pre-existing Zenoh wiring, so an
+  unchanged deployment does not change behaviour.
+- `PCM_COORDINATION_LISTEN` — `<host>:<port>` this node binds. Use the mesh
+  address so peers can actually reach it. A malformed value **fails loudly**
+  rather than binding nothing and looking healthy.
 - `PCM_PEERS` — `label=host` pairs. A malformed entry fails loudly; it is never
   silently dropped, because a typo'd address would then look like an unreachable
-  machine.
+  machine. Under the `http` transport the host may be given with or without the
+  scheme; it is normalised to a full URL.
 - `PCM_PEER_DIDS` — the peers' **public** did:keys. A did:key is identity, not a
   credential: it contains no secret. Without it a contact is refused, because a
   contact must be addressed to a verified identity, not a bare address.
-- `PCM_ZENOH_CONNECT` — omit it on a LAN (peer mode, multicast scouting). Set it
-  when the nodes are not on one LAN (client mode through a router).
 
 No address, token, key or topology is committed. The only public configuration is
 the shape of these variables.
@@ -93,18 +105,45 @@ the shape of these variables.
 
 ## 4. Topology
 
-**Same LAN — peer mode.** Nodes find each other by UDP multicast scouting. No
-server:
+**Selected: HTTP/JSON over the private mesh (no discovery).** There is no
+rendezvous and no router. Each node binds its own mesh address and is given the
+peers' URLs, because reachability comes from the mesh and addressing is deployment
+state rather than something the protocol discovers.
 
 ```bash
-PCM_ZENOH_ENABLED=true PCM_NODE_LABEL=NooPunk \
+PCM_COORDINATION_TRANSPORT=http \
+PCM_COORDINATION_LISTEN=<this-node-mesh-addr>:8795 \
+PCM_NODE_LABEL=NooPunk PCM_AGENT_NAME=agent:hermes-noopunk \
+PCM_NODE_DIR=data/coordination \
+PCM_PEERS='Laskin=<laskin-mesh-addr>:8795,lh6-725-37563=<lh6-mesh-addr>:8795' \
+PCM_PEER_DIDS='Laskin=did:key:z...,lh6-725-37563=did:key:z...' \
+pcm-coordination serve
+```
+
+This binding deliberately has **no discovery**: no multicast, no scouting, no
+service registry. A peer whose address you do not hold is a peer you cannot
+contact, which keeps the exposed surface to exactly one route on one port and
+makes the addressing explicit rather than ambient.
+
+**Upgrade path: Zenoh.** Retained behind the same `Transport` interface and
+selected with `PCM_COORDINATION_TRANSPORT=zenoh`; the pre-existing topology
+instructions are kept below because the upgrade should be a configuration change,
+not a rewrite. Two modes:
+
+*Same LAN — peer mode.* Nodes find each other by UDP multicast scouting. No
+server. (Note: multicast scouting is blocked in some environments, including at
+least one of the three experiment nodes — explicit unicast locators are the safe
+default there.)
+
+```bash
+PCM_COORDINATION_TRANSPORT=zenoh PCM_ZENOH_ENABLED=true PCM_NODE_LABEL=NooPunk \
 PCM_PEERS=Laskin=192.0.2.10,lh6-725-37563=192.0.2.11 \
 pcm-coordination serve
 ```
 
-**Not on one LAN — routed mode.** One node (or a box) runs a Zenoh router; the
-others are clients. This is the topology to use when the machines sit behind
-NAT or on different networks, and it is the one **verified here**.
+*Not on one LAN — routed mode.* One node (or a box) runs a Zenoh router; the
+others are clients. This is the topology to use when the machines sit behind NAT
+or on different networks.
 
 Start a rendezvous router:
 
@@ -117,7 +156,7 @@ a tailnet address works well, since each machine keeps a stable one. Then each
 node connects as a client:
 
 ```bash
-PCM_ZENOH_ENABLED=true PCM_NODE_LABEL=Laskin \
+PCM_COORDINATION_TRANSPORT=zenoh PCM_ZENOH_ENABLED=true PCM_NODE_LABEL=Laskin \
 PCM_ZENOH_CONNECT=tcp/<reachable-address>:7447 \
 PCM_PEERS=NooPunk=<addrNooPunk>,lh6-725-37563=<addrLh6> \
 pcm-coordination serve
@@ -136,6 +175,12 @@ Run one node interactively to watch it answer contacts:
 pcm-coordination serve
 ```
 
+Under the selected HTTP transport, `serve` binds `PCM_COORDINATION_LISTEN` and
+answers on the single route `POST /coordination/v1/contact`. It fails closed: a
+contact that is unverifiable, misaddressed, or sent to an unknown selector gets
+silence (`404`), never an ack and never an error detail. Start it the same way on
+each of the three nodes, each with its own label, identity and listen address.
+
 Inspect what this node is and what is still missing:
 
 ```bash
@@ -152,6 +197,11 @@ pcm-coordination contact-all
 `contact` prints the proven evidence (request id, ack id, timestamp) and exits
 non-zero on failure. `contact-all` contacts every peer and reports each one
 separately, so one unreachable machine does not hide the state of the others.
+
+A contact succeeds only when the peer answers with a **correlated signed ack**. A
+request nobody answered is a failure, not a success with an empty reply; a live
+listener that has declared no queryable is *reachable and not contactable*, which
+is the distinction the whole design rests on.
 
 ### The contact report
 
