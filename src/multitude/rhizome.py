@@ -7,10 +7,13 @@ Governance semantics implemented here:
   Technological nodes may be marked non-voting at the rhizome's discretion
   (a policy choice recorded at join time), but they always retain voice.
 - Proposals are decided by rule: consensus (no opposition), majority
-  (for > against), or unanimity (every voting member for).
+  (for > against), or unanimity (every member of the frozen electorate for).
 - A BLOCK is a principled objection: it rejects under consensus, and
   counts as opposition under majority.
 - Quorum is the minimum number of voting members who must cast a vote.
+- Eligibility is established when a vote is cast, not when the proposal
+  closes: a member demoted after voting keeps their vote and their
+  dissent in the decision. Departure is the one exclusion.
 - Dissent is never discarded: adopted decisions record who stood against
   and why. The log is append-only, so history belongs to everyone.
 """
@@ -1545,6 +1548,7 @@ class Rhizome:
             opened_by=m.name,
             opened_by_id=m.id,
             opened_ts=now_iso(),
+            electorate=[member.id for member in self.voting_members()],
         )
         self._emit("proposal_opened", m.name, {"proposal": p.model_dump()})
         return p
@@ -1580,35 +1584,23 @@ class Rhizome:
         return v
 
     def tally(self, proposal_id: str) -> dict[str, Any]:
-        """Current tally: counts every vote that was legitimately cast.
+        """Current tally: counts among members who cast a counted vote.
 
-        A vote is an act, and it was legitimate when it was cast -- ``cast_vote``
-        refuses a non-voting member, so every recorded vote *was* enfranchised at
-        the moment it was made. A vote from a member who is **still present** is
-        therefore counted even if the member has since been demoted (#66 item 4:
-        "a cast vote is not retroactively excluded").
-
-        The previous rule skipped any vote whose member was not currently voting,
-        which let a standing change reach backwards and rewrite a finished act --
-        under a majority or unanimity rule that can flip a proposal's outcome
-        after a member has already participated, and it did so silently. Those
-        votes are still counted and are now *named* in ``non_voting_votes``, so
-        the tally reports what it counted rather than hiding the change.
-
-        Departure is deliberately unchanged: a member that has **left** is not
-        present to be governed by the outcome, and excluding its votes is an
-        existing, separate policy that this change does not touch. The defect
-        here was only about a present member's standing being rewritten
-        underneath a vote already cast.
+        A vote counts if the voter is still on the roster. A member who is
+        still a member but has since lost voting rights is NOT excluded:
+        ``cast_vote`` refuses members who were not voting at the moment they
+        voted, so every recorded vote was cast while eligible. Eligibility is
+        established at cast time, not re-evaluated at close time (#72).
+        Departure is the one deliberate exclusion (see
+        ``test_leave_and_tally_ignores_departed``).
         """
         p = self._require_proposal(proposal_id)
         counts = {pos.value: 0 for pos in Position}
         n_voters = 0
         non_voting: list[str] = []
         for v in p.votes.values():
-            member = self.members.get(v.member)
-            if member is None:
-                continue  # departed or unknown: not counted (unchanged policy)
+            if self.members.get(v.member) is None:
+                continue  # departed: no longer on the roster, not counted
             counts[v.position.value] += 1
             n_voters += 1
             if not member.voting:
@@ -1627,6 +1619,16 @@ class Rhizome:
             # Reported, not subtracted: the tally says what it counted.
             out["non_voting_votes"] = sorted(non_voting)
         return out
+
+    def _vote_member_label(self, vote: Vote) -> str:
+        """Resolve a vote's display name, including for departed members.
+
+        A decision record must name who dissented even after that member has
+        left the roster, so this looks in `former_members` before falling back
+        to the raw member id (#72).
+        """
+        member = self.members.get(vote.member) or self.former_members.get(vote.member)
+        return member.name if member is not None else vote.member
 
     def _require_proposal(self, proposal_id: str) -> Proposal:
         p = self.proposals.get(proposal_id)
@@ -2432,7 +2434,7 @@ class Rhizome:
 
         objections = [
             {
-                "member": self.members.get(v.member).name if self.members.get(v.member) else v.member,
+                "member": self._vote_member_label(v),
                 "position": v.position.value,
                 "reason": v.reason or "",
                 "theme_keywords": _theme_keywords(v.reason or ""),
@@ -2507,12 +2509,19 @@ class Rhizome:
 
         counts = {pos.value: 0 for pos in Position}
         for v in p.votes.values():
-            member = self.members.get(v.member)
-            if member is None or not member.voting:
-                continue
+            if self.members.get(v.member) is None:
+                continue  # departed: not counted (see tally())
             counts[v.position.value] += 1
         votes_cast = sum(counts.values())
-        n_voting = len(self.voting_members())
+        # The unanimity denominator is the FROZEN electorate recorded when the
+        # proposal opened, not the current voting membership. Using the live
+        # count let a post-vote demotion shrink the denominator and flip a
+        # rejected proposal to adopted (#72). Proposals recorded before
+        # `electorate` existed fall back to the members who actually voted.
+        if p.electorate:
+            n_voting = len(p.electorate)
+        else:
+            n_voting = len({v.member for v in p.votes.values()})
         quorum_met = votes_cast >= p.quorum
 
         if not quorum_met:
@@ -2539,15 +2548,18 @@ class Rhizome:
             )
 
         # Dissent is recorded, never discarded.
+        #
+        # Built from every vote actually cast, with no eligibility filter at
+        # all. A dissent was expressed while the member was eligible
+        # (cast_vote enforces that), and a later standing change must not
+        # erase it from the decision record (#72). This is why the loop
+        # below deliberately does not consult `member.voting`.
         dissent: list[dict[str, Any]] = []
         for v in p.votes.values():
-            member = self.members.get(v.member)
-            if member is None or not member.voting:
-                continue
             if v.position in (Position.AGAINST, Position.BLOCK):
                 dissent.append(
                     {
-                        "member": member.name,
+                        "member": self._vote_member_label(v),
                         "position": v.position.value,
                         "reason": v.reason or "",
                     }
