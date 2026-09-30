@@ -10,7 +10,7 @@ AI runtimes are participants in the Multitude, not owners of it.
 - Do not introduce unrestricted shell execution as a generic PCM tool.
 - Destructive workspace/repository changes, governance changes, external messaging on behalf of humans, device control, and permission changes require explicit authorization.
 - Use canonical PCM envelopes/transports for Zenoh and other messaging. Telegram is a transport boundary, not an agent runtime.
-- Agent-authored memory and events must retain actor/runtime provenance. Never silently rewrite human-authored memory.
+- Memory and events must retain actor/runtime provenance. No participant may silently rewrite another participant's authored memory; cross-subject conflicts must remain attributable and recoverable.
 - Consciousness claims, self-reports, introspection metrics, IIT Phi, or relational measures never grant runtime authority.
 - Preserve local-first and distributed architecture. AI is one optional participant class among humans, devices, services, and other nodes.
 - Keep speculative consciousness research clearly separated from implemented operational facts.
