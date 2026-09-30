@@ -95,32 +95,23 @@ What stays local, and is neither published nor committed:
 - listen bind addresses and other machine-specific deployment values;
 - credentials, tokens, and mesh configuration.
 
-### A did:key is also learned from an inbound contact
+### A did:key can also be learned from a verified inbound contact
 
-Publishing is the reliable path, but it is not the only one, and it is not needed
-in both directions at once. Every contact request is a **signed envelope whose
-`from` field is its sender's did:key**, and the receiving node verifies that
-signature before it answers. So a node that has been contacted already holds its
-peer's verified did:key — it does not have to wait for the peer to publish.
+Publishing remains the reliable bootstrap path, but the return direction can also
+be learned in-band. Every accepted contact request carries the sender's did:key in
+a signed envelope, and the contact handler verifies that envelope before the Hermes
+adapter records it.
 
-The adapter retains it: the first time a configured peer contacts this node, their
-did:key is adopted for that peer, and the return direction opens with no further
-exchange. One inbound contact is therefore enough to make the pair mutually
-reachable.
+When the sender's advertised node label matches a peer already present in
+`PCM_PEERS`, the adapter stores that verified public did:key in the node-local
+`coordination/peer_dids.json` cache. A later outbound CLI process using the same
+node directory can recover the cached did:key and contact that peer without a
+second out-of-band exchange.
 
-Two limits, so this cannot quietly widen a node's reach:
-
-- **Only a configured peer is learned.** A sender that is not in `PCM_PEERS` is
-  recorded in `inbound` for inspection but never becomes addressable — a stranger
-  cannot insert itself into the peer set by contacting us.
-- **Explicit configuration wins, and conflicts are surfaced.** A did:key set via
-  `PCM_PEER_DIDS` is never overwritten. If a peer label contacts us with a
-  *different* did:key than the one already known, the new value is not adopted
-  silently; it is reported in `pcm-coordination status` under `did_conflicts`,
-  because two live identities for one label is the ambiguity described below.
-
-`pcm-coordination status` shows both: each peer's `did_known` and `did_source`
-(`configured` or `learned`), plus `learned_dids` and `did_conflicts`.
+This learning path does not add new peers: an unconfigured sender is recorded as
+inbound activity but is not inserted into the peer allowlist. Explicit
+`PCM_PEER_DIDS` configuration remains authoritative when present. The cache is
+local runtime identity material and should not be committed.
 
 ### If a peer answers `404`
 

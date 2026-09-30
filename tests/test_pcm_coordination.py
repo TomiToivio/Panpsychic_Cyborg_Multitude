@@ -553,3 +553,73 @@ def test_a_peer_did_is_public_material_not_a_secret() -> None:
     identity, _, _ = make_identity(Path("/tmp") / "pcm-did-probe", "n")
     assert identity["did"].startswith("did:key:z")
     assert "secret" not in identity["did"].lower()
+
+
+def test_verified_inbound_contact_learns_peer_did_for_reverse_contact(tmp_path: Path) -> None:
+    """One authenticated inbound contact can bootstrap the reverse direction."""
+    async def scenario():
+        fabric = Fabric()
+        a = await Node(tmp_path, "lh6-725-37563", ["Laskin"], fabric).start()
+        b = await Node(tmp_path, "Laskin", ["lh6-725-37563"], fabric).start()
+
+        # Only A starts with B's public DID. B deliberately has no out-of-band DID
+        # for A, reproducing the live #52 bootstrap deadlock.
+        a.node.config.peers = [
+            PeerConfig(label="Laskin", host="127.0.0.1", did=b.did)
+        ]
+        assert not b.node.config.peer("lh6-725-37563").did
+
+        forward = await a.node.contact("Laskin", timeout=2.0)
+        assert forward.verified
+        assert b.node.config.peer("lh6-725-37563").did == a.did
+        assert b.node.inbound[-1]["from_did"] == a.did
+        assert b.node.inbound[-1]["peer_did_learned"] is True
+
+        # Simulate a separate outbound CLI process: construct a fresh node against
+        # the same node directory. It must recover the learned DID from disk.
+        outbound_transport = fabric.transport_for(agent_name_for("Laskin"))
+        await outbound_transport.start()
+        fresh_b = CoordinationNode(
+            outbound_transport,
+            node_dir=b.dir,
+            config=NodeConfig(
+                label="Laskin",
+                agent_name=agent_name_for("Laskin"),
+                peers=[PeerConfig(label="lh6-725-37563", host="127.0.0.1")],
+            ),
+        )
+        assert fresh_b.config.peer("lh6-725-37563").did == a.did
+
+        backward = await fresh_b.contact("lh6-725-37563", timeout=2.0)
+        assert backward.verified
+        assert (backward.sender_label, backward.recipient_label) == (
+            "Laskin",
+            "lh6-725-37563",
+        )
+
+        await outbound_transport.stop()
+        await a.transport.stop()
+        await b.transport.stop()
+
+    asyncio.run(scenario())
+
+
+def test_unconfigured_inbound_identity_is_not_learned(tmp_path: Path) -> None:
+    """A valid contact does not silently add an unknown node to the peer allowlist."""
+    async def scenario():
+        fabric = Fabric()
+        stranger = await Node(tmp_path, "Stranger", ["Laskin"], fabric).start()
+        laskin = await Node(tmp_path, "Laskin", [], fabric).start()
+        stranger.node.config.peers = [
+            PeerConfig(label="Laskin", host="127.0.0.1", did=laskin.did)
+        ]
+
+        evidence = await stranger.node.contact("Laskin", timeout=2.0)
+        assert evidence.verified
+        assert laskin.node.config.peers == []
+        assert laskin.node.inbound[-1]["peer_did_learned"] is False
+
+        await stranger.transport.stop()
+        await laskin.transport.stop()
+
+    asyncio.run(scenario())
