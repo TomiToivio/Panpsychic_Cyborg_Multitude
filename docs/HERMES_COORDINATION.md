@@ -55,6 +55,19 @@ Example:
 export PCM_NODE_LABEL=NooPunk
 export PCM_AGENT_NAME=agent:hermes-noopunk
 export PCM_NODE_DIR=data/coordination
+
+```
+
+`PCM_AGENT_NAME` is optional, but if set it **must match the canonical name
+derived from `PCM_NODE_LABEL`**. For example, `lh6-725-37563` maps to
+`agent:hermes-lh6-725-37563`. A mismatch is rejected at startup because it
+makes the node appear healthy while signed inbound contacts are addressed to a
+different agent name and verified peer-DID learning refuses the sender.
+
+If you do not need to pin the value explicitly, omit `PCM_AGENT_NAME` and let
+the runtime derive it from the label.
+
+```bash
 ```
 
 The did:key is generated/read through PCM's existing identity store. The public
