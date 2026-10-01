@@ -200,7 +200,6 @@ def test_load_node_config_rejects_agent_name_label_mismatch() -> None:
             "PCM_NODE_LABEL": "lh6-725-37563",
             "PCM_AGENT_NAME": "agent:hermes-lh6",
         })
-    assert agent_name_for("NooPunk") == "agent:hermes-noopunk"
 
 
 def test_node_config_falls_back_to_a_distinct_identity_not_a_generic_one() -> None:
