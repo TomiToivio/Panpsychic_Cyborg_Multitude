@@ -178,7 +178,28 @@ def test_agent_names_are_distinct_per_node() -> None:
     """Issue #52: the three nodes must not collapse into one identity."""
     names = {agent_name_for(label) for label in ("Laskin", "lh6-725-37563", "NooPunk")}
     assert len(names) == 3
-    assert agent_name_for("NooPunk") == "agent:hermes-noopunk"
+
+
+
+def test_load_node_config_derives_agent_name_when_unset() -> None:
+    cfg = load_node_config({"PCM_NODE_LABEL": "lh6-725-37563"})
+    assert cfg.agent_name == "agent:hermes-lh6-725-37563"
+
+
+def test_load_node_config_accepts_matching_explicit_agent_name() -> None:
+    cfg = load_node_config({
+        "PCM_NODE_LABEL": "lh6-725-37563",
+        "PCM_AGENT_NAME": "agent:hermes-lh6-725-37563",
+    })
+    assert cfg.agent_name == "agent:hermes-lh6-725-37563"
+
+
+def test_load_node_config_rejects_agent_name_label_mismatch() -> None:
+    with pytest.raises(ValueError, match="PCM_AGENT_NAME must match"):
+        load_node_config({
+            "PCM_NODE_LABEL": "lh6-725-37563",
+            "PCM_AGENT_NAME": "agent:hermes-lh6",
+        })
 
 
 def test_node_config_falls_back_to_a_distinct_identity_not_a_generic_one() -> None:
