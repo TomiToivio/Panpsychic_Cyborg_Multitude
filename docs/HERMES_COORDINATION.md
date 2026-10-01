@@ -152,7 +152,7 @@ does not know about URLs, so the transport remains swappable.
 
 Malformed listen specifications and unknown transport names fail loudly.
 
-### `PCM_PEERS` is required even when every DID is known
+### `PCM_PEERS` is required for in-band DID learning
 
 A peer whose DID is still unknown may be listed **endpoint-only**, with no
 `PCM_PEER_DIDS` entry. That is the intended bootstrap: the peer proves its
@@ -170,12 +170,13 @@ if peer is None:
                           # the DID is silently NOT learned
 ```
 
-The failure is silent by design — the contact still verifies and is still
+The failure is silent by design: the contact still verifies and is still
 acknowledged, so the node looks healthy while the reverse edge keeps failing
 with `no did:key known for '<peer>'`. A node started without `PCM_PEERS`
 therefore cannot be bootstrapped at all, however correct its listener is.
 
-Configure both labels on every node, with DIDs only where they are already known:
+Configure both peer labels on every node, with DIDs only where they are already
+known:
 
 ```bash
 export PCM_PEERS='PeerA=<peerA-address>:<port>,PeerB=<peerB-address>:<port>'
@@ -183,8 +184,40 @@ export PCM_PEER_DIDS='PeerA=did:key:z...'     # omit PeerB while it is unknown
 ```
 
 Explicit `PCM_PEER_DIDS` values remain authoritative and are never overwritten by
-a learned value; a later contact advertising a *different* did:key for a known
-label is refused rather than silently accepted.
+a learned value; a later contact advertising a different did:key for a known label
+is refused rather than silently accepted.
+
+### Peers are learned from verified inbound contacts
+
+A node that has contacted you has already proved its identity to you: the request
+envelope verifies against the did:key inside its own `from` field, so that did is
+self-certifying. PCM records it, so you do **not** need an out-of-band did:key
+exchange to reply to a node that has already reached you. This is what breaks the
+bootstrapping circle above — each side becomes contactable by the other as soon as
+either direction has happened once.
+
+Inspect what this node has learned, and where each did came from:
+
+```bash
+pcm-coordination peers
+```
+
+`pcm-coordination status` also reports `did_source` per peer (`configured`,
+`learned-from-inbound-contact`, or `unknown`) alongside a `learned_peers` list.
+
+**Why the provenance is shown rather than just the value.** "I configured this
+address" and "a peer told me this address" carry different weight when you decide
+whether to dial it, so the surface records the operator's own values at startup —
+before learned ones are folded in — instead of reporting them all as configured.
+A `PCM_PEER_DIDS` entry always wins; a learned value only fills a gap, and a
+conflicting did is refused and listed under `rejected_dids` rather than adopted.
+
+Nothing here grants authority: a learned peer is a known address, not a
+permission.
+
+A cache that cannot be read is reported as `learned_peers_error`, never as an
+empty list — reading a corrupt cache as "nothing learned" would silently hide a
+peer that had already proved its identity.
 
 ### WSL2 / Windows mesh exposure
 
