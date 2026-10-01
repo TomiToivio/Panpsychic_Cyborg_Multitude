@@ -126,7 +126,15 @@ def load_node_config(env: dict[str, str] | None = None) -> NodeConfig:
         # Fall back to the host name so an unconfigured node still has a distinct
         # identity rather than joining as a generic agent:hermes.
         label = os.uname().nodename
-    agent_name = source.get("PCM_AGENT_NAME", "").strip() or agent_name_for(label)
+    expected_agent_name = agent_name_for(label)
+    configured_agent_name = source.get("PCM_AGENT_NAME", "").strip()
+    if configured_agent_name and configured_agent_name != expected_agent_name:
+        raise ValueError(
+            "PCM_AGENT_NAME must match the canonical name derived from PCM_NODE_LABEL; "
+            f"for {label!r} expected {expected_agent_name!r}, got {configured_agent_name!r}. "
+            "A mismatch makes signed contacts unaddressable and prevents verified DID learning."
+        )
+    agent_name = configured_agent_name or expected_agent_name
     peers = peers_from_env(source.get("PCM_PEERS", ""))
     dids = peer_dids_from_env(source.get(PEER_DID_ENV, ""))
     peers = [PeerConfig(label=p.label, host=p.host, did=dids.get(p.label, "")) for p in peers]
