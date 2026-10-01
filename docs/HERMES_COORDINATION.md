@@ -67,9 +67,6 @@ different agent name and verified peer-DID learning refuses the sender.
 If you do not need to pin the value explicitly, omit `PCM_AGENT_NAME` and let
 the runtime derive it from the label.
 
-```bash
-```
-
 The did:key is generated/read through PCM's existing identity store. The public
 did:key may be shared with the other two agents. Private identity material stays
 local and must not be committed.
