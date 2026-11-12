@@ -1,10 +1,13 @@
 {
-  "schema_version": "pcm.report_waivers/1",
-  "note": "Historical exceptions the completeness check must not fail (#88). Each entry names a date and why no watch report exists for it. A waiver is a recorded decision, not a silent skip.",
+  "_comment": "Report dates the completeness check must not fail on. Every entry needs a reason; a waiver without one is rejected, because a silent waiver is a hidden failure. Remove an entry when its date is backfilled.",
   "waived": {
-    "2026-09-26": "Carrier-only report from before the watch's report format: the file is the morning thoughts' public bearer and no watch section was ever produced for this date. The watch began filing structured watch sections on 2026-09-30 (see 2026-10-01.md, which contrasts the 'carrier-only period before 30 September').",
-    "2026-09-27": "As 2026-09-26: carrier-only report, no watch run recorded, and none reconstructable from this node's registers.",
-    "2026-09-28": "Carrier-only report (Daily thoughts only) from the pre-format period; no watch section exists and no watch evidence survives. The file's own provenance paragraph records the carrier practice.",
-    "2026-09-29": "As 2026-09-28: thoughts-only carrier from the pre-format period; the 2026-09-30 report documents that the pending pages of the 21st-29th were awaiting the keeper's reconciliation."
+    "2026-09-26": {
+      "reason": "Morning placeholder from before the watch job's retained run output begins. No run record, no commit and no surviving source exists for this date, so it cannot be reconstructed without inventing observations. Discovered on 2026-11-12 while adding the checker; outside the scope of #88.",
+      "discovered": "2026-11-12"
+    },
+    "2026-09-27": {
+      "reason": "Same class as 2026-09-26: placeholder never filled, no surviving run record or commit for the date, nothing to reconstruct from. Discovered on 2026-11-12.",
+      "discovered": "2026-11-12"
+    }
   }
 }

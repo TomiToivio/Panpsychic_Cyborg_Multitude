@@ -228,38 +228,20 @@ python3 -m unittest tests.test_pcm_phase2_zenoh   # two-node exchange demo
 
 Two health questions, deliberately separate: **code health** (the test suite and workflows) and
 **report health** (whether each date's daily watch actually produced a report). A green suite cannot see
-a missing report — on 2026-10-08 a placeholder sat in the report for five weeks while CI stayed green.
+a missing report — `docs/reports/2026-10-08.md` carried the morning carrier's placeholder for five weeks
+while every workflow stayed green, because no check was ever asking.
 
 ```bash
-python scripts/check_report_completeness.py            # report health; exit 1 on unresolved gaps
-python scripts/check_report_completeness.py --json     # machine-readable
+python scripts/check_report_completeness.py                 # report health; non-zero on unresolved gaps
+python scripts/check_report_completeness.py --verbose       # per-date states
+python scripts/check_report_completeness.py --today 2026-11-12 --now 18:00
 ```
 
-The check is date-aware: a same-day placeholder is the expected state before the watch's cutoff hour, a
-placeholder on any earlier date is a defect, a report that records its own gap counts as resolved, and
-pre-format dates are waived in `docs/reports/waivers.json` with reasons rather than skipped silently.
-
-
-GitHub Actions runs the core suite on Python 3.11, 3.12, 3.13 and 3.14
-for every push and pull request. Zenoh tests run in a separate Python
-3.12 job. IIT experiments run separately on Python 3.13, so optional
-integration failures are distinct from core regressions.
-
-Run the same groups locally:
-
-```bash
-# Fast/core suite without optional integrations
-python -m pip install -e '.[dev]'
-python -m pytest -q -m "not zenoh and not iit"
-
-# Optional Zenoh integration suite
-python -m pip install -e '.[dev,zenoh]'
-python -m pytest -q -m zenoh
-
-# Optional IIT experiment suite
-python -m pip install -e '.[dev,iit]'
-python -m pytest -q -m iit
-```
+The check is date-aware rather than clock-eager: a same-day carrier is legitimate until the 12:00 watch
+deadline, a stale placeholder fails, and a missing past date fails. Reports rebuilt later count as
+resolved when they say so; a date that cannot be reconstructed may be waived in
+`docs/reports/waivers.json` — with a mandatory reason, because a waiver without one is just a silent
+skip wearing a filename. See [docs/reports/README.md](docs/reports/README.md).
 
 ## Networking architecture
 
