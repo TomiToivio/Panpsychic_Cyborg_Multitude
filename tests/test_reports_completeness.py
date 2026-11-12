@@ -226,3 +226,32 @@ class TheRepositoryItselfIsComplete(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+class TodayCountsOnceItsWindowHasPassed(ReportsFixture):
+    """#97: a day with no report at all must fail after the deadline, not wait for tomorrow.
+
+    The check used to judge only completed days, so today's *absence* was invisible until the next
+    day — and the scheduled workflow only printed today's state with `|| true`, which is a report
+    nobody acts on. `--judge-today` closes both: before the window a missing report is `pending`,
+    after it the day is `missing` and fails.
+    """
+
+    def test_a_missing_today_is_pending_before_the_window(self):
+        self.fill_past()
+        report = self.check(now_hour=9, require_today=True)
+        self.assertTrue(report["healthy"])
+        self.assertEqual(report["counts"]["pending"], 1)
+
+    def test_a_missing_today_fails_after_the_window(self):
+        self.fill_past()
+        report = self.check(now_hour=13, require_today=True)
+        self.assertFalse(report["healthy"])
+        self.assertEqual(report["failing"], [TODAY.isoformat()])
+        self.assertEqual(report["counts"]["missing"], 1)
+
+    def test_today_is_not_judged_by_default(self):
+        """A pull request must not fail because today's watch has not run yet."""
+        self.fill_past()
+        report = self.check(now_hour=13)
+        self.assertTrue(report["healthy"])
+        self.assertNotIn(TODAY.isoformat(), report["failing"])

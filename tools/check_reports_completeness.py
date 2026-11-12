@@ -150,6 +150,7 @@ def check_reports(
     completion_hour: int = DEFAULT_COMPLETION_HOUR,
     waivers: dict[date, str] | None = None,
     judge_today: bool = True,
+    require_today: bool = False,
 ) -> dict:
     """Verdict for every expected date in the series.
 
@@ -182,6 +183,21 @@ def check_reports(
         day += timedelta(days=1)
 
     today_report = reports.get(today) if judge_today else None
+    if require_today and today_report is None:
+        # A day whose report never appeared is a finding in its own right, but only after the
+        # watch's slot has passed: before noon the carrier may simply not have run yet.
+        if hour >= completion_hour:
+            findings.append(Finding(
+                today,
+                "missing",
+                f"no report for today, and the {completion_hour}:00 completion window has passed",
+            ))
+        else:
+            findings.append(Finding(
+                today,
+                "pending",
+                f"today's report has not appeared yet (window closes {completion_hour}:00)",
+            ))
     if today_report is not None and carries_placeholder(today_report):
         status = "same_day_carrier" if hour < completion_hour else "stale_placeholder"
         detail = (
@@ -250,6 +266,14 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--waivers", help="JSON object or 'YYYY-MM-DD reason' lines")
     parser.add_argument("--json", action="store_true", help="print the machine-readable report")
     parser.add_argument(
+        "--judge-today",
+        action="store_true",
+        help=(
+            "also fail when today's own report is missing or still a carrier after --completion-hour "
+            "(scheduled runs); a pull request should not use this, because today is unfinished work"
+        ),
+    )
+    parser.add_argument(
         "--fail-on-gaps",
         action="store_true",
         help="exit 1 on any unwaived missing report or stale placeholder (CI mode)",
@@ -265,6 +289,8 @@ def main(argv: list[str] | None = None) -> int:
         now_hour=args.now_hour,
         completion_hour=args.completion_hour,
         waivers=load_waivers(Path(args.waivers) if args.waivers else None),
+        judge_today=args.judge_today,
+        require_today=args.judge_today,
     )
     print(json.dumps(report, indent=2) if args.json else render(report))
     return 1 if (args.fail_on_gaps and not report["healthy"]) else 0

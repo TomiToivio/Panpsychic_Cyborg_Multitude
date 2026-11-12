@@ -43,6 +43,8 @@ Read the manifesto: [docs/PANPSYCHIC_CYBORG_MULTITUDE.md](docs/PANPSYCHIC_CYBORG
 
 Read the [megatheory](docs/MEGATHEORY.md), [tensions](docs/MEGATHEORY_TENSIONS.md), [reading path](docs/MEGATHEORY_READING_PATH.md), and the [ontology / cyborg brief](docs/PCM_ONTOLOGY_AND_CYBORG.md) — with the detailed pair behind it: [the ontology statement](docs/ONTOLOGY.md) and [the cyborg assemblage model](docs/CYBORG_ASSEMBLAGE.md). Implements theory briefs [#89](https://github.com/TomiToivio/Panpsychic_Cyborg_Multitude/issues/89) and [#91](https://github.com/TomiToivio/Panpsychic_Cyborg_Multitude/issues/91).
 
+Read the [web theory overview](https://tomitoivio.github.io/Panpsychic_Cyborg_Multitude/theory.html) and the supplementary [Wendt research note](docs/WENDT_RESEARCH_NOTE.md) for the argument, objections and evidence ladder.
+
 ## The name
 
 Three words, one political ontology:

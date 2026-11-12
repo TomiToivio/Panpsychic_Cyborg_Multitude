@@ -45,14 +45,16 @@ are different healths, so they are checked by different workflows: `Tests` cover
 The check is date-aware:
 
 ```bash
-python scripts/check_report_completeness.py --today "$(date -u +%F)" --verbose
+python scripts/check_report_completeness.py --verbose
 ```
 
 - A **same-day carrier** is legitimate: the thoughts job writes at ~08:00 and the watch fills it at
-  ~10:00, so a placeholder is only a defect after the 12:00 deadline on its own day, or on any later
+  ~10:00, so a placeholder is only a defect at or after the 12:00 Europe/Helsinki deadline on its own day, or on any later
   day.
-- A **missing past date** fails; today may be missing because the carrier has not run yet.
-- The check reads dates, not the wall clock, so it does not require being run on the same morning.
+- A **missing past date** fails; today may be missing only before the completion deadline.
+- The check examines every date on every run, so it does not require being run on the same morning.
+  Defaults use the current Europe/Helsinki date and time with DST; `--today` and `--now HH:MM`
+  allow reproducible audits. An explicitly historical date defaults to its completion deadline.
 - A date that was **reconstructed later** counts as resolved when the file says so
   (`Retrospective reconstruction`), and so does a documented gap (`Retrospective record`).
 - A date that cannot be reconstructed from surviving evidence may be **waived** in
@@ -62,3 +64,7 @@ python scripts/check_report_completeness.py --today "$(date -u +%F)" --verbose
 Reports rebuilt after the fact say so at the top, name the run or the failure they were rebuilt
 from, and never reconstruct observations that were not made. 2026-10-08, 2026-10-16, 2026-10-17 and
 2026-10-18 are in this category.
+
+The scheduled workflow runs at 10:15 UTC, after the Helsinki noon deadline in both winter
+and summer. Unit tests use a fixed historical coverage end date; they do not assert that a
+future daily report exists. The independent workflow checks actual current coverage.

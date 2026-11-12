@@ -32,6 +32,11 @@ jobs:
     name: Report completeness
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    env:
+      # The report series is dated on Helsinki wall-clock time. Judging it in UTC would make the
+      # "yesterday" boundary (and the noon completion window) drift by up to three hours twice a
+      # year, which is exactly the kind of off-by-one that makes a completeness check untrusted.
+      TZ: Europe/Helsinki
 
     steps:
       - name: Check out repository
@@ -48,13 +53,14 @@ jobs:
         # the morning carrier — that is the scheduled run's business, not a merge gate's.
         run: |
           python3 tools/check_reports_completeness.py \
-            --end "$(date -u -d yesterday +%F)" --fail-on-gaps
+            --end "$(date -d yesterday +%F)" --fail-on-gaps
 
-      - name: Report today's status (scheduled runs only)
-        # After the noon window, a placeholder on today's date is a real finding: the watch has
-        # already had its slot. Reported but not fatal, because the watch may still retry.
+      - name: Every day including today is written (scheduled runs only)
+        # After the 12:00 window, a missing report or a surviving carrier on *today's* date is a
+        # real finding: the watch has had its slot. This step fails rather than printing, because a
+        # green run that merely mentions a gap is how the 8 October placeholder survived five weeks.
         if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
-        run: python3 tools/check_reports_completeness.py || true
+        run: python3 tools/check_reports_completeness.py --judge-today --fail-on-gaps
 
       - name: Print the machine-readable series on failure
         if: failure()
