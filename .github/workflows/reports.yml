@@ -1,21 +1,67 @@
-name: Report completeness
+name: Reports
+
+# Report-completeness health, deliberately separate from test health (issue #88).
+#
+# A green test suite says nothing about whether the daily record was written, and this repository's
+# history shows the failure: 2026-09-26 to 09-29, 2026-10-08 and 2026-10-16 to 10-18 are days whose
+# reports were missing or still carried the morning carrier's placeholder while CI stayed green.
+# Merging the two checks into one workflow would have hidden that behind a passing badge.
+
 on:
-  push:
-    paths: ['docs/reports/**', 'scripts/check_report_completeness.py', '.github/workflows/reports.yml']
-  pull_request:
-    paths: ['docs/reports/**', 'scripts/check_report_completeness.py', '.github/workflows/reports.yml']
   schedule:
-    - cron: '15 10 * * *'
+    # 13:00 UTC = 15:00 EEST, after the watch's 10:00 run and after the noon window in which a
+    # same-day placeholder is still the design working.
+    - cron: "0 13 * * *"
+  push:
+    paths:
+      - "docs/reports/**"
+      - "tools/check_reports_completeness.py"
+      - "tests/test_reports_completeness.py"
+      - ".github/workflows/reports.yml"
   workflow_dispatch:
+
 permissions:
   contents: read
+
+concurrency:
+  group: reports-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  reports:
-    name: Dated report coverage (not application tests)
+  completeness:
+    name: Report completeness
     runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      # The report series is dated on Helsinki wall-clock time. Judging it in UTC would make the
+      # "yesterday" boundary (and the noon completion window) drift by up to three hours twice a
+      # year, which is exactly the kind of off-by-one that makes a completeness check untrusted.
+      TZ: Europe/Helsinki
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
         with:
-          python-version: '3.12'
-      - run: python scripts/check_report_completeness.py --verbose
+          python-version: "3.12"
+
+      - name: Every completed day is written
+        # Standard library only: no install step, so this job cannot be broken by a dependency.
+        # Judged up to yesterday, so a pull request is never blocked by today's report still being
+        # the morning carrier — that is the scheduled run's business, not a merge gate's.
+        run: |
+          python3 tools/check_reports_completeness.py \
+            --end "$(date -d yesterday +%F)" --fail-on-gaps
+
+      - name: Every day including today is written (scheduled runs only)
+        # After the 12:00 window, a missing report or a surviving carrier on *today's* date is a
+        # real finding: the watch has had its slot. This step fails rather than printing, because a
+        # green run that merely mentions a gap is how the 8 October placeholder survived five weeks.
+        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+        run: python3 tools/check_reports_completeness.py --judge-today --fail-on-gaps
+
+      - name: Print the machine-readable series on failure
+        if: failure()
+        run: python3 tools/check_reports_completeness.py --json || true
