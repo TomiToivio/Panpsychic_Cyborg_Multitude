@@ -428,3 +428,22 @@ these, including the primary political texts and the metaphysical proposals.
 Theoretical commitments are sorted by layer in
 [`docs/MEGATHEORY.md`](../MEGATHEORY.md) §2, and the disagreements they create are recorded in
 [`docs/MEGATHEORY_TENSIONS.md`](../MEGATHEORY_TENSIONS.md).
+
+## 14. Ontology and cyborg assemblage (#91)
+
+Primary sources added by the #91 specification. Peirce and Spinoza were cited in the megatheory but
+not registered; the extended-cognition line already exists in §5 and is cross-referenced rather than
+duplicated.
+
+- **Peirce, C. S. (1877). "The Fixation of Belief." _Popular Science Monthly_ 12, 1–15.** [peer-reviewed journal article]
+  Read for the pragmatist test of what a belief *does* — the standard `ONTOLOGY.md` §6 applies to its own claims.
+- **Peirce, C. S. (1931–1958). _Collected Papers of Charles Stewart Peirce_ (8 vols., Hartshorne, Weiss & Burks eds.). Harvard University Press.** [book]
+  The source of triadic semiosis (sign / object / interpretant), which is what Brier integrates. Do not read second-hand summaries as Peirce.
+- **Spinoza, B. (1677; Curley trans. 1994). _Ethics_. Penguin / Princeton University Press.** [book] **[repository/speculative]**
+  Read Part II for the attributes and Part III–IV for the conatus. Used as a **working analogy** for dual-aspect framing, not as a resolution of the idealism/physicalism debate: `ONTOLOGY.md` §2 says explicitly what the analogy does not buy.
+- **Wendt, A. (2015). _Quantum Mind and Social Science_. Cambridge University Press.** [book] **[repository/speculative]**
+  Already registered in §13; listed here because #91 turns it into a research note (`ONTOLOGY.md` §4) with its objections and empirical status stated.
+- **Clark, A., & Chalmers, D. (1998). "The Extended Mind." _Analysis_ 58(1), 7–19.** [peer-reviewed journal article]
+  Registered in §5; it is the standard against which H1 in `CYBORG_ASSEMBLAGE.md` is designed.
+- **Hutchins, E. (1995). _Cognition in the Wild_. MIT Press.** [book]
+  Registered in §5; the distributed-cognition counterpart to Clark and Chalmers, and the reason H2 is about groups rather than individuals.
