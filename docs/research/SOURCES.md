@@ -381,3 +381,50 @@ These sources are important because technical architectures do not determine the
 10. **Treat hard recursive self-improvement as unproven.** AI-assisted recursive R&D is a separate and increasingly empirical phenomenon.
 11. **Preserve provenance and source quality.** Peer-reviewed research, scholarly books, conference papers, preprints, manifestos, repository papers, and speculative essays should remain visibly distinct.
 12. **Reading-queue promotion rule:** before a source is cited in `docs/PAPER.md` or a core research claim, verify it against a publisher, DOI/proceedings record, or stable preprint page and carry publication-quality metadata into this file.
+
+---
+
+## 13. Megatheory primary sources (issue #89)
+
+The six principal thinkers of the PCM megatheory, plus the supporting lines. Annotations — what each
+text is read *for*, and which seam it opens — live in
+[`docs/MEGATHEORY_READING_PATH.md`](../MEGATHEORY_READING_PATH.md). Reading rules in §12 apply to all of
+these, including the primary political texts and the metaphysical proposals.
+
+### Foundation: the political and the subject
+
+- **Laclau, E., & Mouffe, C. (1985; 2nd ed. 2001). _Hegemony and Socialist Strategy_. Verso.** [book] **[primary political text]**
+- **Laclau, E. (1996). "Why do empty signifiers matter to politics?" In _Emancipation(s)_. Verso.** [book chapter] **[primary political text]**
+- **Laclau, E. (2005). _On Populist Reason_. Verso.** [book] **[primary political text]**
+- **Hardt, M., & Negri, A. (2000). _Empire_. Harvard University Press.** [book] **[primary political text]**
+- **Negri, A. (1999). _Insurgencies: Constituent Power and the Modern State_. University of Minnesota Press.** [book] **[primary political text]**
+- **Hardt, M., & Negri, A. (2004). _Multitude: War and Democracy in the Age of Empire_. Penguin.** [book] **[primary political text]**
+- **Hardt, M., & Negri, A. (2009). _Commonwealth_. Harvard University Press.** [book] **[primary political text]**
+- **Žižek, S. (1989). _The Sublime Object of Ideology_. Verso.** [book]
+- **Žižek, S. (1999). _The Ticklish Subject: The Absent Centre of Political Ontology_. Verso.** [book]
+- **Žižek, S. (2006). _The Parallax View_. MIT Press.** [book]
+- **Žižek, S. (2012). _Less Than Nothing: Hegel and the Shadow of Dialectical Materialism_. Verso.** [book]
+
+### Bridge: semiosis, social ontology, and boundary work
+
+- **Brier, S. (2008). _Cybersemiotics: Why Information Is Not Enough!_. University of Toronto Press.** [book]
+- **Brier, S. (2008). "Cybersemiotics: A new interdisciplinary development applied to the problems of knowledge organisation and document retrieval in information science." _Journal of Documentation_.** [peer-reviewed journal article]
+- **Wendt, A. (1999). _Social Theory of International Politics_. Cambridge University Press.** [book]
+- **Wendt, A. (2015). _Quantum Mind and Social Science: Unifying Physical and Social Ontology_. Cambridge University Press.** [book]
+- **Haraway, D. (1985/1991). "A Cyborg Manifesto." In _Simians, Cyborgs, and Women: The Reinvention of Nature_. Routledge.** [book chapter] **[primary political text]**
+- **Haraway, D. (1988). "Situated Knowledges: The Science Question in Feminism and the Privilege of Partial Perspective." _Feminist Studies_ 14(3), 575–599.** [peer-reviewed journal article]
+- **Haraway, D. (2016). _Staying with the Trouble: Making Kin in the Chthulucene_. Duke University Press.** [book]
+
+### Supporting lines
+
+- **Luhmann, N. (1984/1995). _Social Systems_. Stanford University Press.** [book]
+- **Castells, M. (1996). _The Rise of the Network Society_. Blackwell.** [book]
+- **White, H. C. (1992; 2nd ed. 2008). _Identity and Control: How Social Formations Emerge_. Princeton University Press.** [book]
+- **Faggin, F. (2022). _Irreducible: Consciousness, Life, Computers, and Human Nature_. Essentia Books.** [book] **[repository/speculative]**
+- **Kastrup, B. (2014). _Why Materialism Is Baloney_. Iff Books.** [book] **[repository/speculative]**
+- **Kastrup, B. (2019). _The Idea of the World: A Multi-Disciplinary Argument for the Mental Nature of Reality_. Iff Books.** [book] **[repository/speculative]**
+- **Hoffman, D. D. (2019). _The Case Against Reality: Why Evolution Hid the Truth from Our Eyes_. W. W. Norton.** [book] **[repository/speculative]**
+
+Theoretical commitments are sorted by layer in
+[`docs/MEGATHEORY.md`](../MEGATHEORY.md) §2, and the disagreements they create are recorded in
+[`docs/MEGATHEORY_TENSIONS.md`](../MEGATHEORY_TENSIONS.md).

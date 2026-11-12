@@ -338,6 +338,9 @@ Core documents:
 - [docs/PANPSYCHIC_CYBORG_MULTITUDE.md](docs/PANPSYCHIC_CYBORG_MULTITUDE.md) — **manifesto + project description**
 - [docs/PAPER.md](docs/PAPER.md) — **draft research paper** on human–AI assemblages, distributed agency, and the Common
 - [docs/AI_IDEOLOGIES.md](docs/AI_IDEOLOGIES.md) — **normative PCM essay** on AI politics; analytical ideology method lives in the LaclauGPT bridge below
+- [docs/MEGATHEORY.md](docs/MEGATHEORY.md) — **PCM megatheory**: the six principal thinkers, the conceptual map, the empirical/interpretive/speculative taxonomy, and the LaclauGPT boundary
+- [docs/MEGATHEORY_TENSIONS.md](docs/MEGATHEORY_TENSIONS.md) — **compatibility and tensions matrix**: where Laclau, Negri, Žižek, Brier, Wendt and Haraway disagree, and what PCM gives up for each seam
+- [docs/MEGATHEORY_READING_PATH.md](docs/MEGATHEORY_READING_PATH.md) — **annotated reading path** for the megatheory's primary sources
 - [docs/research/LACLAUGPT_AI_IDEOLOGIES_AND_PCM.md](docs/research/LACLAUGPT_AI_IDEOLOGIES_AND_PCM.md) — **research/integration note** and canonical PCM bridge to LaclauGPT discourse theory
 - [docs/research/CONSCIOUS_HUMAN_AI_ASSEMBLAGES.md](docs/research/CONSCIOUS_HUMAN_AI_ASSEMBLAGES.md) — **research paper** on extended cognition and the open hypothesis of assemblage consciousness
 - [docs/research/SOURCES.md](docs/research/SOURCES.md) — **canonical bibliography**, including the LLM-consciousness reading backlog formerly kept in a separate list
