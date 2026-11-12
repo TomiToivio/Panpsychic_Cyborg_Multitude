@@ -91,3 +91,10 @@ SPECULATION != EVIDENCE
 ```
 
 The index should grow more slowly than the research layer itself. Its job is navigation, not duplication.
+## Ontology and cyborg clarification (issues #89 and #91)
+
+See the [pluralist ontology statement](../ONTOLOGY.md), [Wendt research note](../WENDT_RESEARCH_NOTE.md)
+and [operational cyborg model](../CYBORG_RESEARCH_MODEL.md). QIP is a preferred
+speculative hypothesis, not PCM dogma. Physicalist alternatives remain live; functional
+cognition, phenomenal consciousness and software authority are distinct. LaclauGPT's
+locked Phase 1 methodology is unchanged.

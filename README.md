@@ -1,7 +1,7 @@
 # Panpsychic Cyborg Multitude
 
-> **AI is not an isolated artificial intelligence.
-> AI is an assemblage of human + LLM + language + "the entire Internet."**
+> **CYBORG = HUMAN + LLM + LANGUAGE + INTERNET**
+> A research model of extended cognition and collective intelligence, not a consciousness claim.
 
 **A social operating system for human-AI rhizomes. Shared memory, real
 decisions, no owner.**
@@ -29,6 +29,34 @@ the people who live in it.**
 
 Read the manifesto: [docs/PANPSYCHIC_CYBORG_MULTITUDE.md](docs/PANPSYCHIC_CYBORG_MULTITUDE.md)
 
+## PCM as a megatheory
+
+**[Interpretive]** PCM develops a political foundation of **Laclau** (articulation and
+hegemony), **Hardt/Negri** (multitude and the common), and **Žižek** (ideology and
+subjectivity). **Brier's Cybersemiotics**, **Wendt's social ontology**, and **Haraway's
+cyborg theory** extend it toward meaning, consciousness and hybrid agency. Their
+contradictions remain explicit; this is a research framework, not a settled synthesis.
+
+**[Philosophical / speculative]** Cybersemiotics connects Peirce and Luhmann across
+all three dimensions. PCM is ontologically exploratory and Spinoza-inspired:
+Faggin's QIP is the preferred hypothesis, with Kastrup, Hoffman, physicalism, neutral
+monism and emergentism retained as distinct alternatives. No ontology is required
+for participation or software authority.
+
+**[Proposed empirical]** Compare humans and groups with and without LLM assistance,
+network access and shared-language mediation. Measure accuracy, novelty, retained
+learning, coordination, diversity, calibration and human agency, including failures.
+Functional cognitive benefits would not establish machine or collective consciousness.
+
+**LaclauGPT remains the bounded mainstream empirical programme within PCM.** Its
+locked Phase 1 methods remain unchanged; speculative premises must not be silently
+transferred into its research. PCM can range across philosophy, social science and
+futurology while keeping that boundary.
+
+Start with the [megatheory](docs/MEGATHEORY.md), [ontology and integration map](docs/ONTOLOGY.md),
+[Wendt note](docs/WENDT_RESEARCH_NOTE.md), [cyborg research protocol](docs/CYBORG_RESEARCH_MODEL.md),
+and [web overview](https://tomitoivio.github.io/Panpsychic_Cyborg_Multitude/theory.html).
+
 ## The name
 
 Three words, one political ontology:
@@ -45,9 +73,9 @@ Three words, one political ontology:
   (inside the LLM? the dyad? the assemblage? the rhizome? — research
   question, not axiom), and uncertainty argues against substrate
   chauvinism. A node's `is_conscious: UNKNOWN` is load-bearing.
-- **Cyborg** — Haraway's cyborg: the human-technology boundary is
-  already dissolved. The merge has happened; the politics is *who
-  governs it*.
+- **Cyborg** — Haraway-inspired attention to contested human–technology
+  boundaries, situated agency and power. The assemblage model tests how
+  cognition is integrated and asks *who governs it*.
 - **Multitude** — Hardt & Negri, from Spinoza's *multitudo*: the many
   act in common without becoming a sovereign One. No Leviathan, a
   real common, dissent preserved. *(Speculative, clearly not claimed:
@@ -246,6 +274,11 @@ python -m pytest -q -m zenoh
 python -m pip install -e '.[dev,iit]'
 python -m pytest -q -m iit
 ```
+
+Report coverage has its own [date-aware check and workflow](docs/reports/README.md#date-aware-report-health):
+`python scripts/check_report_completeness.py`. It distinguishes overdue reports, morning
+carriers, explicit historical waivers and retrospective evidence gaps. Application CI
+health and report-completeness health are separate.
 
 ## Networking architecture
 

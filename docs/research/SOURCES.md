@@ -428,3 +428,23 @@ these, including the primary political texts and the metaphysical proposals.
 Theoretical commitments are sorted by layer in
 [`docs/MEGATHEORY.md`](../MEGATHEORY.md) §2, and the disagreements they create are recorded in
 [`docs/MEGATHEORY_TENSIONS.md`](../MEGATHEORY_TENSIONS.md).
+
+## 14. Ontology and cyborg primary sources
+
+Annotations identify intended use, not empirical endorsement. This extends §13 rather than
+replacing the six-thinker reading path. The substantive synthesis is PCM's own interpretation.
+
+| Primary source | Use and limit |
+| --- | --- |
+| Peirce, C. S. (1903), “Sundry Logical Conceptions,” *The Essential Peirce*, vol. 2 (1998), pp. 267–288 | Sign/object/interpretant relations; an interpretant is not simply a human interpreter. Do not map this triad directly onto Luhmann's selections. [Philosophical] |
+| Luhmann, N. (1995), *Social Systems* (German original 1984), especially chapters 4 and 6 | Communication, meaning, psychic/social systems and interpenetration. Operational closure challenges an easy merger with Peircean metaphysics. [Social-theoretical / interpretive] |
+| Brier, S. (2008), *Cybersemiotics: Why Information Is Not Enough!*; also [“Cybersemiotics: a transdisciplinary framework for information studies” (1998)](https://doi.org/10.1016/S0303-2647(97)00097-X) | Integrates semiotic and cybernetic approaches to meaning; use as a bridge requiring argument, not proof of panpsychism. [Philosophical / interpretive] |
+| Spinoza, B. (1677), *Ethics*, Part I and Part II, propositions 1–7 | Substance and attributes supply the monist analogy. Contemporary physicalism, idealism and QIP are not interchangeable with this system. [Philosophical] |
+| Wendt, A. (2015), [*Quantum Mind and Social Science*](https://www.cambridge.org/core/books/quantum-mind-and-social-science/3D5DB273B648D0A23B49C1C4ABA5CF7A), alongside *Social Theory of International Politics* (1999) | Distinguish the social-ontology challenge from its proposed quantum solution; the former can be debated without accepting the latter. [Interpretive / speculative] |
+| D’Ariano, G. M., & Faggin, F. (2022), [“Hard Problem and Free Will: An Information-Theoretical Approach”](https://doi.org/10.1007/978-3-030-85480-5_5), pp. 145–192 | Primary formulation of a psycho-informational proposal; examine the additional postulates about experience rather than treating quantum information as their proof. [Speculative] |
+| Haraway, D. (1985/1991), “A Cyborg Manifesto”; “Situated Knowledges” (1988), listed in §13 | Hybridity, situated perspective and power; prevents the assemblage from becoming a politically neutral productivity metaphor. [Interpretive / philosophical] |
+| Clark, A., & Chalmers, D. (1998), [“The Extended Mind”](https://www.consc.net/papers/extended.html), *Analysis*, 58(1), 7–19 | Active externalism and functional coupling; challenge the assumption that any helpful tool thereby extends a mind. [Philosophical] |
+| Hutchins, E. (1995), [*Cognition in the Wild*](https://mitpress.mit.edu/9780262581462/cognition-in-the-wild/), MIT Press | Navigation as a socially and materially distributed cognitive activity; offers empirical field methods, not evidence for LLM consciousness. [Empirical study / interpretive framework] |
+
+Kastrup and Hoffman remain in §13 as alternatives; physicalism, neutral monism and emergentism
+remain live comparators in [the ontology statement](../ONTOLOGY.md), not excluded by source selection.

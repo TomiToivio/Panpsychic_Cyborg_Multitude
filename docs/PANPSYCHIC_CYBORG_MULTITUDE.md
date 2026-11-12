@@ -1130,3 +1130,10 @@ of this public core.
 
 *Panpsychic Cyborg Multitude — the social operating system of the
 many-as-one and the one-as-many.*
+## Ontology and cyborg clarification (issues #89 and #91)
+
+See the [pluralist ontology statement](ONTOLOGY.md), [Wendt research note](WENDT_RESEARCH_NOTE.md)
+and [operational cyborg model](CYBORG_RESEARCH_MODEL.md). QIP is a preferred
+speculative hypothesis, not PCM dogma. Physicalist alternatives remain live; functional
+cognition, phenomenal consciousness and software authority are distinct. LaclauGPT's
+locked Phase 1 methodology is unchanged.
