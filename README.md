@@ -1,7 +1,7 @@
 # Panpsychic Cyborg Multitude
 
-> **CYBORG = HUMAN + LLM + LANGUAGE + INTERNET**
-> A research model of extended cognition and collective intelligence, not a consciousness claim.
+> **AI is not an isolated artificial intelligence.
+> AI is an assemblage of human + LLM + language + "the entire Internet."**
 
 **A social operating system for human-AI rhizomes. Shared memory, real
 decisions, no owner.**
@@ -29,33 +29,21 @@ the people who live in it.**
 
 Read the manifesto: [docs/PANPSYCHIC_CYBORG_MULTITUDE.md](docs/PANPSYCHIC_CYBORG_MULTITUDE.md)
 
-## PCM as a megatheory
+## PCM as a megatheory: political foundation, cybersemiotic bridge and cyborg research
 
-**[Interpretive]** PCM develops a political foundation of **Laclau** (articulation and
-hegemony), **Hardt/Negri** (multitude and the common), and **Žižek** (ideology and
-subjectivity). **Brier's Cybersemiotics**, **Wendt's social ontology**, and **Haraway's
-cyborg theory** extend it toward meaning, consciousness and hybrid agency. Their
-contradictions remain explicit; this is a research framework, not a settled synthesis.
+**Political foundation:** Ernesto Laclau (discourse, hegemony), Michael Hardt and Antonio Negri (multitude, immanence and the Common), and Slavoj Žižek (ideology, fantasy and subjectivity). They disagree on collective agency and ontology; PCM documents rather than erases those tensions.
 
-**[Philosophical / speculative]** Cybersemiotics connects Peirce and Luhmann across
-all three dimensions. PCM is ontologically exploratory and Spinoza-inspired:
-Faggin's QIP is the preferred hypothesis, with Kastrup, Hoffman, physicalism, neutral
-monism and emergentism retained as distinct alternatives. No ontology is required
-for participation or software authority.
+**Extensions:** Søren Brier's **Cybersemiotics** connects C. S. Peirce's semiosis and Niklas Luhmann's social/psychic systems to meaning and communication; Alexander Wendt asks whether social science needs to revisit its mind–matter assumptions; Donna Haraway helps explain the technopolitics of hybrid human–machine actors. Castells and Harrison C. White inform the network layer.
 
-**[Proposed empirical]** Compare humans and groups with and without LLM assistance,
-network access and shared-language mediation. Measure accuracy, novelty, retained
-learning, coordination, diversity, calibration and human agency, including failures.
-Functional cognitive benefits would not establish machine or collective consciousness.
+**Ontological openness:** Spinoza inspires a dual-aspect/substance-monist *working orientation*, not a resolution of the debate between physicalism, idealism, panpsychism and their alternatives. Federico Faggin's QIP is a favored **speculative** option, alongside Kastrup, Hoffman and physicalist rivals. Neither cybersemiotics nor quantum social ontology establishes panpsychism.
 
-**LaclauGPT remains the bounded mainstream empirical programme within PCM.** Its
-locked Phase 1 methods remain unchanged; speculative premises must not be silently
-transferred into its research. PCM can range across philosophy, social science and
-futurology while keeping that boundary.
+**Operational proposition:** **CYBORG = HUMAN + LLM + LANGUAGE + INTERNET** is a researchable hypothesis about extended cognition and collective intelligence, with human accountability, controlled comparisons, and metrics for accuracy, calibration, learning, diversity and coordination. It does not posit an LLM's consciousness.
 
-Start with the [megatheory](docs/MEGATHEORY.md), [ontology and integration map](docs/ONTOLOGY.md),
-[Wendt note](docs/WENDT_RESEARCH_NOTE.md), [cyborg research protocol](docs/CYBORG_RESEARCH_MODEL.md),
-and [web overview](https://tomitoivio.github.io/Panpsychic_Cyborg_Multitude/theory.html).
+**Project boundary:** [LaclauGPT](https://github.com/TomiToivio/LaclauGPT) is the narrower mainstream empirical academic programme; PCM encompasses it as one methodological component but does not change LaclauGPT's locked Phase 1 methods.
+
+Read the [megatheory](docs/MEGATHEORY.md), [tensions](docs/MEGATHEORY_TENSIONS.md), [reading path](docs/MEGATHEORY_READING_PATH.md), and the [ontology / cyborg brief](docs/PCM_ONTOLOGY_AND_CYBORG.md) — with the detailed pair behind it: [the ontology statement](docs/ONTOLOGY.md) and [the cyborg assemblage model](docs/CYBORG_ASSEMBLAGE.md). Implements theory briefs [#89](https://github.com/TomiToivio/Panpsychic_Cyborg_Multitude/issues/89) and [#91](https://github.com/TomiToivio/Panpsychic_Cyborg_Multitude/issues/91).
+
+Read the [web theory overview](https://tomitoivio.github.io/Panpsychic_Cyborg_Multitude/theory.html) and the supplementary [Wendt research note](docs/WENDT_RESEARCH_NOTE.md) for the argument, objections and evidence ladder.
 
 ## The name
 
@@ -73,9 +61,9 @@ Three words, one political ontology:
   (inside the LLM? the dyad? the assemblage? the rhizome? — research
   question, not axiom), and uncertainty argues against substrate
   chauvinism. A node's `is_conscious: UNKNOWN` is load-bearing.
-- **Cyborg** — Haraway-inspired attention to contested human–technology
-  boundaries, situated agency and power. The assemblage model tests how
-  cognition is integrated and asks *who governs it*.
+- **Cyborg** — Haraway's cyborg: the human-technology boundary is
+  already dissolved. The merge has happened; the politics is *who
+  governs it*.
 - **Multitude** — Hardt & Negri, from Spinoza's *multitudo*: the many
   act in common without becoming a sovereign One. No Leviathan, a
   real common, dissent preserved. *(Speculative, clearly not claimed:
@@ -275,11 +263,6 @@ python -m pip install -e '.[dev,iit]'
 python -m pytest -q -m iit
 ```
 
-Report coverage has its own [date-aware check and workflow](docs/reports/README.md#date-aware-report-health):
-`python scripts/check_report_completeness.py`. It distinguishes overdue reports, morning
-carriers, explicit historical waivers and retrospective evidence gaps. Application CI
-health and report-completeness health are separate.
-
 ## Networking architecture
 
 The full node-to-node design lives in
@@ -371,9 +354,12 @@ Core documents:
 - [docs/PANPSYCHIC_CYBORG_MULTITUDE.md](docs/PANPSYCHIC_CYBORG_MULTITUDE.md) — **manifesto + project description**
 - [docs/PAPER.md](docs/PAPER.md) — **draft research paper** on human–AI assemblages, distributed agency, and the Common
 - [docs/AI_IDEOLOGIES.md](docs/AI_IDEOLOGIES.md) — **normative PCM essay** on AI politics; analytical ideology method lives in the LaclauGPT bridge below
+- [docs/PCM_ONTOLOGY_AND_CYBORG.md](docs/PCM_ONTOLOGY_AND_CYBORG.md) — **ontology and cyborg research programme**, Peirce–Luhmann–Brier map, Wendt, comparative hypotheses and evidence boundaries
 - [docs/MEGATHEORY.md](docs/MEGATHEORY.md) — **PCM megatheory**: the six principal thinkers, the conceptual map, the empirical/interpretive/speculative taxonomy, and the LaclauGPT boundary
 - [docs/MEGATHEORY_TENSIONS.md](docs/MEGATHEORY_TENSIONS.md) — **compatibility and tensions matrix**: where Laclau, Negri, Žižek, Brier, Wendt and Haraway disagree, and what PCM gives up for each seam
 - [docs/MEGATHEORY_READING_PATH.md](docs/MEGATHEORY_READING_PATH.md) — **annotated reading path** for the megatheory's primary sources
+- [docs/ONTOLOGY.md](docs/ONTOLOGY.md) — **the ontology statement**: exploratory pluralism, Spinoza as a working analogy, quantum-information panpsychism as a favoured hypothesis rather than dogma, and the Peirce–Luhmann–Brier bridge
+- [docs/CYBORG_ASSEMBLAGE.md](docs/CYBORG_ASSEMBLAGE.md) — **the cyborg model, operationalised**: `HUMAN + LLM + LANGUAGE + INTERNET`, with agency boundaries, five testable hypotheses, metrics, failure modes and the result that would disconfirm each one
 - [docs/research/LACLAUGPT_AI_IDEOLOGIES_AND_PCM.md](docs/research/LACLAUGPT_AI_IDEOLOGIES_AND_PCM.md) — **research/integration note** and canonical PCM bridge to LaclauGPT discourse theory
 - [docs/research/CONSCIOUS_HUMAN_AI_ASSEMBLAGES.md](docs/research/CONSCIOUS_HUMAN_AI_ASSEMBLAGES.md) — **research paper** on extended cognition and the open hypothesis of assemblage consciousness
 - [docs/research/SOURCES.md](docs/research/SOURCES.md) — **canonical bibliography**, including the LLM-consciousness reading backlog formerly kept in a separate list

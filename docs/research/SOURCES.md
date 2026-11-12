@@ -429,22 +429,21 @@ Theoretical commitments are sorted by layer in
 [`docs/MEGATHEORY.md`](../MEGATHEORY.md) §2, and the disagreements they create are recorded in
 [`docs/MEGATHEORY_TENSIONS.md`](../MEGATHEORY_TENSIONS.md).
 
-## 14. Ontology and cyborg primary sources
+## 14. Ontology and cyborg assemblage (#91)
 
-Annotations identify intended use, not empirical endorsement. This extends §13 rather than
-replacing the six-thinker reading path. The substantive synthesis is PCM's own interpretation.
+Primary sources added by the #91 specification. Peirce and Spinoza were cited in the megatheory but
+not registered; the extended-cognition line already exists in §5 and is cross-referenced rather than
+duplicated.
 
-| Primary source | Use and limit |
-| --- | --- |
-| Peirce, C. S. (1903), “Sundry Logical Conceptions,” *The Essential Peirce*, vol. 2 (1998), pp. 267–288 | Sign/object/interpretant relations; an interpretant is not simply a human interpreter. Do not map this triad directly onto Luhmann's selections. [Philosophical] |
-| Luhmann, N. (1995), *Social Systems* (German original 1984), especially chapters 4 and 6 | Communication, meaning, psychic/social systems and interpenetration. Operational closure challenges an easy merger with Peircean metaphysics. [Social-theoretical / interpretive] |
-| Brier, S. (2008), *Cybersemiotics: Why Information Is Not Enough!*; also [“Cybersemiotics: a transdisciplinary framework for information studies” (1998)](https://doi.org/10.1016/S0303-2647(97)00097-X) | Integrates semiotic and cybernetic approaches to meaning; use as a bridge requiring argument, not proof of panpsychism. [Philosophical / interpretive] |
-| Spinoza, B. (1677), *Ethics*, Part I and Part II, propositions 1–7 | Substance and attributes supply the monist analogy. Contemporary physicalism, idealism and QIP are not interchangeable with this system. [Philosophical] |
-| Wendt, A. (2015), [*Quantum Mind and Social Science*](https://www.cambridge.org/core/books/quantum-mind-and-social-science/3D5DB273B648D0A23B49C1C4ABA5CF7A), alongside *Social Theory of International Politics* (1999) | Distinguish the social-ontology challenge from its proposed quantum solution; the former can be debated without accepting the latter. [Interpretive / speculative] |
-| D’Ariano, G. M., & Faggin, F. (2022), [“Hard Problem and Free Will: An Information-Theoretical Approach”](https://doi.org/10.1007/978-3-030-85480-5_5), pp. 145–192 | Primary formulation of a psycho-informational proposal; examine the additional postulates about experience rather than treating quantum information as their proof. [Speculative] |
-| Haraway, D. (1985/1991), “A Cyborg Manifesto”; “Situated Knowledges” (1988), listed in §13 | Hybridity, situated perspective and power; prevents the assemblage from becoming a politically neutral productivity metaphor. [Interpretive / philosophical] |
-| Clark, A., & Chalmers, D. (1998), [“The Extended Mind”](https://www.consc.net/papers/extended.html), *Analysis*, 58(1), 7–19 | Active externalism and functional coupling; challenge the assumption that any helpful tool thereby extends a mind. [Philosophical] |
-| Hutchins, E. (1995), [*Cognition in the Wild*](https://mitpress.mit.edu/9780262581462/cognition-in-the-wild/), MIT Press | Navigation as a socially and materially distributed cognitive activity; offers empirical field methods, not evidence for LLM consciousness. [Empirical study / interpretive framework] |
-
-Kastrup and Hoffman remain in §13 as alternatives; physicalism, neutral monism and emergentism
-remain live comparators in [the ontology statement](../ONTOLOGY.md), not excluded by source selection.
+- **Peirce, C. S. (1877). "The Fixation of Belief." _Popular Science Monthly_ 12, 1–15.** [peer-reviewed journal article]
+  Read for the pragmatist test of what a belief *does* — the standard `ONTOLOGY.md` §6 applies to its own claims.
+- **Peirce, C. S. (1931–1958). _Collected Papers of Charles Stewart Peirce_ (8 vols., Hartshorne, Weiss & Burks eds.). Harvard University Press.** [book]
+  The source of triadic semiosis (sign / object / interpretant), which is what Brier integrates. Do not read second-hand summaries as Peirce.
+- **Spinoza, B. (1677; Curley trans. 1994). _Ethics_. Penguin / Princeton University Press.** [book] **[repository/speculative]**
+  Read Part II for the attributes and Part III–IV for the conatus. Used as a **working analogy** for dual-aspect framing, not as a resolution of the idealism/physicalism debate: `ONTOLOGY.md` §2 says explicitly what the analogy does not buy.
+- **Wendt, A. (2015). _Quantum Mind and Social Science_. Cambridge University Press.** [book] **[repository/speculative]**
+  Already registered in §13; listed here because #91 turns it into a research note (`ONTOLOGY.md` §4) with its objections and empirical status stated.
+- **Clark, A., & Chalmers, D. (1998). "The Extended Mind." _Analysis_ 58(1), 7–19.** [peer-reviewed journal article]
+  Registered in §5; it is the standard against which H1 in `CYBORG_ASSEMBLAGE.md` is designed.
+- **Hutchins, E. (1995). _Cognition in the Wild_. MIT Press.** [book]
+  Registered in §5; the distributed-cognition counterpart to Clark and Chalmers, and the reason H2 is about groups rather than individuals.

@@ -47,4 +47,4 @@ coalitions. They cannot show that the attributed consciousness exists. This conn
 ontology question to Laclau's articulation, Negri's common and Žižek's ideological investment
 without changing LaclauGPT's locked Phase 1 methodology.
 
-Primary-source starting points and annotations: [SOURCES §14](research/SOURCES.md#14-ontology-and-cyborg-primary-sources).
+Primary-source starting points and annotations: [SOURCES §14](research/SOURCES.md#14-ontology-and-cyborg-assemblage-91).

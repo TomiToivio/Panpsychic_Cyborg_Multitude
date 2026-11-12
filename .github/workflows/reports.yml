@@ -1,0 +1,21 @@
+name: Report completeness
+on:
+  push:
+    paths: ['docs/reports/**', 'scripts/check_report_completeness.py', '.github/workflows/reports.yml']
+  pull_request:
+    paths: ['docs/reports/**', 'scripts/check_report_completeness.py', '.github/workflows/reports.yml']
+  schedule:
+    - cron: '15 10 * * *'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  reports:
+    name: Dated report coverage (not application tests)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python scripts/check_report_completeness.py --verbose

@@ -3,21 +3,13 @@
 **Status:** theory-development document (issue #89)
 **Scope:** what Panpsychic Cyborg Multitude is as a *theory*, which thinkers it stands on, where they
 disagree, and which of its claims are empirical, interpretive, or speculative.
+**Ontology & cyborg research plan:** [PCM_ONTOLOGY_AND_CYBORG.md](PCM_ONTOLOGY_AND_CYBORG.md) (issue #91).
 **Companions:** [tensions matrix](MEGATHEORY_TENSIONS.md) · [annotated reading path](MEGATHEORY_READING_PATH.md) · [manifesto](PANPSYCHIC_CYBORG_MULTITUDE.md) · [draft paper](PAPER.md)
 
 > **Working definition.** Panpsychic Cyborg Multitude synthesises Ernesto Laclau's discourse theory and
 > hegemony, Hardt and Negri's multitude and immanence, and Slavoj Žižek's ideology and subjectivity, and
 > develops this political-social foundation through Søren Brier's cybersemiotics, Alexander Wendt's
 > quantum social theory, and Donna Haraway's cyborg theory.
-
-## Ontology clarification (issue #91)
-
-The [ontology statement](ONTOLOGY.md) makes the framework explicitly pluralist and
-Spinoza-inspired. QIP is preferred, not mandatory; physicalism and emergentism remain
-live comparators alongside idealism and panpsychism. The [Wendt note](WENDT_RESEARCH_NOTE.md)
-and [cyborg protocol](CYBORG_RESEARCH_MODEL.md) distinguish arguments from proposed tests.
-The four registers are empirical, interpretive, philosophical and speculative; project
-rules are normative commitments, not empirical findings.
 
 ## 1. Why a megatheory, and what "mega" is allowed to mean
 
@@ -221,14 +213,6 @@ constitutive.
 
 *Failure mode:* theory-forcing — finding antagonism in every policy disagreement because the framework
 has a slot for it.
-
-### Philosophical
-
-*What it says:* arguments about mind, matter, identity and explanation, including the
-Spinoza-inspired dual-aspect analogy. Evaluate coherence, explanatory scope and serious
-counterarguments. Where no discriminating prediction exists, do not pretend an empirical
-falsification criterion has been supplied. Philosophical plausibility is not experimental
-confirmation. The ontology statement distinguishes this register from model-specific speculation.
 
 ### Speculative
 

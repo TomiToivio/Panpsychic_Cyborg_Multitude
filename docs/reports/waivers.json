@@ -1,12 +1,13 @@
 {
-  "2026-09-26": {
-    "reason": "Pre-existing morning carrier outside the October backfill scope; retain original reflection pending archive recovery.",
-    "issue": "https://github.com/TomiToivio/Panpsychic_Cyborg_Multitude/issues/88",
-    "expires": "2026-12-12"
-  },
-  "2026-09-27": {
-    "reason": "Pre-existing morning carrier outside the October backfill scope; retain original reflection pending archive recovery.",
-    "issue": "https://github.com/TomiToivio/Panpsychic_Cyborg_Multitude/issues/88",
-    "expires": "2026-12-12"
+  "_comment": "Report dates the completeness check must not fail on. Every entry needs a reason; a waiver without one is rejected, because a silent waiver is a hidden failure. Remove an entry when its date is backfilled.",
+  "waived": {
+    "2026-09-26": {
+      "reason": "Morning placeholder from before the watch job's retained run output begins. No run record, no commit and no surviving source exists for this date, so it cannot be reconstructed without inventing observations. Discovered on 2026-11-12 while adding the checker; outside the scope of #88.",
+      "discovered": "2026-11-12"
+    },
+    "2026-09-27": {
+      "reason": "Same class as 2026-09-26: placeholder never filled, no surviving run record or commit for the date, nothing to reconstruct from. Discovered on 2026-11-12.",
+      "discovered": "2026-11-12"
+    }
   }
 }

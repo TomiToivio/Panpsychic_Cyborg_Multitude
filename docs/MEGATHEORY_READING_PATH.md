@@ -156,11 +156,3 @@ that the boundary is contested, not that the technology is present.
 5. **Do not cite what you have not verified.** The promotion rule in
    [`SOURCES.md` §12](research/SOURCES.md#12-methodological-reading-rules-for-pcm) applies to every
    document, including this one.
-
-## Ontology and cyborg clarification (issues #89 and #91)
-
-See the [pluralist ontology statement](ONTOLOGY.md), [Wendt research note](WENDT_RESEARCH_NOTE.md)
-and [operational cyborg model](CYBORG_RESEARCH_MODEL.md). QIP is a preferred
-speculative hypothesis, not PCM dogma. Physicalist alternatives remain live; functional
-cognition, phenomenal consciousness and software authority are distinct. LaclauGPT's
-locked Phase 1 methodology is unchanged.

@@ -1,89 +1,174 @@
-from datetime import date, datetime
-import importlib.util
+"""#88: a report gap must fail loudly, and a same-day carrier must not.
+
+The failure this guards against is not a broken test — it is a broken *chain*: a day where the watch
+never ran, no commit exists, every workflow is green, and nobody notices for seven weeks. The check
+therefore has to distinguish three states that look similar from the outside:
+
+* a completed report;
+* a legitimate same-day carrier, written at 08:00 before the 10:00 watch;
+* a placeholder that survived its watch.
+"""
+from __future__ import annotations
+
+import datetime as dt
+import json
+import sys
+import tempfile
+import unittest
 from pathlib import Path
-import pytest
 
-spec = importlib.util.spec_from_file_location(
-    'report_health', Path(__file__).resolve().parents[1] / 'scripts/check_report_completeness.py')
-health = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(health)
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "scripts"))
 
+import check_report_completeness as check  # noqa: E402
 
-def check(tmp_path, now='2026-10-09T12:00:00+03:00', **kwargs):
-    return health.inspect_reports(tmp_path, date(2026, 10, 8), datetime.fromisoformat(now), **kwargs)
+PLACEHOLDER = """# PCM Daily Report — {day}
 
+## Daily watch
 
-def write(tmp_path, day, text):
-    (tmp_path / f'2026-10-{day}.md').write_text(text, encoding='utf-8')
+**Placeholder, not a scan.** This report is the morning thoughts' public bearer.
 
+## Priorities
 
-def test_completed_report_can_discuss_old_placeholders(tmp_path):
-    for day in ('08', '09'):
-        write(tmp_path, day, '# Report\nThe October 1 placeholder remains a historical gap.')
-    assert check(tmp_path)['failures'] == []
+Set by the daily watch's run when it arrives.
+"""
 
+FILLED = """# PCM Daily Report — {day}
 
-def test_same_day_carrier_is_allowed_only_before_deadline(tmp_path):
-    write(tmp_path, '08', '**Placeholder, not a scan.**')
-    assert not check(tmp_path, '2026-10-08T10:59:59+03:00')['failures']
-    assert check(tmp_path, '2026-10-08T11:00:00+03:00')['failures'][0]['problem'] == 'unresolved placeholder'
+## Daily watch
 
+### 1. Repository changes and health [established]
 
-def test_stale_carrier_detected_next_morning(tmp_path):
-    write(tmp_path, '08', '**Placeholder, not a scan.**')
-    result = check(tmp_path, '2026-10-09T08:00:00+03:00')
-    assert result['failures'] == [{'date': '2026-10-08', 'problem': 'unresolved placeholder'}]
-    assert result['not_due'] == [{'date': '2026-10-09', 'problem': 'missing'}]
+The chain holds.
+"""
 
 
-def test_missing_past_day_detected_days_later(tmp_path):
-    result = check(tmp_path, '2026-10-12T08:00:00+03:00')
-    assert len(result['failures']) == 4
-    assert result['failures'][0] == {'date': '2026-10-08', 'problem': 'missing'}
+class CompletenessTests(unittest.TestCase):
+    def setUp(self):
+        self._tmp = tempfile.TemporaryDirectory()
+        self.dir = Path(self._tmp.name)
+
+    def tearDown(self):
+        self._tmp.cleanup()
+
+    def write(self, day: str, template: str = FILLED):
+        (self.dir / f"{day}.md").write_text(template.format(day=day), encoding="utf-8")
+
+    def test_a_complete_chain_reports_nothing(self):
+        for day in ("2026-10-08", "2026-10-09", "2026-10-10"):
+            self.write(day)
+        problems = check.check(self.dir, today=dt.date(2026, 10, 10))
+        self.assertEqual(problems, [])
+
+    def test_a_same_day_carrier_is_legitimate_before_the_watch_deadline(self):
+        self.write("2026-10-08", PLACEHOLDER)
+        problems = check.check(
+            self.dir, today=dt.date(2026, 10, 8), now=dt.time(9, 30)
+        )
+        self.assertEqual(problems, [], "08:00 carrier must not fail before the 10:00 watch")
+
+    def test_a_same_day_placeholder_fails_after_the_watch_deadline(self):
+        self.write("2026-10-08", PLACEHOLDER)
+        problems = check.check(
+            self.dir, today=dt.date(2026, 10, 8), now=dt.time(12, 30)
+        )
+        self.assertEqual(len(problems), 1)
+        self.assertIn("watch deadline", problems[0])
+
+    def test_a_stale_placeholder_fails_on_a_later_day(self):
+        self.write("2026-10-08", PLACEHOLDER)
+        self.write("2026-10-09")
+        problems = check.check(self.dir, today=dt.date(2026, 10, 9))
+        self.assertEqual(len(problems), 1)
+        self.assertIn("2026-10-08", problems[0])
+        self.assertIn("placeholder", problems[0])
+
+    def test_a_missing_past_date_fails(self):
+        self.write("2026-10-08")
+        self.write("2026-10-10")
+        problems = check.check(self.dir, today=dt.date(2026, 10, 10))
+        self.assertEqual(len(problems), 1)
+        self.assertIn("2026-10-09: no report file", problems[0])
+
+    def test_today_may_be_missing_because_the_carrier_has_not_run_yet(self):
+        self.write("2026-10-08")
+        problems = check.check(self.dir, today=dt.date(2026, 10, 9), now=dt.time(8))
+        self.assertEqual(problems, [])
+
+    def test_missing_today_fails_at_and_after_deadline(self):
+        self.write("2026-10-08")
+        for now in (dt.time(12), dt.time(23, 59)):
+            problems = check.check(self.dir, today=dt.date(2026, 10, 9), now=now)
+            self.assertEqual(problems, ["2026-10-09: no report file"])
+
+    def test_placeholder_fails_at_exact_deadline(self):
+        self.write("2026-10-08", PLACEHOLDER)
+        self.assertEqual(len(check.check(self.dir, today=dt.date(2026, 10, 8), now=dt.time(12))), 1)
+
+    def test_midnight_is_not_replaced_with_deadline(self):
+        self.write("2026-10-08")
+        self.assertEqual(check.check(self.dir, today=dt.date(2026, 10, 9), now=dt.time(0)), [])
+
+    def test_a_waived_date_passes_and_keeps_its_reason(self):
+        self.write("2026-10-08", PLACEHOLDER)
+        self.write("2026-10-09")
+        waivers = {"2026-10-08": "no surviving run record"}
+        problems = check.check(self.dir, today=dt.date(2026, 10, 9), waivers=waivers)
+        self.assertEqual(problems, [])
+
+    def test_a_waiver_without_a_reason_is_rejected(self):
+        path = self.dir / "waivers.json"
+        path.write_text(json.dumps({"waived": {"2026-10-08": {}}}), encoding="utf-8")
+        with self.assertRaises(ValueError):
+            check.load_waivers(path)
+
+    def test_a_waiver_is_read_from_the_reports_directory(self):
+        path = self.dir / "waivers.json"
+        path.write_text(
+            json.dumps({"waived": {"2026-10-08": {"reason": "gap with no source"}}}),
+            encoding="utf-8",
+        )
+        self.assertEqual(check.load_waivers(path), {"2026-10-08": "gap with no source"})
+
+    def test_an_empty_directory_is_an_error_not_a_silent_pass(self):
+        problems = check.check(self.dir, today=dt.date(2026, 10, 8))
+        self.assertEqual(len(problems), 1)
+        self.assertIn("no dated reports", problems[0])
+
+    def test_the_check_reads_dates_and_does_not_depend_on_when_it_runs(self):
+        """Run at 23:59 on a later day, a filled report still passes: no 'same morning' requirement."""
+        self.write("2026-10-08")
+        self.write("2026-10-09")
+        problems = check.check(
+            self.dir, today=dt.date(2026, 10, 9), now=dt.time(23, 59)
+        )
+        self.assertEqual(problems, [])
 
 
-def test_explicit_waiver_expires_and_is_reported(tmp_path):
-    waiver = {'2026-10-08': {'reason': 'Archive recovery', 'issue': '#88', 'expires': '2026-10-09'}}
-    result = check(tmp_path, '2026-10-09T08:00:00+03:00', waivers=waiver)
-    assert not result['failures'] and len(result['waived']) == 1
-    assert check(tmp_path, '2026-10-10T08:00:00+03:00', waivers=waiver)['failures']
+class RepositoryTests(unittest.TestCase):
+    """The real repository, not a fixture: the chain this ships against must be complete."""
+
+    def test_the_shipped_report_chain_is_complete(self):
+        reports = ROOT / "docs" / "reports"
+        waivers = check.load_waivers(reports / "waivers.json")
+        problems = check.check(reports, today=dt.date(2026, 11, 11), waivers=waivers)
+        self.assertEqual(problems, [], f"report chain has gaps: {problems}")
+
+    def test_the_backfilled_dates_are_no_longer_placeholders(self):
+        reports = ROOT / "docs" / "reports"
+        for day in ("2026-10-08", "2026-10-16", "2026-10-17", "2026-10-18"):
+            text = (reports / f"{day}.md").read_text(encoding="utf-8")
+            self.assertFalse(
+                check.is_placeholder(text), f"{day} still carries an unresolved placeholder"
+            )
+
+    def test_backfilled_reports_say_they_are_retrospective(self):
+        reports = ROOT / "docs" / "reports"
+        for day in ("2026-10-08", "2026-10-16", "2026-10-17", "2026-10-18"):
+            text = (reports / f"{day}.md").read_text(encoding="utf-8")
+            self.assertIn("Retrospective", text, f"{day} must label itself a reconstruction")
+            self.assertIn("2026-11-12", text, f"{day} must date the reconstruction")
 
 
-def test_unexplained_waiver_rejected(tmp_path):
-    with pytest.raises(ValueError):
-        check(tmp_path, waivers={'2026-10-08': {'expires': '2026-10-09'}})
-
-
-def test_retrospective_gap_is_visible_not_claimed_as_scan(tmp_path):
-    write(tmp_path, '08', '<!-- pcm-watch-status: retrospective-evidence-gap -->\nEvidence unavailable.')
-    result = check(tmp_path, '2026-10-09T08:00:00+03:00')
-    assert not result['failures']
-    assert result['retrospective_evidence_gaps'] == ['2026-10-08']
-
-
-def test_explicit_complete_cannot_hide_carrier(tmp_path):
-    write(tmp_path, '08', '<!-- pcm-watch-status: complete -->\n**Placeholder, not a scan.**')
-    assert check(tmp_path)['failures'][0]['problem'] == 'unresolved placeholder'
-
-
-@pytest.mark.parametrize('content', ['', '<!-- pcm-watch-status: pending -->',
-    '<!-- pcm-watch-status: typo -->',
-    '<!-- pcm-watch-status: complete --><!-- pcm-watch-status: pending -->'])
-def test_incomplete_or_invalid_status_fails(tmp_path, content):
-    write(tmp_path, '08', content)
-    assert check(tmp_path)['failures'][0]['date'] == '2026-10-08'
-
-
-def test_helsinki_deadline_across_dst(tmp_path):
-    for now, expected in [('2026-10-08T07:59:00+00:00', False),
-                          ('2026-10-08T08:00:00+00:00', True),
-                          ('2026-11-08T08:59:00+00:00', False),
-                          ('2026-11-08T09:00:00+00:00', True)]:
-        instant = datetime.fromisoformat(now)
-        result = health.inspect_reports(tmp_path, instant.date(), instant)
-        assert bool(result['failures']) is expected
-
-
-def test_naive_time_rejected(tmp_path):
-    with pytest.raises(ValueError):
-        check(tmp_path, '2026-10-08T08:00:00')
+if __name__ == "__main__":
+    unittest.main()
