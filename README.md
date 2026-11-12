@@ -41,7 +41,7 @@ Read the manifesto: [docs/PANPSYCHIC_CYBORG_MULTITUDE.md](docs/PANPSYCHIC_CYBORG
 
 **Project boundary:** [LaclauGPT](https://github.com/TomiToivio/LaclauGPT) is the narrower mainstream empirical academic programme; PCM encompasses it as one methodological component but does not change LaclauGPT's locked Phase 1 methods.
 
-Read the [megatheory](docs/MEGATHEORY.md), [tensions](docs/MEGATHEORY_TENSIONS.md), [reading path](docs/MEGATHEORY_READING_PATH.md), and [ontology / cyborg research programme](docs/PCM_ONTOLOGY_AND_CYBORG.md). Implements theory briefs [#89](https://github.com/TomiToivio/Panpsychic_Cyborg_Multitude/issues/89) and [#91](https://github.com/TomiToivio/Panpsychic_Cyborg_Multitude/issues/91).
+Read the [megatheory](docs/MEGATHEORY.md), [tensions](docs/MEGATHEORY_TENSIONS.md), [reading path](docs/MEGATHEORY_READING_PATH.md), and the [ontology / cyborg brief](docs/PCM_ONTOLOGY_AND_CYBORG.md) — with the detailed pair behind it: [the ontology statement](docs/ONTOLOGY.md) and [the cyborg assemblage model](docs/CYBORG_ASSEMBLAGE.md). Implements theory briefs [#89](https://github.com/TomiToivio/Panpsychic_Cyborg_Multitude/issues/89) and [#91](https://github.com/TomiToivio/Panpsychic_Cyborg_Multitude/issues/91).
 
 ## The name
 

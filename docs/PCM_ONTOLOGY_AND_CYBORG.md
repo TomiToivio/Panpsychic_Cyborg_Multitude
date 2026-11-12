@@ -1,5 +1,13 @@
 # PCM ontology, cybersemiotics and the cyborg assemblage
 
+> **This is the short brief.** The two documents it summarises are
+> [`docs/ONTOLOGY.md`](ONTOLOGY.md) — exploratory pluralism, Spinoza as a working analogy, QIP as a
+> favoured hypothesis with stated revision conditions, and the Peirce–Luhmann–Brier bridge — and
+> [`docs/CYBORG_ASSEMBLAGE.md`](CYBORG_ASSEMBLAGE.md) — `HUMAN + LLM + LANGUAGE + INTERNET` as an
+> operational model with agency boundaries, five testable hypotheses and failure modes. Read this
+> page for the shape of the argument; read those for the tensions, the falsification criteria and the
+> annotated sources.
+
 **Status:** interdisciplinary theory programme; linked to [megatheory](MEGATHEORY.md), [tensions](MEGATHEORY_TENSIONS.md), [reading path](MEGATHEORY_READING_PATH.md), [issue #89](https://github.com/TomiToivio/Panpsychic_Cyborg_Multitude/issues/89), and [issue #91](https://github.com/TomiToivio/Panpsychic_Cyborg_Multitude/issues/91). **No changes to LaclauGPT methodology are implied.**
 
 ## 1. Ontological commitment: comparative and open
