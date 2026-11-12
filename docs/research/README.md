@@ -14,6 +14,7 @@ Document labels used here:
 ## Start here
 
 - [`SOURCES.md`](SOURCES.md) — **canonical bibliography** for PCM: panpsychism and consciousness, cyborg and extended cognition, Multitude/rhizome/assemblage, collective intelligence, Active Inference, singularity, AI ideology, and recent PCM-like work.
+- [`../MEGATHEORY.md`](../MEGATHEORY.md), [`../MEGATHEORY_TENSIONS.md`](../MEGATHEORY_TENSIONS.md) and [`../MEGATHEORY_READING_PATH.md`](../MEGATHEORY_READING_PATH.md) — the **megatheory layer** (issue #89): layer assignment, tensions, and the annotated route through the primary sources registered in §13 of the bibliography.
 - [`CONSCIOUS_HUMAN_AI_ASSEMBLAGES.md`](CONSCIOUS_HUMAN_AI_ASSEMBLAGES.md) — **paper** on extended/distributed cognition and the stronger, unresolved hypothesis of assemblage consciousness.
 - [`LACLAUGPT_AI_IDEOLOGIES_AND_PCM.md`](LACLAUGPT_AI_IDEOLOGIES_AND_PCM.md) — **integration note** and PCM theory bridge for analysing AI ideology through articulation, nodal/floating/empty signifiers, equivalence, antagonism, hegemony, and sociotechnical imaginaries.
 
