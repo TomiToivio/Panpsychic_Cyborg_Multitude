@@ -3,6 +3,7 @@
 **Status:** theory-development document (issue #89)
 **Scope:** what Panpsychic Cyborg Multitude is as a *theory*, which thinkers it stands on, where they
 disagree, and which of its claims are empirical, interpretive, or speculative.
+**Ontology & cyborg research plan:** [PCM_ONTOLOGY_AND_CYBORG.md](PCM_ONTOLOGY_AND_CYBORG.md) (issue #91).
 **Companions:** [tensions matrix](MEGATHEORY_TENSIONS.md) · [annotated reading path](MEGATHEORY_READING_PATH.md) · [manifesto](PANPSYCHIC_CYBORG_MULTITUDE.md) · [draft paper](PAPER.md)
 
 > **Working definition.** Panpsychic Cyborg Multitude synthesises Ernesto Laclau's discourse theory and
