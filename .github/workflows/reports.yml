@@ -1,0 +1,61 @@
+name: Reports
+
+# Report-completeness health, deliberately separate from test health (issue #88).
+#
+# A green test suite says nothing about whether the daily record was written, and this repository's
+# history shows the failure: 2026-09-26 to 09-29, 2026-10-08 and 2026-10-16 to 10-18 are days whose
+# reports were missing or still carried the morning carrier's placeholder while CI stayed green.
+# Merging the two checks into one workflow would have hidden that behind a passing badge.
+
+on:
+  schedule:
+    # 13:00 UTC = 15:00 EEST, after the watch's 10:00 run and after the noon window in which a
+    # same-day placeholder is still the design working.
+    - cron: "0 13 * * *"
+  push:
+    paths:
+      - "docs/reports/**"
+      - "tools/check_reports_completeness.py"
+      - "tests/test_reports_completeness.py"
+      - ".github/workflows/reports.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: reports-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  completeness:
+    name: Report completeness
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+
+      - name: Every completed day is written
+        # Standard library only: no install step, so this job cannot be broken by a dependency.
+        # Judged up to yesterday, so a pull request is never blocked by today's report still being
+        # the morning carrier — that is the scheduled run's business, not a merge gate's.
+        run: |
+          python3 tools/check_reports_completeness.py \
+            --end "$(date -u -d yesterday +%F)" --fail-on-gaps
+
+      - name: Report today's status (scheduled runs only)
+        # After the noon window, a placeholder on today's date is a real finding: the watch has
+        # already had its slot. Reported but not fatal, because the watch may still retry.
+        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+        run: python3 tools/check_reports_completeness.py || true
+
+      - name: Print the machine-readable series on failure
+        if: failure()
+        run: python3 tools/check_reports_completeness.py --json || true
