@@ -35,3 +35,30 @@ Use ISO dates so entries sort chronologically:
 Relevant areas include human–AI assemblages and collective intelligence, BCI/neurotechnology and cyborg systems, embodied and agentic AI, distributed/federated systems, ValueFlows and digital commons, cooperative technology, assemblage and extended consciousness, current-AI consciousness, panpsychism as secondary metaphysical background, and commons/multitude theory.
 
 These reports are an ongoing research log, not normative project documentation. Claims in a daily report may later be superseded by stronger evidence or implementation decisions elsewhere in the repository.
+
+## Completeness is checked, and checked separately from tests (#88)
+
+A green test suite says the code works; it says nothing about whether a day's watch ever ran. Those
+are different healths, so they are checked by different workflows: `Tests` covers code, and
+`Report completeness` (`.github/workflows/reports.yml`) covers this directory.
+
+The check is date-aware:
+
+```bash
+python scripts/check_report_completeness.py --today "$(date -u +%F)" --verbose
+```
+
+- A **same-day carrier** is legitimate: the thoughts job writes at ~08:00 and the watch fills it at
+  ~10:00, so a placeholder is only a defect after the 12:00 deadline on its own day, or on any later
+  day.
+- A **missing past date** fails; today may be missing because the carrier has not run yet.
+- The check reads dates, not the wall clock, so it does not require being run on the same morning.
+- A date that was **reconstructed later** counts as resolved when the file says so
+  (`Retrospective reconstruction`), and so does a documented gap (`Retrospective record`).
+- A date that cannot be reconstructed from surviving evidence may be **waived** in
+  `waivers.json`, with a reason. A waiver without a reason is rejected: a silent waiver is a hidden
+  failure.
+
+Reports rebuilt after the fact say so at the top, name the run or the failure they were rebuilt
+from, and never reconstruct observations that were not made. 2026-10-08, 2026-10-16, 2026-10-17 and
+2026-10-18 are in this category.
