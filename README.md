@@ -341,6 +341,8 @@ Core documents:
 - [docs/MEGATHEORY.md](docs/MEGATHEORY.md) — **PCM megatheory**: the six principal thinkers, the conceptual map, the empirical/interpretive/speculative taxonomy, and the LaclauGPT boundary
 - [docs/MEGATHEORY_TENSIONS.md](docs/MEGATHEORY_TENSIONS.md) — **compatibility and tensions matrix**: where Laclau, Negri, Žižek, Brier, Wendt and Haraway disagree, and what PCM gives up for each seam
 - [docs/MEGATHEORY_READING_PATH.md](docs/MEGATHEORY_READING_PATH.md) — **annotated reading path** for the megatheory's primary sources
+- [docs/ONTOLOGY.md](docs/ONTOLOGY.md) — **the ontology statement**: exploratory pluralism, Spinoza as a working analogy, quantum-information panpsychism as a favoured hypothesis rather than dogma, and the Peirce–Luhmann–Brier bridge
+- [docs/CYBORG_ASSEMBLAGE.md](docs/CYBORG_ASSEMBLAGE.md) — **the cyborg model, operationalised**: `HUMAN + LLM + LANGUAGE + INTERNET`, with agency boundaries, five testable hypotheses, metrics, failure modes and the result that would disconfirm each one
 - [docs/research/LACLAUGPT_AI_IDEOLOGIES_AND_PCM.md](docs/research/LACLAUGPT_AI_IDEOLOGIES_AND_PCM.md) — **research/integration note** and canonical PCM bridge to LaclauGPT discourse theory
 - [docs/research/CONSCIOUS_HUMAN_AI_ASSEMBLAGES.md](docs/research/CONSCIOUS_HUMAN_AI_ASSEMBLAGES.md) — **research paper** on extended cognition and the open hypothesis of assemblage consciousness
 - [docs/research/SOURCES.md](docs/research/SOURCES.md) — **canonical bibliography**, including the LLM-consciousness reading backlog formerly kept in a separate list
