@@ -29,6 +29,20 @@ the people who live in it.**
 
 Read the manifesto: [docs/PANPSYCHIC_CYBORG_MULTITUDE.md](docs/PANPSYCHIC_CYBORG_MULTITUDE.md)
 
+## PCM as a megatheory: political foundation, cybersemiotic bridge and cyborg research
+
+**Political foundation:** Ernesto Laclau (discourse, hegemony), Michael Hardt and Antonio Negri (multitude, immanence and the Common), and Slavoj Žižek (ideology, fantasy and subjectivity). They disagree on collective agency and ontology; PCM documents rather than erases those tensions.
+
+**Extensions:** Søren Brier's **Cybersemiotics** connects C. S. Peirce's semiosis and Niklas Luhmann's social/psychic systems to meaning and communication; Alexander Wendt asks whether social science needs to revisit its mind–matter assumptions; Donna Haraway helps explain the technopolitics of hybrid human–machine actors. Castells and Harrison C. White inform the network layer.
+
+**Ontological openness:** Spinoza inspires a dual-aspect/substance-monist *working orientation*, not a resolution of the debate between physicalism, idealism, panpsychism and their alternatives. Federico Faggin's QIP is a favored **speculative** option, alongside Kastrup, Hoffman and physicalist rivals. Neither cybersemiotics nor quantum social ontology establishes panpsychism.
+
+**Operational proposition:** **CYBORG = HUMAN + LLM + LANGUAGE + INTERNET** is a researchable hypothesis about extended cognition and collective intelligence, with human accountability, controlled comparisons, and metrics for accuracy, calibration, learning, diversity and coordination. It does not posit an LLM's consciousness.
+
+**Project boundary:** [LaclauGPT](https://github.com/TomiToivio/LaclauGPT) is the narrower mainstream empirical academic programme; PCM encompasses it as one methodological component but does not change LaclauGPT's locked Phase 1 methods.
+
+Read the [megatheory](docs/MEGATHEORY.md), [tensions](docs/MEGATHEORY_TENSIONS.md), [reading path](docs/MEGATHEORY_READING_PATH.md), and [ontology / cyborg research programme](docs/PCM_ONTOLOGY_AND_CYBORG.md). Implements theory briefs [#89](https://github.com/TomiToivio/Panpsychic_Cyborg_Multitude/issues/89) and [#91](https://github.com/TomiToivio/Panpsychic_Cyborg_Multitude/issues/91).
+
 ## The name
 
 Three words, one political ontology:
@@ -338,6 +352,7 @@ Core documents:
 - [docs/PANPSYCHIC_CYBORG_MULTITUDE.md](docs/PANPSYCHIC_CYBORG_MULTITUDE.md) — **manifesto + project description**
 - [docs/PAPER.md](docs/PAPER.md) — **draft research paper** on human–AI assemblages, distributed agency, and the Common
 - [docs/AI_IDEOLOGIES.md](docs/AI_IDEOLOGIES.md) — **normative PCM essay** on AI politics; analytical ideology method lives in the LaclauGPT bridge below
+- [docs/PCM_ONTOLOGY_AND_CYBORG.md](docs/PCM_ONTOLOGY_AND_CYBORG.md) — **ontology and cyborg research programme**, Peirce–Luhmann–Brier map, Wendt, comparative hypotheses and evidence boundaries
 - [docs/MEGATHEORY.md](docs/MEGATHEORY.md) — **PCM megatheory**: the six principal thinkers, the conceptual map, the empirical/interpretive/speculative taxonomy, and the LaclauGPT boundary
 - [docs/MEGATHEORY_TENSIONS.md](docs/MEGATHEORY_TENSIONS.md) — **compatibility and tensions matrix**: where Laclau, Negri, Žižek, Brier, Wendt and Haraway disagree, and what PCM gives up for each seam
 - [docs/MEGATHEORY_READING_PATH.md](docs/MEGATHEORY_READING_PATH.md) — **annotated reading path** for the megatheory's primary sources
