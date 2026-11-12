@@ -226,6 +226,20 @@ python3 -m unittest tests.test_pcm_phase2_zenoh   # two-node exchange demo
 
 ## Tests and CI
 
+Two health questions, deliberately separate: **code health** (the test suite and workflows) and
+**report health** (whether each date's daily watch actually produced a report). A green suite cannot see
+a missing report — on 2026-10-08 a placeholder sat in the report for five weeks while CI stayed green.
+
+```bash
+python scripts/check_report_completeness.py            # report health; exit 1 on unresolved gaps
+python scripts/check_report_completeness.py --json     # machine-readable
+```
+
+The check is date-aware: a same-day placeholder is the expected state before the watch's cutoff hour, a
+placeholder on any earlier date is a defect, a report that records its own gap counts as resolved, and
+pre-format dates are waived in `docs/reports/waivers.json` with reasons rather than skipped silently.
+
+
 GitHub Actions runs the core suite on Python 3.11, 3.12, 3.13 and 3.14
 for every push and pull request. Zenoh tests run in a separate Python
 3.12 job. IIT experiments run separately on Python 3.13, so optional
@@ -329,6 +343,68 @@ arbitrary code execution) → state read-back verification → provenance
 journal. Real integrations (Home Assistant, MQTT, drones, ROS 2) are
 later stages; each is one new `PhysicalDevice` implementation away.
 
+## The megatheory
+
+PCM is a **megatheory**, and that word is doing precise work: it names a frame broad enough to contain
+LaclauGPT without borrowing LaclauGPT's authority for claims it cannot test. Six thinkers carry it, in
+two layers, and the layers fail independently.
+
+**Foundation — the political and social core**
+
+- **Ernesto Laclau** — discourse, articulation, antagonism, equivalential chains, hegemony. *How are
+  political subjects and collective identities constructed?*
+- **Antonio Negri** (with Michael Hardt) — multitude, constituent power, cooperation, Spinozist
+  immanence, networked production. *How does plural collective agency produce and transform social
+  relations?*
+- **Slavoj Žižek** — the Lacanian subject, ideology, fantasy, contradiction, Hegelian negativity. *Why
+  do subjects identify with, reproduce, and contest ideological formations?*
+
+**Extensions — what turns the Multitude into PCM**
+
+- **Søren Brier** — cybersemiotics: Peircean semiosis, cybernetics and meaning as a *cross-cutting*
+  bridge, not a fourth parallel module. Luhmann (social/psychic systems), Castells (network society) and
+  Harrison C. White (networks) are supporting lines inside it.
+- **Alexander Wendt** — *Quantum Mind and Social Science*: a social-scientific entry point into quantum
+  social ontology and consciousness.
+- **Donna Haraway** — the cyborg manifesto: the human/machine binary is already dissolved, and agency
+  is situated and hybrid.
+
+Faggin's Quantum Information Panpsychism, with Kastrup and Hoffman as alternatives, belongs to the
+speculative edge of the same question — and the framework states plainly that neither quantum social
+theory nor cybersemiotics *establishes* panpsychism.
+
+**These are not interchangeable.** Laclau, Negri and Žižek disagree about agency, ontology,
+universality and strategy; the aim is a critically articulated synthesis, not the pretence that they
+already agree. The tensions are kept in the open rather than averaged away.
+
+**The boundary to LaclauGPT is a rule, not a courtesy.** LaclauGPT supplies empirically grounded tools —
+discourse analysis, discourse network analysis, social network analysis — and can be *used inside* PCM.
+PCM's speculative premises may never be silently transferred into LaclauGPT's operational definitions,
+coding decisions or locked Phase 1 methodology.
+
+**The ontology underneath it.** PCM's ontology is deliberately open: a Spinoza-inspired dual-aspect
+orientation, Faggin's Quantum Information Panpsychism as the *preferred hypothesis* rather than a
+doctrine, and panpsychism, idealism and physicalism kept as live positions to compare. Cybersemiotics
+is the hinge — Peirce's triadic semiosis and Luhmann's split between social communication and psychic
+systems, bridged by Brier — because it lets meaning, systems and experience be discussed in one
+vocabulary without collapsing one into another. Wendt supplies the social-scientific lever for keeping
+the question open, not a proof that consciousness is quantum.
+
+The cyborg side is stated as a model rather than a metaphor:
+
+> **CYBORG = HUMAN + LLM + LANGUAGE + INTERNET**
+
+Testable, with defined agency boundaries and failure modes — and explicitly not a claim that any
+current model is conscious or an autonomous political subject. Responsibility does not diffuse into the
+assemblage; the human remains accountable.
+
+- [docs/MEGATHEORY.md](docs/MEGATHEORY.md) — the six thinkers, the conceptual map, and the
+  empirical / interpretive / speculative taxonomy with admission criteria
+- [docs/MEGATHEORY_TENSIONS.md](docs/MEGATHEORY_TENSIONS.md) — the compatibility and tensions matrix,
+  and what PCM gives up at each seam
+- [docs/MEGATHEORY_READING_PATH.md](docs/MEGATHEORY_READING_PATH.md) — the annotated route through the
+  primary sources
+
 ## Documents
 
 **New here? Start with the [docs/USER_GUIDE.md](docs/USER_GUIDE.md)** for using the software, the [manifesto](docs/PANPSYCHIC_CYBORG_MULTITUDE.md) for the project philosophy, or the **[research index](docs/research/README.md)** for the full research-note layer grouped by topic.
@@ -341,6 +417,7 @@ Core documents:
 - [docs/MEGATHEORY.md](docs/MEGATHEORY.md) — **PCM megatheory**: the six principal thinkers, the conceptual map, the empirical/interpretive/speculative taxonomy, and the LaclauGPT boundary
 - [docs/MEGATHEORY_TENSIONS.md](docs/MEGATHEORY_TENSIONS.md) — **compatibility and tensions matrix**: where Laclau, Negri, Žižek, Brier, Wendt and Haraway disagree, and what PCM gives up for each seam
 - [docs/MEGATHEORY_READING_PATH.md](docs/MEGATHEORY_READING_PATH.md) — **annotated reading path** for the megatheory's primary sources
+- [docs/ONTOLOGY.md](docs/ONTOLOGY.md) — **ontology statement**: exploratory pluralism, cybersemiotics as the hinge (Peirce–Luhmann–Brier), Wendt's paradigm-shift argument with its objections, and `CYBORG = HUMAN + LLM + LANGUAGE + INTERNET` as an operational model
 - [docs/research/LACLAUGPT_AI_IDEOLOGIES_AND_PCM.md](docs/research/LACLAUGPT_AI_IDEOLOGIES_AND_PCM.md) — **research/integration note** and canonical PCM bridge to LaclauGPT discourse theory
 - [docs/research/CONSCIOUS_HUMAN_AI_ASSEMBLAGES.md](docs/research/CONSCIOUS_HUMAN_AI_ASSEMBLAGES.md) — **research paper** on extended cognition and the open hypothesis of assemblage consciousness
 - [docs/research/SOURCES.md](docs/research/SOURCES.md) — **canonical bibliography**, including the LLM-consciousness reading backlog formerly kept in a separate list
